@@ -370,8 +370,8 @@ function handleTap(px,py){
   updateHUD();
 }
 
-C.addEventListener('click',function(e){if(!running||gameOver)return; handleTap(e.clientX,e.clientY);});
-C.addEventListener('touchstart',function(e){if(!running||gameOver)return; e.preventDefault(); var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);},{passive:false});
+C.addEventListener('click',function(e){ handleTap(e.clientX,e.clientY);});
+C.addEventListener('touchstart',function(e){ e.preventDefault(); var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);},{passive:false});
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
