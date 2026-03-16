@@ -861,10 +861,17 @@ function updateSpawning(){
 }
 
 // ─── GAME LOOP ────────────────────────────────────
+var loopCount=0;
 function gameLoop(){
   if(!running) return;
+  loopCount++;
+
   X.clearRect(0,0,C.width,C.height);
-  drawOverlay();
+
+  // Solid background so game is always visible
+  X.fillStyle='rgba(0,20,40,0.85)';
+  X.fillRect(0,0,C.width,C.height);
+
   drawPath();
   drawDecorations();
 
