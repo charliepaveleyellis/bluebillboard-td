@@ -907,8 +907,14 @@ function endGame(){
   document.getElementById('endScreen').classList.remove('hidden');
 }
 
-document.getElementById('startBtn').addEventListener('click',function(e){e.preventDefault();startGame();});
-document.getElementById('restartBtn').addEventListener('click',function(e){e.preventDefault();startGame();});
+function bindBtn(id,fn){
+  var el=document.getElementById(id);
+  el.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();fn();},{passive:false});
+  el.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:false});
+  el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});
+}
+bindBtn('startBtn',startGame);
+bindBtn('restartBtn',startGame);
 </script>
 </body>
 </html>
