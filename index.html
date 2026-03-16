@@ -131,8 +131,12 @@
 
 <script>
 // ─── AUDIO (Web Audio API) ────────────────────────
-var audioCtx;
-try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
+var audioCtx=null;
+
+function initAudio(){
+  if(audioCtx) return;
+  try { audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } catch(e){ audioCtx=null; }
+}
 
 function playSound(freq, type, dur, vol){
   if(!audioCtx) return;
@@ -876,19 +880,26 @@ function gameLoop(){
 C.style.pointerEvents='none';
 
 function startGame(){
-  coins=100;lives=10;score=0;wave=0;totalKills=0;
-  towers=[];enemies=[];bullets=[];particles=[];
-  spawnQueue=[];waveActive=false;waveCooldown=60;
-  gameOver=false;selectedTower='basic';frameCount=0;
-  closeUpgrade();buildDecorations();
+  try {
+    initAudio();
+    if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
 
-  document.getElementById('startScreen').classList.add('hidden');
-  document.getElementById('endScreen').classList.add('hidden');
-  hud.classList.remove('hidden');towerBar.classList.remove('hidden');
-  C.style.pointerEvents='auto';running=true;
-  // Resume audio context on user gesture
-  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
-  updateHUD();requestAnimationFrame(gameLoop);
+    coins=100;lives=10;score=0;wave=0;totalKills=0;
+    towers=[];enemies=[];bullets=[];particles=[];
+    spawnQueue=[];waveActive=false;waveCooldown=60;
+    gameOver=false;selectedTower='basic';frameCount=0;
+    closeUpgrade();
+    resize();
+    buildDecorations();
+
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('endScreen').classList.add('hidden');
+    hud.classList.remove('hidden');towerBar.classList.remove('hidden');
+    C.style.pointerEvents='auto';running=true;
+    updateHUD();requestAnimationFrame(gameLoop);
+  } catch(err) {
+    alert('Error: '+err.message);
+  }
 }
 
 function endGame(){
