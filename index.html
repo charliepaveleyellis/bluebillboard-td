@@ -175,8 +175,8 @@ function sfxUpgrade(){ playSound(600,'sine',0.1,0.08); setTimeout(function(){pla
 // ─── CANVAS ───────────────────────────────────────
 var C=document.getElementById('game');
 var X=C.getContext('2d');
-function resize(){ C.width=window.innerWidth; C.height=window.innerHeight; buildDecorations(); }
-window.addEventListener('resize',resize); resize();
+function resize(){ C.width=window.innerWidth; C.height=window.innerHeight; if(typeof PATH_REL!=='undefined') buildDecorations(); }
+window.addEventListener('resize',resize); C.width=window.innerWidth; C.height=window.innerHeight;
 
 // ─── COLOURS ──────────────────────────────────────
 var COL={navy:'#003d7a',blue:'#297ff0',light:'#2ea3f2',red:'#ff5a4d',gold:'#ffc107',white:'#fff',dark:'#001a33',green:'#2ecc40'};
@@ -308,7 +308,7 @@ function showUpgrade(tIdx){
   upgradePopup.style.display='block';
 }
 
-function closeUpgrade(){ upgradePopup.style.display='none'; selectedTowerIdx=-1; }
+function closeUpgrade(){ if(upgradePopup) upgradePopup.style.display='none'; selectedTowerIdx=-1; }
 
 upBtn.addEventListener('click',function(e){
   e.stopPropagation();
