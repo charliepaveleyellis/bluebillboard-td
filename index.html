@@ -29,11 +29,12 @@
   .hud-val { font-size:20px; margin-top:2px; }
 
   #towerBar { position:fixed; bottom:0; left:0; right:0; z-index:2;
-    display:flex; justify-content:center; gap:8px;
-    padding:10px 8px 18px; background:linear-gradient(to top,rgba(0,0,0,0.85),transparent); }
+    display:flex; justify-content:center; gap:4px;
+    padding:8px 4px 16px; background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+    overflow-x:auto; }
   #towerBar.hidden { display:none; }
   .tower-btn {
-    width:68px; padding:6px 4px; border-radius:12px;
+    min-width:48px; width:48px; padding:5px 2px; border-radius:10px;
     border:2px solid rgba(255,255,255,0.2); background:rgba(0,30,60,0.8);
     color:#fff; text-align:center; cursor:pointer; transition:all 0.2s;
   }
@@ -98,8 +99,11 @@
 <div id="towerBar" class="hidden">
   <div class="tower-btn" data-type="basic"><div class="t-icon">|</div><div class="t-name">Blaster</div><div class="t-cost">50</div></div>
   <div class="tower-btn" data-type="slow"><div class="t-icon">*</div><div class="t-name">Freeze</div><div class="t-cost">75</div></div>
-  <div class="tower-btn" data-type="splash"><div class="t-icon">#</div><div class="t-name">Cannon</div><div class="t-cost">120</div></div>
+  <div class="tower-btn" data-type="rapid"><div class="t-icon">!</div><div class="t-name">Minigun</div><div class="t-cost">80</div></div>
+  <div class="tower-btn" data-type="poison"><div class="t-icon">~</div><div class="t-name">Poison</div><div class="t-cost">90</div></div>
   <div class="tower-btn" data-type="sniper"><div class="t-icon">+</div><div class="t-name">Sniper</div><div class="t-cost">100</div></div>
+  <div class="tower-btn" data-type="splash"><div class="t-icon">#</div><div class="t-name">Cannon</div><div class="t-cost">120</div></div>
+  <div class="tower-btn" data-type="chain"><div class="t-icon">Z</div><div class="t-name">Tesla</div><div class="t-cost">150</div></div>
 </div>
 
 <!-- Upgrade popup -->
@@ -239,7 +243,10 @@ var TOWER_DEFS={
   basic: {cost:50,range:80,rate:25,dmg:1,color:COL.blue,name:'Blaster',splash:0,upgCost:40},
   slow:  {cost:75,range:70,rate:40,dmg:0.5,color:'#00ccff',name:'Freeze',splash:0,slow:0.5,upgCost:50},
   splash:{cost:120,range:90,rate:55,dmg:2,color:COL.red,name:'Cannon',splash:40,upgCost:75},
-  sniper:{cost:100,range:150,rate:70,dmg:4,color:COL.gold,name:'Sniper',splash:0,upgCost:65}
+  sniper:{cost:100,range:150,rate:70,dmg:4,color:COL.gold,name:'Sniper',splash:0,upgCost:65},
+  poison:{cost:90,range:75,rate:35,dmg:0.3,color:'#44cc44',name:'Poison',splash:0,poison:3,upgCost:55},
+  chain: {cost:150,range:85,rate:50,dmg:1.5,color:'#aa66ff',name:'Tesla',splash:0,chain:3,upgCost:80},
+  rapid: {cost:80,range:65,rate:8,dmg:0.3,color:'#ff66aa',name:'Minigun',splash:0,upgCost:45}
 };
 
 var ENEMY_DEFS={
@@ -248,6 +255,9 @@ var ENEMY_DEFS={
   tank:  {hp:10,speed:0.0007,size:14,color:'#aa0000',reward:25,name:'Tank'},
   healer:{hp:5,speed:0.001,size:11,color:'#00cc66',reward:20,name:'Healer',healRate:0.02},
   dodge: {hp:4,speed:0.0015,size:9,color:'#cc00cc',reward:18,name:'Dodger',dodgeChance:0.3},
+  shield:{hp:6,speed:0.001,size:12,color:'#4488ff',reward:22,name:'Shielder',shield:4},
+  swarm: {hp:1,speed:0.0025,size:6,color:'#ffaa00',reward:5,name:'Swarm'},
+  regen: {hp:8,speed:0.0009,size:12,color:'#33ddaa',reward:20,name:'Regen',regenRate:0.03},
   boss:  {hp:30,speed:0.0005,size:18,color:'#880088',reward:80,name:'Boss'}
 };
 
@@ -386,6 +396,7 @@ function handleTap(px,py){
     x:px,y:py,type:selectedTower,level:0,
     range:def.range,rate:def.rate,dmg:def.dmg,
     color:def.color,splash:def.splash||0,slow:def.slow||0,
+    poison:def.poison||0,chain:def.chain||0,
     cooldown:0,angle:0,fireAnim:0
   });
   sfxPlace();
@@ -405,8 +416,11 @@ function generateWave(w){
   for(var i=0;i<count;i++){
     var r=Math.random(),type='basic';
     if(w>=2&&r<0.25) type='fast';
+    if(w>=2&&r>=0.25&&r<0.32) type='swarm';
     if(w>=3&&r<0.12) type='healer';
+    if(w>=3&&r>=0.12&&r<0.18) type='regen';
     if(w>=4&&r<0.15) type='tank';
+    if(w>=4&&r>=0.15&&r<0.2) type='shield';
     if(w>=5&&r<0.1) type='dodge';
     if(w>=6&&w%3===0&&i===count-1) type='boss';
     q.push(type);
@@ -431,8 +445,10 @@ function spawnEnemy(type){
   enemies.push({
     t:0,type:type,hp:def.hp*hpScale,maxHp:def.hp*hpScale,
     speed:def.speed,baseSpeed:def.speed,size:def.size,color:def.color,
-    reward:def.reward,slowTimer:0,x:0,y:0,
+    reward:def.reward,slowTimer:0,poisonTimer:0,x:0,y:0,
     healRate:def.healRate||0,dodgeChance:def.dodgeChance||0,
+    regenRate:def.regenRate||0,
+    shieldHp:def.shield?def.shield*hpScale:0,maxShield:def.shield?def.shield*hpScale:0,
     wobble:Math.random()*Math.PI*2
   });
 }
@@ -699,6 +715,21 @@ function drawEnemies(){
       X.strokeRect(e.x-bw/2,e.y-e.size-10,bw,5);
     }
 
+    // Shield bubble
+    if(e.shieldHp&&e.shieldHp>0){
+      X.strokeStyle='rgba(68,136,255,0.5)';X.lineWidth=2;
+      X.beginPath();X.arc(e.x,e.y,e.size+5,0,Math.PI*2);X.stroke();
+    }
+
+    // Regen sparkle
+    if(e.regenRate>0){
+      var rsp=Math.sin(e.wobble*1.5)*0.4+0.4;
+      X.fillStyle='rgba(51,221,170,'+rsp+')';
+      X.beginPath();X.arc(e.x-e.size*0.7,e.y-e.size*0.6,2.5,0,Math.PI*2);X.fill();
+    }
+
+    // Swarm — smaller, no extra decoration
+
     // Boss crown
     if(e.type==='boss'){
       X.fillStyle=COL.gold;
@@ -782,7 +813,8 @@ function updateTowers(){
       bullets.push({
         x:t.x,y:t.y,vx:fdx/fdist*spd,vy:fdy/fdist*spd,
         dmg:t.dmg,splash:t.splash,slow:t.slow,
-        color:t.color,size:t.splash?5:3,life:60
+        poison:t.poison||0,chain:t.chain||0,
+        color:t.color,size:t.splash?5:(t.chain?4:3),life:60
       });
       sfxShoot();
     }
@@ -806,9 +838,35 @@ function updateBullets(){
           bullets.splice(i,1);
           break;
         }
-        e.hp-=b.dmg;
+        // Shield absorbs damage
+        var dmg=b.dmg;
+        if(e.shieldHp&&e.shieldHp>0){
+          var absorbed=Math.min(e.shieldHp,dmg);
+          e.shieldHp-=absorbed;
+          dmg-=absorbed;
+          particles.push({x:e.x,y:e.y-e.size,vx:0,vy:-2,life:12,size:3,color:'#4488ff'});
+        }
+        e.hp-=dmg;
         sfxHit();
         if(b.slow) e.slowTimer=90;
+        // Poison — damage over time
+        if(b.poison) e.poisonTimer=Math.max(e.poisonTimer||0,b.poison*30);
+        // Chain lightning — jump to nearby enemies
+        if(b.chain&&b.chain>0){
+          var chainTargets=[];
+          for(var k=0;k<enemies.length;k++){
+            if(k===j) continue;
+            var cdx=e.x-enemies[k].x,cdy=e.y-enemies[k].y;
+            if(Math.sqrt(cdx*cdx+cdy*cdy)<70) chainTargets.push(k);
+          }
+          for(var k=0;k<Math.min(b.chain,chainTargets.length);k++){
+            enemies[chainTargets[k]].hp-=b.dmg*0.6;
+            // Lightning visual
+            particles.push({x:enemies[chainTargets[k]].x,y:enemies[chainTargets[k]].y,
+              vx:(Math.random()-0.5)*2,vy:-2,life:10,size:3,color:'#aa66ff'});
+          }
+          snd(1500,'square',0.05,0.04);
+        }
         if(b.splash>0){
           for(var k=0;k<enemies.length;k++){
             if(k===j) continue;
@@ -837,6 +895,16 @@ function updateEnemies(){
 
     if(e.slowTimer>0){e.speed=e.baseSpeed*0.4;e.slowTimer--;}
     else e.speed=e.baseSpeed;
+
+    // Poison damage over time
+    if(e.poisonTimer>0){
+      e.poisonTimer--;
+      e.hp-=0.02;
+      if(frameCount%8===0) particles.push({x:e.x+Math.random()*6-3,y:e.y-e.size,vx:0,vy:-1,life:10,size:2,color:'#44cc44'});
+    }
+
+    // Regen
+    if(e.regenRate>0&&e.hp<e.maxHp) e.hp=Math.min(e.maxHp,e.hp+e.regenRate);
 
     e.t+=e.speed;
 
