@@ -380,7 +380,7 @@ C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; var t
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
-  var q=[],count=5+w*2;
+  var q=[],count=3+w;
   for(var i=0;i<count;i++){
     var r=Math.random(),type='basic';
     if(w>=2&&r<0.25) type='fast';
