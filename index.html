@@ -94,6 +94,7 @@
   <div class="hud-item"><div class="hud-label">Coins</div><div class="hud-val" id="coinsDisp" style="color:#ffc107;">100</div></div>
   <div class="hud-item"><div class="hud-label">Lives</div><div class="hud-val" id="livesDisp" style="color:#ff5a4d;">10</div></div>
   <div class="hud-item"><div class="hud-label">Score</div><div class="hud-val" id="scoreDisp">0</div></div>
+  <div class="hud-item" id="ffBtn" style="cursor:pointer;"><div class="hud-label">Speed</div><div class="hud-val" id="ffDisp" style="color:#2ea3f2;">1x</div></div>
 </div>
 
 <div id="towerBar" class="hidden">
@@ -268,8 +269,9 @@ var towers=[],enemies=[],bullets=[],particles=[];
 var selectedTower='basic';
 var waveActive=false,spawnQueue=[],spawnTimer=0,waveCooldown=0;
 var totalKills=0;
-var selectedTowerIdx=-1; // for upgrade popup
+var selectedTowerIdx=-1;
 var frameCount=0;
+var gameSpeed=1; // 1x, 2x, 3x
 
 // ─── ELEMENTS ─────────────────────────────────────
 var hud=document.getElementById('hud');
@@ -412,17 +414,49 @@ C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; var t
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
-  var q=[],count=3+w;
+  // Easy start, hard later: 2 enemies wave 1, ramps up fast after wave 5
+  var count;
+  if(w<=3) count=2+w;           // 3, 4, 5
+  else if(w<=6) count=4+w;       // 8, 9, 10
+  else if(w<=10) count=5+w*2;    // 19, 21, 23, 25
+  else count=10+w*2;             // 32+
+
+  var q=[];
   for(var i=0;i<count;i++){
     var r=Math.random(),type='basic';
-    if(w>=2&&r<0.25) type='fast';
-    if(w>=2&&r>=0.25&&r<0.32) type='swarm';
-    if(w>=3&&r<0.12) type='healer';
-    if(w>=3&&r>=0.12&&r<0.18) type='regen';
-    if(w>=4&&r<0.15) type='tank';
-    if(w>=4&&r>=0.15&&r<0.2) type='shield';
-    if(w>=5&&r<0.1) type='dodge';
-    if(w>=6&&w%3===0&&i===count-1) type='boss';
+
+    if(w<=2){
+      // Easy: only basic and occasional fast
+      if(r<0.15) type='fast';
+    } else if(w<=5){
+      // Medium: add swarm, healer
+      if(r<0.2) type='fast';
+      else if(r<0.3) type='swarm';
+      else if(r<0.38) type='healer';
+    } else if(w<=8){
+      // Hard: add tank, shield, regen
+      if(r<0.15) type='fast';
+      else if(r<0.25) type='swarm';
+      else if(r<0.32) type='healer';
+      else if(r<0.4) type='regen';
+      else if(r<0.5) type='tank';
+      else if(r<0.57) type='shield';
+    } else {
+      // Very hard: everything, more tough enemies
+      if(r<0.1) type='fast';
+      else if(r<0.2) type='swarm';
+      else if(r<0.27) type='healer';
+      else if(r<0.35) type='regen';
+      else if(r<0.48) type='tank';
+      else if(r<0.58) type='shield';
+      else if(r<0.65) type='dodge';
+    }
+
+    // Boss every 3 waves from wave 5
+    if(w>=5&&w%3===0&&i===count-1) type='boss';
+    // Double boss from wave 12
+    if(w>=12&&w%3===0&&i===count-2) type='boss';
+
     q.push(type);
   }
   return q;
@@ -958,13 +992,16 @@ function updateSpawning(){
 
 // ─── GAME LOOP ────────────────────────────────────
 var loopCount=0;
+function gameTick(){
+  updateSpawning();updateTowers();updateBullets();updateEnemies();
+}
+
 function gameLoop(){
   if(!running) return;
   loopCount++;
 
   X.clearRect(0,0,C.width,C.height);
 
-  // Solid background so game is always visible
   X.fillStyle='rgba(0,20,40,0.85)';
   X.fillRect(0,0,C.width,C.height);
 
@@ -972,7 +1009,8 @@ function gameLoop(){
   drawDecorations();
 
   if(!gameOver){
-    updateSpawning();updateTowers();updateBullets();updateEnemies();
+    // Run multiple ticks for fast forward
+    for(var s=0;s<gameSpeed;s++) gameTick();
   }
 
   drawTowers();drawEnemies();drawBullets();drawParticles();
@@ -989,7 +1027,7 @@ function startGame(){
   coins=100;lives=10;score=0;wave=0;totalKills=0;
   towers=[];enemies=[];bullets=[];particles=[];
   spawnQueue=[];waveActive=false;waveCooldown=60;
-  gameOver=false;selectedTower='basic';frameCount=0;
+  gameOver=false;selectedTower='basic';frameCount=0;gameSpeed=1;
   closeUpgrade();
   resize();
   buildDecorations();
@@ -1022,6 +1060,19 @@ document.getElementById('startBtn').ontouchend=function(){startGame();};
 document.getElementById('startBtn').onclick=function(){startGame();};
 document.getElementById('restartBtn').ontouchend=function(){startGame();};
 document.getElementById('restartBtn').onclick=function(){startGame();};
+
+// Fast forward button — cycles 1x → 2x → 3x
+var ffBtn=document.getElementById('ffBtn');
+var ffDisp=document.getElementById('ffDisp');
+function toggleSpeed(e){
+  if(e) e.stopPropagation();
+  if(gameSpeed===1) gameSpeed=2;
+  else if(gameSpeed===2) gameSpeed=3;
+  else gameSpeed=1;
+  ffDisp.textContent=gameSpeed+'x';
+}
+ffBtn.onclick=toggleSpeed;
+ffBtn.ontouchend=function(e){e.preventDefault();e.stopPropagation();toggleSpeed();};
 
 </script>
 </body>
