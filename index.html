@@ -746,14 +746,20 @@ function updateTowers(){
     }
 
     if(target){
-      t.angle=Math.atan2(target.y-t.y,target.x-t.x)+Math.PI/2;
       t.cooldown=t.rate;
       t.fireAnim=5;
+      // Lead targeting — aim where the enemy will be
+      var spd=10;
       var dx=target.x-t.x,dy=target.y-t.y;
       var dist=Math.sqrt(dx*dx+dy*dy);
-      var spd=6;
+      var timeToHit=dist/spd;
+      // Predict future position
+      var futurePos=posOnPath(Math.min(1,target.t+target.speed*timeToHit*0.5));
+      var fdx=futurePos.x-t.x,fdy=futurePos.y-t.y;
+      var fdist=Math.sqrt(fdx*fdx+fdy*fdy);
+      t.angle=Math.atan2(fdy,fdx)+Math.PI/2;
       bullets.push({
-        x:t.x,y:t.y,vx:dx/dist*spd,vy:dy/dist*spd,
+        x:t.x,y:t.y,vx:fdx/fdist*spd,vy:fdy/fdist*spd,
         dmg:t.dmg,splash:t.splash,slow:t.slow,
         color:t.color,size:t.splash?5:3,life:60
       });
@@ -771,7 +777,7 @@ function updateBullets(){
     for(var j=0;j<enemies.length;j++){
       var e=enemies[j];
       var dx=b.x-e.x,dy=b.y-e.y;
-      if(Math.sqrt(dx*dx+dy*dy)<e.size+5){
+      if(Math.sqrt(dx*dx+dy*dy)<e.size+10){
         // Dodge check
         if(e.dodgeChance>0&&Math.random()<e.dodgeChance){
           // Dodge! Enemy shifts sideways
