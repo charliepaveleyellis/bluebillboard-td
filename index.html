@@ -116,7 +116,7 @@
   <img src="logo.png" alt="Blue Billboard" class="logo-img">
   <h1>Tower Defence</h1>
   <h2>Enemies are attacking your billboard!<br>Tap to place towers. Tap a tower to upgrade it.<br>4 tower types. Survive the waves!</h2>
-  <button class="btn" onclick="startGame()">Defend!</button>
+  <button class="btn" id="startBtn">Defend!</button>
 </div>
 
 <div class="overlay hidden" id="endScreen">
@@ -125,7 +125,7 @@
   <div class="final-label">Waves Survived</div>
   <div class="final-score" id="finalScore">0</div>
   <div class="stats" id="statsDisp"></div>
-  <button class="btn" onclick="startGame()">Play Again</button>
+  <button class="btn" id="restartBtn">Play Again</button>
 </div>
 
 <div class="powered-by">Powered by Blue Billboard</div>
@@ -921,6 +921,12 @@ function endGame(){
 
   document.getElementById('endScreen').classList.remove('hidden');
 }
+
+// ─── BUTTON BINDING (after everything is defined) ──
+document.getElementById('startBtn').ontouchend=function(){startGame();};
+document.getElementById('startBtn').onclick=function(){startGame();};
+document.getElementById('restartBtn').ontouchend=function(){startGame();};
+document.getElementById('restartBtn').onclick=function(){startGame();};
 
 </script>
 </body>
