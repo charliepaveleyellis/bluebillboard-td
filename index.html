@@ -108,6 +108,7 @@
   <div class="up-title" id="upTitle">Blaster</div>
   <div class="up-level" id="upLevel">Level 1</div>
   <div class="up-btn" id="upBtn">Upgrade (40)</div>
+  <div class="up-btn" id="sellBtn" style="background:#ff5a4d;margin-top:4px;">Sell (25)</div>
 </div>
 
 <div id="waveBanner"></div>
@@ -295,13 +296,15 @@ function updateTowerBar(){
 function showUpgrade(tIdx){
   var t=towers[tIdx];
   var def=TOWER_DEFS[t.type];
-  var cost=Math.floor(def.upgCost*(1+t.level*0.5));
+  var upgCost=Math.floor(def.upgCost*(1+t.level*0.5));
+  var sellPrice=Math.floor(def.cost*0.5);
   selectedTowerIdx=tIdx;
 
-  upTitle.textContent=def.name;
+  upTitle.textContent=def.name+' Lv'+(t.level+1);
   upLevel.textContent='Level '+(t.level+1)+' → '+(t.level+2);
-  upBtn.textContent='Upgrade ('+cost+')';
-  upBtn.classList.toggle('disabled',coins<cost);
+  upBtn.textContent='Upgrade ('+upgCost+')';
+  upBtn.classList.toggle('disabled',coins<upgCost);
+  document.getElementById('sellBtn').textContent='Sell (+'+sellPrice+')';
 
   upgradePopup.style.left=Math.min(t.x,C.width-140)+'px';
   upgradePopup.style.top=Math.max(60,t.y-80)+'px';
@@ -334,6 +337,24 @@ upBtn.addEventListener('click',function(e){
 upBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
 upClose.addEventListener('click',function(e){e.stopPropagation(); closeUpgrade();});
 upClose.addEventListener('touchstart',function(e){e.stopPropagation();});
+
+var sellBtn=document.getElementById('sellBtn');
+sellBtn.addEventListener('click',function(e){
+  e.stopPropagation();
+  if(selectedTowerIdx<0) return;
+  var t=towers[selectedTowerIdx];
+  var def=TOWER_DEFS[t.type];
+  var sellPrice=Math.floor(def.cost*0.5);
+  coins+=sellPrice;
+  // Remove particles
+  for(var i=0;i<8;i++){
+    var a=(i/8)*Math.PI*2;
+    particles.push({x:t.x,y:t.y,vx:Math.cos(a)*3,vy:Math.sin(a)*3,life:15,size:3,color:COL.red});
+  }
+  towers.splice(selectedTowerIdx,1);
+  updateHUD(); closeUpgrade();
+});
+sellBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
 
 // ─── PLACE TOWER / TAP ───────────────────────────
 function handleTap(px,py){
