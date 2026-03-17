@@ -17,7 +17,7 @@
   .fallback-bg { position:fixed; top:0; left:0; right:0; bottom:0; z-index:0;
     background:linear-gradient(135deg,#001a33 0%,#003d7a 50%,#001a33 100%); }
   .fallback-bg.hidden { display:none; }
-  canvas { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; }
+  canvas { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; touch-action:none; }
 
   #hud { position:fixed; top:0; left:0; right:0; z-index:2;
     display:flex; justify-content:space-between; align-items:center;
@@ -74,7 +74,8 @@
   .overlay .stats { font-size:13px; color:#2ea3f2; margin-top:6px; }
   .btn { display:inline-block; padding:14px 44px; font-size:16px; font-weight:700;
     text-transform:uppercase; letter-spacing:2px; color:#fff; background:#003d7a;
-    border:none; border-radius:50px; cursor:pointer; margin-top:24px; transition:background 0.2s; }
+    border:none; border-radius:50px; cursor:pointer; margin-top:24px; transition:background 0.2s;
+    position:relative; z-index:20; -webkit-tap-highlight-color:rgba(41,127,240,0.3); }
   .btn:active { background:#297ff0; }
   .powered-by { position:fixed; bottom:2px; left:0; right:0; text-align:center;
     font-size:10px; color:rgba(255,255,255,0.15); letter-spacing:1px;
@@ -375,7 +376,7 @@ function handleTap(px,py){
 }
 
 C.addEventListener('click',function(e){ if(!running||gameOver)return; handleTap(e.clientX,e.clientY);});
-C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; e.preventDefault(); var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);},{passive:false});
+C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);});
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
