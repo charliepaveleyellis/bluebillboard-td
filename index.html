@@ -115,7 +115,7 @@
   <img src="logo.png" alt="Blue Billboard" class="logo-img">
   <h1>Tower Defence</h1>
   <h2>Enemies are attacking your billboard!<br>Tap to place towers. Tap a tower to upgrade it.<br>4 tower types. Survive the waves!</h2>
-  <button class="btn" id="startBtn">Defend!</button>
+  <button class="btn" onclick="startGame()">Defend!</button>
 </div>
 
 <div class="overlay hidden" id="endScreen">
@@ -124,7 +124,7 @@
   <div class="final-label">Waves Survived</div>
   <div class="final-score" id="finalScore">0</div>
   <div class="stats" id="statsDisp"></div>
-  <button class="btn" id="restartBtn">Play Again</button>
+  <button class="btn" onclick="startGame()">Play Again</button>
 </div>
 
 <div class="powered-by">Powered by Blue Billboard</div>
@@ -374,8 +374,8 @@ function handleTap(px,py){
   updateHUD();
 }
 
-C.addEventListener('click',function(e){ handleTap(e.clientX,e.clientY);});
-C.addEventListener('touchstart',function(e){ e.preventDefault(); var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);},{passive:false});
+C.addEventListener('click',function(e){ if(!running||gameOver)return; handleTap(e.clientX,e.clientY);});
+C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; e.preventDefault(); var t=e.changedTouches[0]; handleTap(t.clientX,t.clientY);},{passive:false});
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
@@ -887,26 +887,22 @@ function gameLoop(){
 C.style.pointerEvents='none';
 
 function startGame(){
-  try {
-    initAudio();
-    if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
+  initAudio();
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
 
-    coins=100;lives=10;score=0;wave=0;totalKills=0;
-    towers=[];enemies=[];bullets=[];particles=[];
-    spawnQueue=[];waveActive=false;waveCooldown=60;
-    gameOver=false;selectedTower='basic';frameCount=0;
-    closeUpgrade();
-    resize();
-    buildDecorations();
+  coins=100;lives=10;score=0;wave=0;totalKills=0;
+  towers=[];enemies=[];bullets=[];particles=[];
+  spawnQueue=[];waveActive=false;waveCooldown=60;
+  gameOver=false;selectedTower='basic';frameCount=0;
+  closeUpgrade();
+  resize();
+  buildDecorations();
 
-    document.getElementById('startScreen').classList.add('hidden');
-    document.getElementById('endScreen').classList.add('hidden');
-    hud.classList.remove('hidden');towerBar.classList.remove('hidden');
-    C.style.pointerEvents='auto';running=true;
-    updateHUD();requestAnimationFrame(gameLoop);
-  } catch(err) {
-    alert('Error: '+err.message);
-  }
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.add('hidden');
+  hud.classList.remove('hidden');towerBar.classList.remove('hidden');
+  C.style.pointerEvents='auto';running=true;
+  updateHUD();requestAnimationFrame(gameLoop);
 }
 
 function endGame(){
@@ -925,14 +921,6 @@ function endGame(){
   document.getElementById('endScreen').classList.remove('hidden');
 }
 
-function bindBtn(id,fn){
-  var el=document.getElementById(id);
-  el.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();fn();},{passive:false});
-  el.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:false});
-  el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn();});
-}
-bindBtn('startBtn',startGame);
-bindBtn('restartBtn',startGame);
 </script>
 </body>
 </html>
