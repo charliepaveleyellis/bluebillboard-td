@@ -53,17 +53,6 @@
     background:rgba(10,10,26,0.85); opacity:0; transition:opacity 0.4s; }
   #waveBanner.show { opacity:1; }
 
-  /* Place confirm popup */
-  #placePopup { position:fixed; z-index:5; background:rgba(0,10,30,0.95);
-    border:2px solid #00ff66; border-radius:12px; padding:12px 16px;
-    color:#fff; text-align:center; display:none; min-width:120px;
-    box-shadow:0 0 20px rgba(0,255,102,0.3); }
-  #placePopup .up-title { font-size:12px; color:#2ea3f2; font-weight:700; text-transform:uppercase; }
-  #placePopup .up-level { font-size:10px; color:#d9d9d9; margin:4px 0; }
-  #placePopup .up-btn { display:inline-block; margin-top:6px; padding:6px 16px; font-size:11px;
-    font-weight:700; color:#fff; background:#003d7a; border:none; border-radius:20px; cursor:pointer; }
-  #placePopup .up-btn:active { background:#2ea3f2; }
-
   /* Upgrade popup */
   #upgradePopup { position:fixed; z-index:5; background:rgba(0,10,30,0.95);
     border:2px solid #2ea3f2; border-radius:12px; padding:12px 16px;
@@ -123,14 +112,6 @@
   <div class="tower-btn" data-type="sniper"><div class="t-icon">+</div><div class="t-name">Sniper</div><div class="t-cost">100</div></div>
   <div class="tower-btn" data-type="splash"><div class="t-icon">#</div><div class="t-name">Cannon</div><div class="t-cost">120</div></div>
   <div class="tower-btn" data-type="chain"><div class="t-icon">Z</div><div class="t-name">Tesla</div><div class="t-cost">150</div></div>
-</div>
-
-<!-- Place confirm popup -->
-<div id="placePopup">
-  <div class="up-title" id="placeName">Blaster</div>
-  <div class="up-level" id="placeCost">Cost: 40</div>
-  <div class="up-btn" id="placeConfirm">Confirm</div>
-  <div class="up-btn" id="placeCancel" style="background:#ff3355;margin-top:4px;">Cancel</div>
 </div>
 
 <!-- Upgrade popup -->
@@ -350,19 +331,13 @@ var upLevel=document.getElementById('upLevel');
 var upBtn=document.getElementById('upBtn');
 var upClose=document.getElementById('upClose');
 
-// ─── TOWER BAR ────────────────────────────────────
+// ─── TOWER BAR (drag to place) ───────────────────
 var towerBtns=document.querySelectorAll('.tower-btn');
-for(var i=0;i<towerBtns.length;i++){
-  (function(btn){
-    btn.addEventListener('click',function(e){e.stopPropagation(); selectedTower=btn.dataset.type; updateTowerBar(); closeUpgrade();});
-    btn.addEventListener('touchstart',function(e){e.stopPropagation();});
-  })(towerBtns[i]);
-}
 
 function updateTowerBar(){
   for(var i=0;i<towerBtns.length;i++){
     var btn=towerBtns[i],type=btn.dataset.type,def=TOWER_DEFS[type];
-    btn.classList.toggle('selected',type===selectedTower);
+    btn.classList.toggle('selected',false);
     btn.classList.toggle('disabled',coins<def.cost);
   }
 }
@@ -437,98 +412,122 @@ sellBtn.addEventListener('click',function(e){
 });
 sellBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
 
-// ─── PLACE TOWER / TAP ───────────────────────────
-var pendingPlace=null; // {x, y, type} — ghost tower awaiting confirm
+// ─── DRAG & DROP TOWER PLACEMENT ─────────────────
+var dragging=null; // {type, x, y, valid} — tower being dragged
 
-var placePopup=document.getElementById('placePopup');
-var placeConfirmBtn=document.getElementById('placeConfirm');
-var placeCancelBtn=document.getElementById('placeCancel');
-
-var placeReady=false; // blocks confirm until popup has been visible
-
-function showPlaceConfirm(px,py,type){
-  var def=TOWER_DEFS[type];
-  pendingPlace={x:px,y:py,type:type};
-  placeReady=false;
-  document.getElementById('placeName').textContent=def.name;
-  document.getElementById('placeCost').textContent='Cost: '+def.cost;
-  // Position popup well above tap point so finger doesn't hit it
-  var popLeft=Math.max(10,Math.min(px-60,C.width-140));
-  var popTop=Math.max(60,py-130);
-  // If tap is near top of screen, put popup below instead
-  if(py<160) popTop=py+50;
-  placePopup.style.left=popLeft+'px';
-  placePopup.style.top=popTop+'px';
-  placePopup.style.display='block';
-  placePopup.style.pointerEvents='none';
-  // Unlock after delay so the original tap can't trigger confirm
-  setTimeout(function(){ placeReady=true; placePopup.style.pointerEvents='auto'; },400);
-}
-
-function closePlaceConfirm(){ placePopup.style.display='none'; pendingPlace=null; placeReady=false; }
-
-function confirmPlace(){
-  if(!pendingPlace||!placeReady) return;
-  var px=pendingPlace.x,py=pendingPlace.y,type=pendingPlace.type;
-  var def=TOWER_DEFS[type];
-  if(coins<def.cost){ closePlaceConfirm(); return; }
-  coins-=def.cost;
-  towers.push({
-    x:px,y:py,type:type,level:0,
-    range:def.range,rate:def.rate,dmg:def.dmg,
-    color:def.color,splash:def.splash||0,slow:def.slow||0,
-    poison:def.poison||0,chain:def.chain||0,
-    cooldown:0,angle:0,fireAnim:0
-  });
-  sfxPlace();
-  for(var i=0;i<10;i++){
-    var a=(i/10)*Math.PI*2;
-    particles.push({x:px,y:py,vx:Math.cos(a)*3,vy:Math.sin(a)*3,life:15,size:3,color:def.color});
+function isValidPlacement(px,py){
+  if(py<65||py>C.height-90) return false;
+  var path=getPath();
+  for(var i=0;i<path.length;i++){
+    var dx=px-path[i].x,dy=py-path[i].y;
+    if(Math.sqrt(dx*dx+dy*dy)<35) return false;
   }
-  closePlaceConfirm();
-  updateHUD();
+  for(var i=0;i<towers.length;i++){
+    var dx=px-towers[i].x,dy=py-towers[i].y;
+    if(Math.sqrt(dx*dx+dy*dy)<35) return false;
+  }
+  return true;
 }
 
-placeConfirmBtn.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();confirmPlace();});
-placeConfirmBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();confirmPlace();});
-placeCancelBtn.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();closePlaceConfirm();});
-placeCancelBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();closePlaceConfirm();});
-// Block all touch events on the popup from reaching the canvas
-placePopup.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();});
-placePopup.addEventListener('touchend',function(e){e.stopPropagation();});
-placePopup.addEventListener('click',function(e){e.stopPropagation();});
+function dropTower(){
+  if(!dragging) return;
+  var def=TOWER_DEFS[dragging.type];
+  if(dragging.valid && coins>=def.cost){
+    coins-=def.cost;
+    towers.push({
+      x:dragging.x,y:dragging.y,type:dragging.type,level:0,
+      range:def.range,rate:def.rate,dmg:def.dmg,
+      color:def.color,splash:def.splash||0,slow:def.slow||0,
+      poison:def.poison||0,chain:def.chain||0,
+      cooldown:0,angle:0,fireAnim:0
+    });
+    sfxPlace();
+    for(var i=0;i<10;i++){
+      var a=(i/10)*Math.PI*2;
+      particles.push({x:dragging.x,y:dragging.y,vx:Math.cos(a)*3,vy:Math.sin(a)*3,life:15,size:3,color:def.color});
+    }
+    updateHUD();
+  }
+  dragging=null;
+}
 
+// Tower button drag — touch
+for(var i=0;i<towerBtns.length;i++){
+  (function(btn){
+    btn.addEventListener('touchstart',function(e){
+      e.preventDefault();e.stopPropagation();
+      if(!running||gameOver) return;
+      var type=btn.dataset.type;
+      var def=TOWER_DEFS[type];
+      if(coins<def.cost) return;
+      closeUpgrade();
+      var t=e.changedTouches[0];
+      dragging={type:type,x:t.clientX,y:t.clientY,valid:false};
+    });
+  })(towerBtns[i]);
+}
+
+// Tower button drag — mouse
+for(var i=0;i<towerBtns.length;i++){
+  (function(btn){
+    btn.addEventListener('mousedown',function(e){
+      e.preventDefault();e.stopPropagation();
+      if(!running||gameOver) return;
+      var type=btn.dataset.type;
+      var def=TOWER_DEFS[type];
+      if(coins<def.cost) return;
+      closeUpgrade();
+      dragging={type:type,x:e.clientX,y:e.clientY,valid:false};
+    });
+  })(towerBtns[i]);
+}
+
+// Track drag movement — touch
+document.addEventListener('touchmove',function(e){
+  if(!dragging) return;
+  e.preventDefault();
+  var t=e.changedTouches[0];
+  dragging.x=t.clientX;
+  dragging.y=t.clientY;
+  dragging.valid=isValidPlacement(dragging.x,dragging.y);
+},{passive:false});
+
+// Track drag movement — mouse
+document.addEventListener('mousemove',function(e){
+  if(!dragging) return;
+  dragging.x=e.clientX;
+  dragging.y=e.clientY;
+  dragging.valid=isValidPlacement(dragging.x,dragging.y);
+});
+
+// Drop — touch
+document.addEventListener('touchend',function(e){
+  if(!dragging) return;
+  e.preventDefault();
+  dropTower();
+},{passive:false});
+
+// Drop — mouse
+document.addEventListener('mouseup',function(e){
+  if(!dragging) return;
+  dropTower();
+});
+
+// Canvas tap — only for upgrading existing towers
 function handleTap(px,py){
-  if(gameOver) return;
-  closePlaceConfirm();
+  if(gameOver||dragging) return;
   closeUpgrade();
-
   for(var i=0;i<towers.length;i++){
     var dx=px-towers[i].x,dy=py-towers[i].y;
     if(Math.sqrt(dx*dx+dy*dy)<22){ showUpgrade(i); return; }
   }
-
-  var def=TOWER_DEFS[selectedTower];
-  if(coins<def.cost) return;
-  var path=getPath();
-  for(var i=0;i<path.length;i++){
-    var dx=px-path[i].x,dy=py-path[i].y;
-    if(Math.sqrt(dx*dx+dy*dy)<35) return;
-  }
-  for(var i=0;i<towers.length;i++){
-    var dx=px-towers[i].x,dy=py-towers[i].y;
-    if(Math.sqrt(dx*dx+dy*dy)<35) return;
-  }
-  if(py<65||py>C.height-90) return;
-
-  // Show ghost preview + confirm popup instead of placing immediately
-  showPlaceConfirm(px,py,selectedTower);
 }
 
-C.addEventListener('click',function(e){ if(!running||gameOver)return; e.preventDefault(); handleTap(e.clientX,e.clientY);});
+C.addEventListener('click',function(e){ if(!running||gameOver)return; handleTap(e.clientX,e.clientY);});
 C.addEventListener('touchstart',function(e){
   if(!running||gameOver)return;
-  e.preventDefault();
+  // Only handle taps on canvas for upgrades, not placement
+  if(dragging) return;
   var t=e.changedTouches[0];
   handleTap(t.clientX,t.clientY);
 });
@@ -1814,19 +1813,23 @@ function gameLoop(){
   }
 
   drawTowers();
-  // Draw ghost tower preview if pending placement
-  if(pendingPlace){
-    var gd=TOWER_DEFS[pendingPlace.type];
-    X.globalAlpha=0.4+Math.sin(frameCount*0.1)*0.1;
+  // Draw ghost tower preview while dragging
+  if(dragging){
+    var gd=TOWER_DEFS[dragging.type];
+    var ghostCol=dragging.valid?gd.color:'#ff3355';
+    X.globalAlpha=0.5+Math.sin(frameCount*0.1)*0.1;
     // Ghost range circle
-    X.strokeStyle=gd.color;X.lineWidth=1;X.setLineDash([6,6]);
-    if(gd.range<9000){X.beginPath();X.arc(pendingPlace.x,pendingPlace.y,gd.range,0,Math.PI*2);X.stroke();}
+    X.strokeStyle=ghostCol;X.lineWidth=1;X.setLineDash([6,6]);
+    if(gd.range<9000){X.beginPath();X.arc(dragging.x,dragging.y,gd.range,0,Math.PI*2);X.stroke();}
     X.setLineDash([]);
-    // Ghost hex base
-    X.strokeStyle=gd.color;X.lineWidth=2;
-    drawHex(pendingPlace.x,pendingPlace.y,17);X.stroke();
+    // Ghost hex base — green if valid, red if invalid
+    X.strokeStyle=ghostCol;X.lineWidth=2;
+    drawHex(dragging.x,dragging.y,17);X.stroke();
     // Ghost center dot
-    X.fillStyle=gd.color;X.beginPath();X.arc(pendingPlace.x,pendingPlace.y,4,0,Math.PI*2);X.fill();
+    X.fillStyle=ghostCol;X.beginPath();X.arc(dragging.x,dragging.y,4,0,Math.PI*2);X.fill();
+    // Label
+    X.fillStyle=ghostCol;X.font='bold 9px Courier New';X.textAlign='center';
+    X.fillText(dragging.valid?gd.name:'INVALID',dragging.x,dragging.y-25);
     X.globalAlpha=1;
   }
   drawEnemies();drawBullets();drawParticles();
