@@ -315,13 +315,13 @@ var TOWER_DEFS={
 var ENEMY_DEFS={
   basic: {hp:4,speed:0.001,size:10,color:'#ff3355',reward:4,name:'Scout'},
   fast:  {hp:2.5,speed:0.002,size:8,color:'#ff8800',reward:5,name:'Runner'},
-  tank:  {hp:14,speed:0.0006,size:14,color:'#cc2200',reward:10,name:'Tank'},
-  healer:{hp:5,speed:0.0009,size:11,color:'#00ff66',reward:7,name:'Healer',healRate:0.015},
-  dodge: {hp:4,speed:0.0013,size:9,color:'#ff00ff',reward:7,name:'Dodger',dodgeChance:0.25},
-  shield:{hp:6,speed:0.0009,size:12,color:'#4488ff',reward:9,name:'Shielder',shield:5},
-  swarm: {hp:1.5,speed:0.002,size:6,color:'#ff8800',reward:2,name:'Swarm'},
-  regen: {hp:7,speed:0.0008,size:12,color:'#22ddaa',reward:8,name:'Regen',regenRate:0.015},
-  boss:  {hp:35,speed:0.0004,size:18,color:'#cc00cc',reward:30,name:'Boss'}
+  tank:  {hp:18,speed:0.0006,size:14,color:'#cc2200',reward:10,name:'Tank'},
+  healer:{hp:6,speed:0.0009,size:11,color:'#00ff66',reward:7,name:'Healer',healRate:0.025},
+  dodge: {hp:5,speed:0.0015,size:9,color:'#ff00ff',reward:7,name:'Dodger',dodgeChance:0.35},
+  shield:{hp:8,speed:0.0009,size:12,color:'#4488ff',reward:9,name:'Shielder',shield:7},
+  swarm: {hp:2,speed:0.0022,size:6,color:'#ff8800',reward:2,name:'Swarm'},
+  regen: {hp:9,speed:0.0008,size:12,color:'#22ddaa',reward:8,name:'Regen',regenRate:0.025},
+  boss:  {hp:50,speed:0.0005,size:18,color:'#cc00cc',reward:30,name:'Boss'}
 };
 
 // ─── STATE ────────────────────────────────────────
@@ -519,9 +519,10 @@ function generateWave(w){
   if(w<=3) count=2+w;                           // 3,4,5
   else if(w<=6) count=3+w;                      // 7,8,9
   else if(w<=10) count=2+w+Math.floor(w/2);     // 11-17
-  else if(w<=15) count=4+w+w;                   // 26-34  (big jump)
-  else if(w<=20) count=w*3;                     // 48-60
-  else count=w*3+Math.floor(w/2);               // 66+    (relentless)
+  else if(w<=15) count=4+w+w;                   // 26-34
+  else if(w<=20) count=w*3+w;                   // 64-80
+  else if(w<=25) count=w*4;                     // 84-100
+  else count=w*5;                               // 130+ (apocalypse)
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -558,24 +559,34 @@ function generateWave(w){
       else if(r<0.52) type='tank';
       else if(r<0.64) type='shield';
       else if(r<0.75) type='dodge';
-    } else {
-      // Post-15: nightmare — almost no basic, mostly elites
-      if(r<0.08) type='fast';
-      else if(r<0.15) type='swarm';
-      else if(r<0.22) type='healer';
-      else if(r<0.34) type='regen';
+    } else if(w<=20){
+      // Post-15: nightmare — elites everywhere
+      if(r<0.06) type='fast';
+      else if(r<0.12) type='swarm';
+      else if(r<0.18) type='healer';
+      else if(r<0.32) type='regen';
       else if(r<0.50) type='tank';
       else if(r<0.64) type='shield';
-      else if(r<0.78) type='dodge';
+      else if(r<0.80) type='dodge';
+      else type='boss';
+    } else {
+      // Post-20: apocalypse — wall of tanks, bosses, dodgers
+      if(r<0.04) type='healer';
+      else if(r<0.15) type='regen';
+      else if(r<0.35) type='tank';
+      else if(r<0.50) type='shield';
+      else if(r<0.68) type='dodge';
       else type='boss';
     }
 
-    // Boss waves: every 3 waves from w5, every 2 waves from w11
-    var bossInterval=w>=11?2:3;
+    // Boss waves: every 3 from w5, every 2 from w11, every wave from w20
+    var bossInterval=w>=20?1:(w>=11?2:3);
     if(w>=5&&w%bossInterval===0&&i===count-1) type='boss';
     if(w>=12&&w%bossInterval===0&&i===count-2) type='boss';
-    // Triple boss from wave 15
     if(w>=15&&w%bossInterval===0&&i===count-3) type='boss';
+    // 4-5 bosses per boss wave from wave 20
+    if(w>=20&&w%bossInterval===0&&i===count-4) type='boss';
+    if(w>=20&&w%bossInterval===0&&i===count-5) type='boss';
 
     q.push(type);
   }
@@ -595,12 +606,15 @@ function startWave(){
 
 function spawnEnemy(type){
   var def=ENEMY_DEFS[type];
-  // HP scales gently to w10, then ramps hard
+  // HP scales gently to w10, ramps after, exponential late game
   var hpScale;
-  if(wave<=10) hpScale=1+(wave-1)*0.1;          // 1.0 – 1.9
-  else hpScale=1.9+(wave-10)*0.25;              // 2.15, 2.4, ... grows fast
-  // Speed boost after wave 10: enemies move up to 40% faster
-  var spdBoost=wave>10?1+Math.min((wave-10)*0.04,0.4):1;
+  if(wave<=10) hpScale=1+(wave-1)*0.1;                // 1.0 – 1.9
+  else if(wave<=15) hpScale=1.9+(wave-10)*0.35;       // 2.25 – 3.65
+  else if(wave<=20) hpScale=3.65+(wave-15)*0.6;       // 4.25 – 6.65
+  else hpScale=6.65*Math.pow(1.15,wave-20);           // exponential: ~7.6, ~8.8, ~10.1...
+  // Speed boost: ramps to 50% by w15, 80% by w20, caps at 100%
+  var spdBoost=1;
+  if(wave>10) spdBoost=1+Math.min((wave-10)*0.06,1.0);
   enemies.push({
     t:0,type:type,hp:def.hp*hpScale,maxHp:def.hp*hpScale,
     speed:def.speed*spdBoost,baseSpeed:def.speed*spdBoost,size:def.size,color:def.color,
@@ -1729,15 +1743,22 @@ function updateSpawning(){
   spawnTimer--;
   if(spawnTimer<=0&&spawnQueue.length>0){
     spawnEnemy(spawnQueue.shift());
-    // Faster spawning after wave 10: enemies pour in quicker
-    if(wave<=10) spawnTimer=40-Math.min(wave,15);       // 40 down to 25
-    else spawnTimer=Math.max(12,25-Math.floor((wave-10)*1.5)); // 25 down to 12
+    // Faster spawning: tightens drastically late game
+    if(wave<=10) spawnTimer=40-Math.min(wave,15);              // 40 down to 25
+    else if(wave<=15) spawnTimer=Math.max(10,25-Math.floor((wave-10)*2)); // 25 down to 15
+    else if(wave<=20) spawnTimer=Math.max(6,15-Math.floor((wave-15)*2));  // 15 down to 5
+    else spawnTimer=Math.max(4,6-Math.floor((wave-20)*0.5));              // near-instant
   }
   if(spawnQueue.length===0&&enemies.length===0){
     waveActive=false;
-    // Less build time after wave 10
-    waveCooldown=wave<=10?120:Math.max(60,120-(wave-10)*8);
-    coins+=20+wave*8;updateHUD();
+    // Barely any build time late game
+    if(wave<=10) waveCooldown=120;
+    else if(wave<=15) waveCooldown=Math.max(60,120-(wave-10)*10);
+    else if(wave<=20) waveCooldown=Math.max(35,60-(wave-15)*5);
+    else waveCooldown=30;  // almost no breathing room
+    // Wave bonus coins taper off
+    var waveBonus=wave<=10?(20+wave*8):(wave<=15?(20+wave*5):(20+wave*3));
+    coins+=waveBonus;updateHUD();
   }
 }
 
