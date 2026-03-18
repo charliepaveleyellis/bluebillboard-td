@@ -710,6 +710,100 @@ function drawTowers(){
     X.shadowColor=t.color;X.shadowBlur=8;
     X.fillStyle=t.color;X.beginPath();X.arc(t.x,t.y,5,0,Math.PI*2);X.fill();
     X.shadowBlur=0;
+
+    // ── ACTIVE AREA EFFECTS (show what tower is doing) ──
+    var hasTargets=findEnemiesInRange(t.x,t.y,t.range).length>0;
+
+    if(t.type==='chain'&&hasTargets){
+      // Tesla — crackling electricity field
+      X.strokeStyle='rgba(170,102,255,0.12)';X.lineWidth=1;
+      var fc2=frameCount*0.15;
+      for(var z=0;z<6;z++){
+        var za=(z/6)*Math.PI*2+fc2;
+        var r1=t.range*0.3,r2=t.range*(0.6+Math.sin(fc2+z)*0.3);
+        X.beginPath();
+        X.moveTo(t.x+Math.cos(za)*r1,t.y+Math.sin(za)*r1);
+        X.lineTo(t.x+Math.cos(za+0.3)*(r1+r2)*0.5+Math.random()*8-4,
+                 t.y+Math.sin(za+0.3)*(r1+r2)*0.5+Math.random()*8-4);
+        X.lineTo(t.x+Math.cos(za+0.1)*r2,t.y+Math.sin(za+0.1)*r2);
+        X.stroke();
+      }
+      // Pulsing ring
+      var pulse=(frameCount%30)/30;
+      X.strokeStyle='rgba(170,102,255,'+(0.15-pulse*0.15)+')';X.lineWidth=2;
+      X.beginPath();X.arc(t.x,t.y,t.range*pulse,0,Math.PI*2);X.stroke();
+    }
+
+    if(t.type==='slow'){
+      // Freeze — icy aura with snowflake particles
+      var iceAlpha=hasTargets?0.12:0.05;
+      var grad=X.createRadialGradient(t.x,t.y,5,t.x,t.y,t.range);
+      grad.addColorStop(0,'rgba(0,204,255,'+iceAlpha*2+')');
+      grad.addColorStop(0.7,'rgba(0,204,255,'+iceAlpha+')');
+      grad.addColorStop(1,'rgba(0,204,255,0)');
+      X.fillStyle=grad;X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.fill();
+      // Floating ice crystals
+      if(hasTargets){
+        for(var ic=0;ic<4;ic++){
+          var ia=frameCount*0.02+ic*1.5;
+          var ir=t.range*0.5+Math.sin(ia*2)*t.range*0.3;
+          var ix=t.x+Math.cos(ia)*ir,iy=t.y+Math.sin(ia)*ir;
+          X.fillStyle='rgba(200,240,255,0.4)';
+          X.save();X.translate(ix,iy);X.rotate(ia);
+          X.fillRect(-2,-2,4,4);X.restore();
+        }
+      }
+    }
+
+    if(t.type==='poison'){
+      // Poison — green toxic cloud
+      var toxAlpha=hasTargets?0.08:0.03;
+      for(var pc=0;pc<3;pc++){
+        var pa=frameCount*0.01+pc*2;
+        var pr=t.range*(0.3+pc*0.2)+Math.sin(pa*3)*10;
+        var px2=t.x+Math.cos(pa)*pr*0.3,py2=t.y+Math.sin(pa)*pr*0.3;
+        var cg=X.createRadialGradient(px2,py2,0,px2,py2,t.range*0.4);
+        cg.addColorStop(0,'rgba(68,204,68,'+toxAlpha*2+')');
+        cg.addColorStop(1,'rgba(68,204,68,0)');
+        X.fillStyle=cg;X.beginPath();X.arc(px2,py2,t.range*0.4,0,Math.PI*2);X.fill();
+      }
+    }
+
+    if(t.type==='sniper'&&hasTargets){
+      // Sniper — red laser dot pulsing at range edge
+      var la2=t.angle-Math.PI/2;
+      var lx=t.x+Math.cos(la2)*t.range*0.9,ly=t.y+Math.sin(la2)*t.range*0.9;
+      X.strokeStyle='rgba(255,193,7,0.1)';X.lineWidth=1;X.setLineDash([4,4]);
+      X.beginPath();X.moveTo(t.x,t.y);X.lineTo(lx,ly);X.stroke();X.setLineDash([]);
+      var dotPulse=0.3+Math.sin(frameCount*0.15)*0.2;
+      X.fillStyle='rgba(255,50,50,'+dotPulse+')';
+      X.beginPath();X.arc(lx,ly,3,0,Math.PI*2);X.fill();
+    }
+
+    if(t.type==='rapid'&&hasTargets){
+      // Minigun — shell casings and smoke
+      if(frameCount%3===0){
+        particles.push({
+          x:t.x+(Math.random()-0.5)*6,y:t.y+(Math.random()-0.5)*6,
+          vx:(Math.random()-0.5)*2,vy:Math.random()*1.5+0.5,
+          life:8,size:1.5,color:'rgba(255,200,50,0.6)'
+        });
+      }
+      // Barrel heat glow
+      X.fillStyle='rgba(255,100,50,0.08)';
+      X.beginPath();X.arc(t.x,t.y,12,0,Math.PI*2);X.fill();
+    }
+
+    if(t.type==='splash'&&t.fireAnim>0){
+      // Cannon — recoil smoke puff
+      for(var sm=0;sm<2;sm++){
+        particles.push({
+          x:t.x+(Math.random()-0.5)*8,y:t.y+(Math.random()-0.5)*8,
+          vx:(Math.random()-0.5)*2,vy:-Math.random()*2,
+          life:12,size:3+Math.random()*3,color:'rgba(150,150,150,0.3)'
+        });
+      }
+    }
   }
 }
 
