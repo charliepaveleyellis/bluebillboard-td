@@ -53,6 +53,17 @@
     background:rgba(10,10,26,0.85); opacity:0; transition:opacity 0.4s; }
   #waveBanner.show { opacity:1; }
 
+  /* Place confirm popup */
+  #placePopup { position:fixed; z-index:5; background:rgba(0,10,30,0.95);
+    border:2px solid #00ff66; border-radius:12px; padding:12px 16px;
+    color:#fff; text-align:center; display:none; min-width:120px;
+    box-shadow:0 0 20px rgba(0,255,102,0.3); }
+  #placePopup .up-title { font-size:12px; color:#2ea3f2; font-weight:700; text-transform:uppercase; }
+  #placePopup .up-level { font-size:10px; color:#d9d9d9; margin:4px 0; }
+  #placePopup .up-btn { display:inline-block; margin-top:6px; padding:6px 16px; font-size:11px;
+    font-weight:700; color:#fff; background:#003d7a; border:none; border-radius:20px; cursor:pointer; }
+  #placePopup .up-btn:active { background:#2ea3f2; }
+
   /* Upgrade popup */
   #upgradePopup { position:fixed; z-index:5; background:rgba(0,10,30,0.95);
     border:2px solid #2ea3f2; border-radius:12px; padding:12px 16px;
@@ -112,6 +123,14 @@
   <div class="tower-btn" data-type="sniper"><div class="t-icon">+</div><div class="t-name">Sniper</div><div class="t-cost">100</div></div>
   <div class="tower-btn" data-type="splash"><div class="t-icon">#</div><div class="t-name">Cannon</div><div class="t-cost">120</div></div>
   <div class="tower-btn" data-type="chain"><div class="t-icon">Z</div><div class="t-name">Tesla</div><div class="t-cost">150</div></div>
+</div>
+
+<!-- Place confirm popup -->
+<div id="placePopup">
+  <div class="up-title" id="placeName">Blaster</div>
+  <div class="up-level" id="placeCost">Cost: 40</div>
+  <div class="up-btn" id="placeConfirm">Confirm</div>
+  <div class="up-btn" id="placeCancel" style="background:#ff3355;margin-top:4px;">Cancel</div>
 </div>
 
 <!-- Upgrade popup -->
@@ -419,8 +438,54 @@ sellBtn.addEventListener('click',function(e){
 sellBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
 
 // ─── PLACE TOWER / TAP ───────────────────────────
+var pendingPlace=null; // {x, y, type} — ghost tower awaiting confirm
+
+var placePopup=document.getElementById('placePopup');
+var placeConfirmBtn=document.getElementById('placeConfirm');
+var placeCancelBtn=document.getElementById('placeCancel');
+
+function showPlaceConfirm(px,py,type){
+  var def=TOWER_DEFS[type];
+  pendingPlace={x:px,y:py,type:type};
+  document.getElementById('placeName').textContent=def.name;
+  document.getElementById('placeCost').textContent='Cost: '+def.cost;
+  placePopup.style.left=Math.min(px,C.width-140)+'px';
+  placePopup.style.top=Math.max(60,py-80)+'px';
+  placePopup.style.display='block';
+}
+
+function closePlaceConfirm(){ placePopup.style.display='none'; pendingPlace=null; }
+
+function confirmPlace(){
+  if(!pendingPlace) return;
+  var px=pendingPlace.x,py=pendingPlace.y,type=pendingPlace.type;
+  var def=TOWER_DEFS[type];
+  if(coins<def.cost){ closePlaceConfirm(); return; }
+  coins-=def.cost;
+  towers.push({
+    x:px,y:py,type:type,level:0,
+    range:def.range,rate:def.rate,dmg:def.dmg,
+    color:def.color,splash:def.splash||0,slow:def.slow||0,
+    poison:def.poison||0,chain:def.chain||0,
+    cooldown:0,angle:0,fireAnim:0
+  });
+  sfxPlace();
+  for(var i=0;i<10;i++){
+    var a=(i/10)*Math.PI*2;
+    particles.push({x:px,y:py,vx:Math.cos(a)*3,vy:Math.sin(a)*3,life:15,size:3,color:def.color});
+  }
+  closePlaceConfirm();
+  updateHUD();
+}
+
+placeConfirmBtn.addEventListener('click',function(e){e.stopPropagation();confirmPlace();});
+placeConfirmBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
+placeCancelBtn.addEventListener('click',function(e){e.stopPropagation();closePlaceConfirm();});
+placeCancelBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
+
 function handleTap(px,py){
   if(gameOver) return;
+  closePlaceConfirm();
   closeUpgrade();
 
   for(var i=0;i<towers.length;i++){
@@ -441,20 +506,8 @@ function handleTap(px,py){
   }
   if(py<65||py>C.height-90) return;
 
-  coins-=def.cost;
-  towers.push({
-    x:px,y:py,type:selectedTower,level:0,
-    range:def.range,rate:def.rate,dmg:def.dmg,
-    color:def.color,splash:def.splash||0,slow:def.slow||0,
-    poison:def.poison||0,chain:def.chain||0,
-    cooldown:0,angle:0,fireAnim:0
-  });
-  sfxPlace();
-  for(var i=0;i<10;i++){
-    var a=(i/10)*Math.PI*2;
-    particles.push({x:px,y:py,vx:Math.cos(a)*3,vy:Math.sin(a)*3,life:15,size:3,color:def.color});
-  }
-  updateHUD();
+  // Show ghost preview + confirm popup instead of placing immediately
+  showPlaceConfirm(px,py,selectedTower);
 }
 
 C.addEventListener('click',function(e){ if(!running||gameOver)return; handleTap(e.clientX,e.clientY);});
@@ -1719,7 +1772,23 @@ function gameLoop(){
     for(var s=0;s<gameSpeed;s++) gameTick();
   }
 
-  drawTowers();drawEnemies();drawBullets();drawParticles();
+  drawTowers();
+  // Draw ghost tower preview if pending placement
+  if(pendingPlace){
+    var gd=TOWER_DEFS[pendingPlace.type];
+    X.globalAlpha=0.4+Math.sin(frameCount*0.1)*0.1;
+    // Ghost range circle
+    X.strokeStyle=gd.color;X.lineWidth=1;X.setLineDash([6,6]);
+    if(gd.range<9000){X.beginPath();X.arc(pendingPlace.x,pendingPlace.y,gd.range,0,Math.PI*2);X.stroke();}
+    X.setLineDash([]);
+    // Ghost hex base
+    X.strokeStyle=gd.color;X.lineWidth=2;
+    drawHex(pendingPlace.x,pendingPlace.y,17);X.stroke();
+    // Ghost center dot
+    X.fillStyle=gd.color;X.beginPath();X.arc(pendingPlace.x,pendingPlace.y,4,0,Math.PI*2);X.fill();
+    X.globalAlpha=1;
+  }
+  drawEnemies();drawBullets();drawParticles();
 
   // Screen flash from explosions
   if(screenFlash>0){
