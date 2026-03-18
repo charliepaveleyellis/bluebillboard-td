@@ -283,13 +283,13 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:40,range:85,rate:22,dmg:1.2,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:30},
-  slow:  {cost:60,range:75,rate:35,dmg:0.4,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:40},
-  splash:{cost:110,range:90,rate:50,dmg:2.5,color:COL.neonRed,name:'Cannon',splash:45,upgCost:65},
-  sniper:{cost:90,range:9999,rate:120,dmg:7,color:COL.gold,name:'Sniper',splash:0,upgCost:55},
-  poison:{cost:70,range:80,rate:30,dmg:0.5,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:45},
-  chain: {cost:130,range:90,rate:45,dmg:2,color:COL.purple,name:'Tesla',splash:0,chain:3,upgCost:70},
-  rapid: {cost:65,range:70,rate:12,dmg:0.4,color:'#4488ff',name:'Minigun',splash:0,upgCost:35}
+  basic: {cost:40,range:85,rate:22,dmg:1.2,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:50},
+  slow:  {cost:60,range:75,rate:35,dmg:0.4,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:65},
+  splash:{cost:110,range:90,rate:50,dmg:2.5,color:COL.neonRed,name:'Cannon',splash:45,upgCost:100},
+  sniper:{cost:90,range:9999,rate:120,dmg:7,color:COL.gold,name:'Sniper',splash:0,upgCost:85},
+  poison:{cost:70,range:80,rate:30,dmg:0.5,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:70},
+  chain: {cost:130,range:90,rate:45,dmg:2,color:COL.purple,name:'Tesla',splash:0,chain:3,upgCost:110},
+  rapid: {cost:65,range:70,rate:12,dmg:0.4,color:'#4488ff',name:'Minigun',splash:0,upgCost:55}
 };
 
 var ENEMY_DEFS={
@@ -351,7 +351,7 @@ function updateTowerBar(){
 function showUpgrade(tIdx){
   var t=towers[tIdx];
   var def=TOWER_DEFS[t.type];
-  var upgCost=Math.floor(def.upgCost*(1+t.level*0.5));
+  var upgCost=Math.floor(def.upgCost*(1+t.level*0.8));
   var sellPrice=Math.floor(def.cost*0.5);
   var maxLevel=t.level>=4;
   selectedTowerIdx=tIdx;
@@ -381,7 +381,7 @@ upBtn.addEventListener('click',function(e){
   var t=towers[selectedTowerIdx];
   if(t.level>=4) return;
   var def=TOWER_DEFS[t.type];
-  var cost=Math.floor(def.upgCost*(1+t.level*0.5));
+  var cost=Math.floor(def.upgCost*(1+t.level*0.8));
   if(coins<cost) return;
   coins-=cost;
   t.level++;
