@@ -799,8 +799,38 @@ function drawBackground(){
   X.globalAlpha=1;
 }
 
+function offsetPath(path,dist){
+  // Compute offset points for each vertex using averaged normals
+  var pts=[];
+  for(var i=0;i<path.length;i++){
+    var nx=0,ny=0,count=0;
+    // Normal from previous segment
+    if(i>0){
+      var dx=path[i].x-path[i-1].x,dy=path[i].y-path[i-1].y;
+      var len=Math.sqrt(dx*dx+dy*dy)||1;
+      nx+=-dy/len; ny+=dx/len; count++;
+    }
+    // Normal from next segment
+    if(i<path.length-1){
+      var dx=path[i+1].x-path[i].x,dy=path[i+1].y-path[i].y;
+      var len=Math.sqrt(dx*dx+dy*dy)||1;
+      nx+=-dy/len; ny+=dx/len; count++;
+    }
+    nx/=count; ny/=count;
+    // Normalize the averaged normal
+    var nlen=Math.sqrt(nx*nx+ny*ny)||1;
+    nx/=nlen; ny/=nlen;
+    pts.push({x:path[i].x+nx*dist, y:path[i].y+ny*dist});
+  }
+  return pts;
+}
+
 function drawPath(){
   var path=getPath();
+
+  // Compute offset edge paths once
+  var leftEdge=offsetPath(path,14);
+  var rightEdge=offsetPath(path,-14);
 
   // Dark road surface — data cable
   X.strokeStyle='rgba(5,5,20,0.9)';
@@ -809,39 +839,20 @@ function drawPath(){
   for(var i=1;i<path.length;i++) X.lineTo(path[i].x,path[i].y);
   X.stroke();
 
-  // BB blue left edge glow
+  // BB blue left edge — single continuous path
   neonGlow(COL.bbBlue,8,function(){
-    X.strokeStyle=COL.bbBlue;X.lineWidth=2;X.lineCap='round';X.lineJoin='round';
-    // Offset path slightly left (approximate by drawing thinner on wider road)
-    X.beginPath();X.moveTo(path[0].x,path[0].y);
-    for(var i=1;i<path.length;i++) X.lineTo(path[i].x,path[i].y);
-    X.lineWidth=32;X.strokeStyle='transparent';
-    // Actually draw two edge lines
-    X.lineWidth=1.5;X.strokeStyle=COL.bbBlue;
-    // We'll draw the road edges using offset
-    for(var i=1;i<path.length;i++){
-      var dx=path[i].x-path[i-1].x,dy=path[i].y-path[i-1].y;
-      var len=Math.sqrt(dx*dx+dy*dy);
-      var nx=-dy/len*14,ny=dx/len*14;
-      X.beginPath();
-      X.moveTo(path[i-1].x+nx,path[i-1].y+ny);
-      X.lineTo(path[i].x+nx,path[i].y+ny);
-      X.stroke();
-    }
+    X.strokeStyle=COL.bbBlue;X.lineWidth=1.5;X.lineCap='round';X.lineJoin='round';
+    X.beginPath();X.moveTo(leftEdge[0].x,leftEdge[0].y);
+    for(var i=1;i<leftEdge.length;i++) X.lineTo(leftEdge[i].x,leftEdge[i].y);
+    X.stroke();
   });
 
-  // Cyan right edge glow
+  // Cyan right edge — single continuous path
   neonGlow(COL.cyan,8,function(){
-    X.strokeStyle=COL.cyan;X.lineWidth=1.5;X.lineCap='round';
-    for(var i=1;i<path.length;i++){
-      var dx=path[i].x-path[i-1].x,dy=path[i].y-path[i-1].y;
-      var len=Math.sqrt(dx*dx+dy*dy);
-      var nx=-dy/len*14,ny=dx/len*14;
-      X.beginPath();
-      X.moveTo(path[i-1].x-nx,path[i-1].y-ny);
-      X.lineTo(path[i].x-nx,path[i].y-ny);
-      X.stroke();
-    }
+    X.strokeStyle=COL.cyan;X.lineWidth=1.5;X.lineCap='round';X.lineJoin='round';
+    X.beginPath();X.moveTo(rightEdge[0].x,rightEdge[0].y);
+    for(var i=1;i<rightEdge.length;i++) X.lineTo(rightEdge[i].x,rightEdge[i].y);
+    X.stroke();
   });
 
   // Animated dashed center line — data flowing
