@@ -444,20 +444,25 @@ var placePopup=document.getElementById('placePopup');
 var placeConfirmBtn=document.getElementById('placeConfirm');
 var placeCancelBtn=document.getElementById('placeCancel');
 
+var placeReady=false; // blocks confirm until popup has been visible
+
 function showPlaceConfirm(px,py,type){
   var def=TOWER_DEFS[type];
   pendingPlace={x:px,y:py,type:type};
+  placeReady=false;
   document.getElementById('placeName').textContent=def.name;
   document.getElementById('placeCost').textContent='Cost: '+def.cost;
   placePopup.style.left=Math.min(px,C.width-140)+'px';
   placePopup.style.top=Math.max(60,py-80)+'px';
   placePopup.style.display='block';
+  // Unlock confirm after a short delay so the original tap can't trigger it
+  setTimeout(function(){ placeReady=true; },300);
 }
 
-function closePlaceConfirm(){ placePopup.style.display='none'; pendingPlace=null; }
+function closePlaceConfirm(){ placePopup.style.display='none'; pendingPlace=null; placeReady=false; }
 
 function confirmPlace(){
-  if(!pendingPlace) return;
+  if(!pendingPlace||!placeReady) return;
   var px=pendingPlace.x,py=pendingPlace.y,type=pendingPlace.type;
   var def=TOWER_DEFS[type];
   if(coins<def.cost){ closePlaceConfirm(); return; }
