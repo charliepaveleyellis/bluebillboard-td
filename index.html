@@ -602,74 +602,138 @@ function drawDecorations(){
   }
 }
 
+function drawTowerBase(t){
+  X.strokeStyle='rgba(255,255,255,0.04)';X.lineWidth=1;
+  X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
+  X.fillStyle='rgba(0,0,0,0.2)';
+  X.beginPath();X.ellipse(t.x+2,t.y+3,18,12,0,0,Math.PI*2);X.fill();
+  var bg=X.createRadialGradient(t.x-3,t.y-3,2,t.x,t.y,18);
+  bg.addColorStop(0,'rgba(30,60,90,0.9)');bg.addColorStop(1,'rgba(0,20,40,0.9)');
+  X.fillStyle=bg;X.beginPath();X.arc(t.x,t.y,17,0,Math.PI*2);X.fill();
+  X.strokeStyle=t.color;X.lineWidth=2.5;
+  X.beginPath();X.arc(t.x,t.y,17,0,Math.PI*2);X.stroke();
+  for(var lv=0;lv<t.level&&lv<5;lv++){
+    var la=-0.8+lv*0.4;
+    X.fillStyle=COL.gold;X.beginPath();X.arc(t.x+Math.cos(la)*13,t.y+Math.sin(la)*13,2.5,0,Math.PI*2);X.fill();
+  }
+}
+
 function drawTowers(){
   for(var i=0;i<towers.length;i++){
     var t=towers[i];
+    drawTowerBase(t);
+    X.save();X.translate(t.x,t.y);X.rotate(t.angle);
 
-    // Range circle
-    X.strokeStyle='rgba(255,255,255,0.04)';
-    X.lineWidth=1;
-    X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
-
-    // Shadow
-    X.fillStyle='rgba(0,0,0,0.2)';
-    X.beginPath();X.ellipse(t.x+2,t.y+3,18,12,0,0,Math.PI*2);X.fill();
-
-    // Base — gradient
-    var baseGrad=X.createRadialGradient(t.x-3,t.y-3,2,t.x,t.y,18);
-    baseGrad.addColorStop(0,'rgba(30,60,90,0.9)');
-    baseGrad.addColorStop(1,'rgba(0,20,40,0.9)');
-    X.fillStyle=baseGrad;
-    X.beginPath();X.arc(t.x,t.y,17,0,Math.PI*2);X.fill();
-
-    // Base ring
-    X.strokeStyle=t.color;X.lineWidth=2.5;
-    X.beginPath();X.arc(t.x,t.y,17,0,Math.PI*2);X.stroke();
-
-    // Level indicators
-    for(var lv=0;lv<t.level&&lv<5;lv++){
-      var la=-0.5+lv*0.5;
-      X.fillStyle=COL.gold;
-      X.beginPath();X.arc(t.x+Math.cos(la)*12,t.y+Math.sin(la)*12,2.5,0,Math.PI*2);X.fill();
-    }
-
-    // Turret
-    X.save();
-    X.translate(t.x,t.y);
-    X.rotate(t.angle);
-
-    // Fire animation
-    if(t.fireAnim>0){
-      t.fireAnim--;
-      // Muzzle flash
+    if(t.fireAnim>0){t.fireAnim--;
       X.fillStyle='rgba(255,255,150,'+t.fireAnim/5+')';
       X.beginPath();X.arc(0,-22,5+t.fireAnim,0,Math.PI*2);X.fill();
     }
 
-    // Barrel
-    var barrelGrad=X.createLinearGradient(-4,-20,4,-20);
-    barrelGrad.addColorStop(0,t.color);
-    barrelGrad.addColorStop(1,'rgba(0,0,0,0.3)');
-    X.fillStyle=barrelGrad;
-    X.fillRect(-3,-20,6,20);
-
-    // Barrel tip
-    X.fillStyle=COL.white;
-    X.fillRect(-4.5,-22,9,4);
-
-    // Cannon gets a wider barrel
-    if(t.type==='splash'){
+    if(t.type==='basic'){
+      // Single barrel
+      X.fillStyle=t.color;X.fillRect(-3,-20,6,18);
+      X.fillStyle=COL.white;X.fillRect(-4,-22,8,4);
+    }
+    else if(t.type==='slow'){
+      // Crystal shape on top
       X.fillStyle=t.color;
-      X.fillRect(-5,-22,10,6);
+      X.beginPath();X.moveTo(0,-24);X.lineTo(-6,-12);X.lineTo(0,-4);X.lineTo(6,-12);X.closePath();X.fill();
+      X.strokeStyle=COL.white;X.lineWidth=1;X.stroke();
+      // Inner glow
+      X.fillStyle='rgba(255,255,255,0.3)';
+      X.beginPath();X.moveTo(0,-20);X.lineTo(-3,-12);X.lineTo(0,-8);X.lineTo(3,-12);X.closePath();X.fill();
+    }
+    else if(t.type==='rapid'){
+      // Triple barrel (minigun)
+      X.fillStyle=t.color;
+      X.fillRect(-5,-20,3,18);X.fillRect(-1,-22,3,20);X.fillRect(3,-20,3,18);
+      X.fillStyle='#333';X.beginPath();X.arc(0,-2,4,0,Math.PI*2);X.fill();
+      // Spinning indicator
+      var spin=frameCount*0.3;
+      X.strokeStyle=t.color;X.lineWidth=1.5;
+      X.beginPath();X.arc(0,-2,3,spin,spin+Math.PI);X.stroke();
+    }
+    else if(t.type==='poison'){
+      // Bubbling flask shape
+      X.fillStyle=t.color;
+      X.fillRect(-2,-18,4,10);
+      X.beginPath();X.arc(0,-6,7,0,Math.PI*2);X.fill();
+      // Bubbles
+      var bb=Math.sin(frameCount*0.1)*2;
+      X.fillStyle='rgba(100,255,100,0.5)';
+      X.beginPath();X.arc(-2,-10+bb,2,0,Math.PI*2);X.fill();
+      X.beginPath();X.arc(2,-8-bb,1.5,0,Math.PI*2);X.fill();
+      // Drip
+      X.fillStyle=t.color;
+      X.beginPath();X.arc(0,-14,2,0,Math.PI*2);X.fill();
+    }
+    else if(t.type==='sniper'){
+      // Long thin barrel with scope
+      X.fillStyle=t.color;X.fillRect(-2,-28,4,26);
+      X.fillStyle=COL.white;X.fillRect(-3,-30,6,3);
+      // Scope
+      X.strokeStyle=t.color;X.lineWidth=1.5;
+      X.beginPath();X.arc(5,-18,4,0,Math.PI*2);X.stroke();
+      X.fillStyle=t.color;X.fillRect(1,-19,4,2);
+      // Crosshair
+      X.strokeStyle='rgba(255,255,255,0.5)';X.lineWidth=0.5;
+      X.beginPath();X.moveTo(5,-22);X.lineTo(5,-14);X.moveTo(1,-18);X.lineTo(9,-18);X.stroke();
+    }
+    else if(t.type==='splash'){
+      // Wide cannon barrel
+      X.fillStyle='#555';X.fillRect(-3,-16,6,14);
+      X.fillStyle=t.color;
+      X.beginPath();X.moveTo(-7,-22);X.lineTo(7,-22);X.lineTo(5,-10);X.lineTo(-5,-10);X.closePath();X.fill();
+      X.strokeStyle='rgba(255,255,255,0.3)';X.lineWidth=1;X.stroke();
+      // Cannonball visible
+      X.fillStyle='#333';X.beginPath();X.arc(0,-18,3,0,Math.PI*2);X.fill();
+    }
+    else if(t.type==='chain'){
+      // Tesla coil
+      X.fillStyle='#555';X.fillRect(-2,-12,4,10);
+      // Coil rings
+      X.strokeStyle=t.color;X.lineWidth=2;
+      X.beginPath();X.arc(0,-14,6,0,Math.PI*2);X.stroke();
+      X.beginPath();X.arc(0,-18,4,0,Math.PI*2);X.stroke();
+      // Spark on top
+      X.fillStyle=t.color;X.beginPath();X.arc(0,-22,3,0,Math.PI*2);X.fill();
+      // Lightning bolts
+      var lf=Math.sin(frameCount*0.2)*3;
+      X.strokeStyle='rgba(170,102,255,0.6)';X.lineWidth=1;
+      X.beginPath();X.moveTo(0,-22);X.lineTo(-4+lf,-26);X.lineTo(-1,-24);X.lineTo(-5-lf,-28);X.stroke();
+      X.beginPath();X.moveTo(0,-22);X.lineTo(4-lf,-26);X.lineTo(1,-24);X.lineTo(5+lf,-28);X.stroke();
     }
 
     X.restore();
 
-    // Center orb with glow
+    // Center orb
     X.shadowColor=t.color;X.shadowBlur=8;
-    X.fillStyle=t.color;
-    X.beginPath();X.arc(t.x,t.y,5,0,Math.PI*2);X.fill();
+    X.fillStyle=t.color;X.beginPath();X.arc(t.x,t.y,5,0,Math.PI*2);X.fill();
     X.shadowBlur=0;
+  }
+}
+
+function drawEnemyBase(e){
+  // Shadow
+  X.fillStyle='rgba(0,0,0,0.2)';
+  X.beginPath();X.ellipse(e.x+1,e.y+e.size*0.7,e.size*0.8,e.size*0.3,0,0,Math.PI*2);X.fill();
+  // Slow glow
+  if(e.slowTimer>0){X.fillStyle='rgba(0,204,255,0.15)';X.beginPath();X.arc(e.x,e.y,e.size+6,0,Math.PI*2);X.fill();}
+  // Poison glow
+  if(e.poisonTimer>0){X.fillStyle='rgba(68,204,68,0.12)';X.beginPath();X.arc(e.x,e.y,e.size+4,0,Math.PI*2);X.fill();}
+}
+
+function drawEnemyHP(e){
+  if(e.hp<e.maxHp){
+    var bw=e.size*2.2,hpPct=e.hp/e.maxHp;
+    X.fillStyle='rgba(0,0,0,0.6)';X.fillRect(e.x-bw/2,e.y-e.size-10,bw,5);
+    X.fillStyle=hpPct>0.5?COL.green:(hpPct>0.25?COL.gold:COL.red);
+    X.fillRect(e.x-bw/2,e.y-e.size-10,bw*hpPct,5);
+  }
+  // Shield bar
+  if(e.shieldHp&&e.shieldHp>0){
+    var bw=e.size*2.2,sPct=e.shieldHp/e.maxShield;
+    X.fillStyle='rgba(68,136,255,0.4)';X.fillRect(e.x-bw/2,e.y-e.size-15,bw*sPct,3);
   }
 }
 
@@ -679,115 +743,148 @@ function drawEnemies(){
     var pos=posOnPath(e.t);
     e.x=pos.x;e.y=pos.y;
     e.wobble+=0.08;
+    var s=e.size,ex=e.x,ey=e.y,wb=Math.sin(e.wobble);
 
-    // Shadow
-    X.fillStyle='rgba(0,0,0,0.2)';
-    X.beginPath();X.ellipse(e.x+1,e.y+e.size*0.7,e.size*0.8,e.size*0.3,0,0,Math.PI*2);X.fill();
+    drawEnemyBase(e);
 
-    // Slow glow
-    if(e.slowTimer>0){
-      X.fillStyle='rgba(0,204,255,0.15)';
-      X.beginPath();X.arc(e.x,e.y,e.size+6,0,Math.PI*2);X.fill();
+    if(e.type==='basic'){
+      // Round blob with cute face
+      var bg=X.createRadialGradient(ex-s*0.3,ey-s*0.3,1,ex,ey,s);
+      bg.addColorStop(0,'#ff7766');bg.addColorStop(1,'#cc3322');
+      X.fillStyle=bg;X.beginPath();X.arc(ex,ey,s,0,Math.PI*2);X.fill();
+      X.strokeStyle='rgba(255,255,255,0.2)';X.lineWidth=1.5;X.stroke();
+      // Eyes
+      X.fillStyle='#fff';X.beginPath();X.arc(ex-s*0.3,ey-s*0.15,s*0.25,0,Math.PI*2);X.arc(ex+s*0.3,ey-s*0.15,s*0.25,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex-s*0.22,ey-s*0.15,s*0.12,0,Math.PI*2);X.arc(ex+s*0.38,ey-s*0.15,s*0.12,0,Math.PI*2);X.fill();
+      // Smile
+      X.strokeStyle='#000';X.lineWidth=1;X.beginPath();X.arc(ex,ey+s*0.15,s*0.2,0.1*Math.PI,0.9*Math.PI);X.stroke();
     }
-
-    // Healer aura
-    if(e.healRate>0){
-      var ha=0.1+Math.sin(e.wobble)*0.05;
-      X.strokeStyle='rgba(0,204,102,'+ha+')';
-      X.lineWidth=2;
-      X.beginPath();X.arc(e.x,e.y,e.size+8,0,Math.PI*2);X.stroke();
+    else if(e.type==='fast'){
+      // Triangular speedster
+      X.fillStyle=e.color;
+      X.beginPath();X.moveTo(ex+s,ey);X.lineTo(ex-s*0.7,ey-s*0.8);X.lineTo(ex-s*0.7,ey+s*0.8);X.closePath();X.fill();
+      X.strokeStyle='rgba(255,255,255,0.3)';X.lineWidth=1;X.stroke();
+      // Speed lines
+      X.strokeStyle='rgba(255,200,0,0.4)';X.lineWidth=1;
+      X.beginPath();X.moveTo(ex-s,ey-s*0.3);X.lineTo(ex-s*1.5,ey-s*0.3);X.stroke();
+      X.beginPath();X.moveTo(ex-s,ey+s*0.3);X.lineTo(ex-s*1.5,ey+s*0.3);X.stroke();
+      // Eye
+      X.fillStyle='#fff';X.beginPath();X.arc(ex+s*0.2,ey,s*0.25,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex+s*0.3,ey,s*0.1,0,Math.PI*2);X.fill();
     }
-
-    // Body gradient
-    var bodyGrad=X.createRadialGradient(e.x-e.size*0.3,e.y-e.size*0.3,1,e.x,e.y,e.size);
-    bodyGrad.addColorStop(0,e.color);
-    bodyGrad.addColorStop(1,'rgba(0,0,0,0.4)');
-    X.fillStyle=bodyGrad;
-    X.beginPath();X.arc(e.x,e.y,e.size,0,Math.PI*2);X.fill();
-
-    // Outline
-    X.strokeStyle='rgba(255,255,255,0.2)';X.lineWidth=1.5;X.stroke();
-
-    // Highlight
-    X.fillStyle='rgba(255,255,255,0.15)';
-    X.beginPath();X.arc(e.x-e.size*0.25,e.y-e.size*0.3,e.size*0.3,0,Math.PI*2);X.fill();
-
-    // Eyes — bounce
-    var eyeBounce=Math.sin(e.wobble)*1;
-    X.fillStyle=COL.white;
-    X.beginPath();
-    X.arc(e.x-e.size*0.3,e.y-e.size*0.1+eyeBounce,e.size*0.25,0,Math.PI*2);
-    X.arc(e.x+e.size*0.3,e.y-e.size*0.1+eyeBounce,e.size*0.25,0,Math.PI*2);
-    X.fill();
-    // Pupils
-    X.fillStyle='#000';
-    X.beginPath();
-    X.arc(e.x-e.size*0.22,e.y-e.size*0.1+eyeBounce,e.size*0.12,0,Math.PI*2);
-    X.arc(e.x+e.size*0.38,e.y-e.size*0.1+eyeBounce,e.size*0.12,0,Math.PI*2);
-    X.fill();
-
-    // Angry mouth for tanks/bosses
-    if(e.type==='tank'||e.type==='boss'){
-      X.strokeStyle='#000';X.lineWidth=1.5;
-      X.beginPath();X.arc(e.x,e.y+e.size*0.3,e.size*0.25,0.2*Math.PI,0.8*Math.PI);X.stroke();
+    else if(e.type==='tank'){
+      // Square/armored look
+      X.fillStyle=e.color;
+      X.fillRect(ex-s,ey-s,s*2,s*2);
+      // Armor plates
+      X.strokeStyle='rgba(255,255,255,0.15)';X.lineWidth=1.5;
+      X.strokeRect(ex-s,ey-s,s*2,s*2);
+      X.strokeRect(ex-s*0.6,ey-s*0.6,s*1.2,s*1.2);
+      // Angry eyes
+      X.fillStyle='#fff';X.fillRect(ex-s*0.6,ey-s*0.4,s*0.4,s*0.3);X.fillRect(ex+s*0.2,ey-s*0.4,s*0.4,s*0.3);
+      X.fillStyle='#000';X.fillRect(ex-s*0.4,ey-s*0.3,s*0.2,s*0.2);X.fillRect(ex+s*0.3,ey-s*0.3,s*0.2,s*0.2);
+      // Mouth
+      X.fillStyle='#000';X.fillRect(ex-s*0.4,ey+s*0.2,s*0.8,s*0.15);
     }
-
-    // Dodger sparkle
-    if(e.dodgeChance>0){
-      var sp=Math.sin(e.wobble*2)*0.5+0.5;
-      X.fillStyle='rgba(204,0,204,'+sp*0.4+')';
-      X.beginPath();X.arc(e.x+e.size*0.8,e.y-e.size*0.5,3,0,Math.PI*2);X.fill();
+    else if(e.type==='healer'){
+      // Round with cross
+      var bg=X.createRadialGradient(ex,ey,1,ex,ey,s);
+      bg.addColorStop(0,'#44ee88');bg.addColorStop(1,'#008844');
+      X.fillStyle=bg;X.beginPath();X.arc(ex,ey,s,0,Math.PI*2);X.fill();
+      // Aura pulse
+      var ha=0.15+wb*0.1;
+      X.strokeStyle='rgba(0,255,128,'+ha+')';X.lineWidth=2;
+      X.beginPath();X.arc(ex,ey,s+5+wb*2,0,Math.PI*2);X.stroke();
+      // Cross
+      X.fillStyle='#fff';X.fillRect(ex-1.5,ey-s*0.5,3,s);X.fillRect(ex-s*0.5,ey-1.5,s,3);
+      // Eyes
+      X.fillStyle='#fff';X.beginPath();X.arc(ex-s*0.3,ey-s*0.2,s*0.2,0,Math.PI*2);X.arc(ex+s*0.3,ey-s*0.2,s*0.2,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex-s*0.25,ey-s*0.2,s*0.08,0,Math.PI*2);X.arc(ex+s*0.35,ey-s*0.2,s*0.08,0,Math.PI*2);X.fill();
     }
-
-    // Healer cross
-    if(e.healRate>0){
-      X.fillStyle=COL.white;
-      X.fillRect(e.x-1.5,e.y+e.size*0.15,3,e.size*0.4);
-      X.fillRect(e.x-e.size*0.2,e.y+e.size*0.25,e.size*0.4,3);
-    }
-
-    // HP bar
-    if(e.hp<e.maxHp){
-      var bw=e.size*2.2,hpPct=e.hp/e.maxHp;
-      X.fillStyle='rgba(0,0,0,0.6)';
-      X.fillRect(e.x-bw/2,e.y-e.size-10,bw,5);
-      X.fillStyle=hpPct>0.5?COL.green:(hpPct>0.25?COL.gold:COL.red);
-      X.fillRect(e.x-bw/2,e.y-e.size-10,bw*hpPct,5);
-      X.strokeStyle='rgba(255,255,255,0.15)';X.lineWidth=0.5;
-      X.strokeRect(e.x-bw/2,e.y-e.size-10,bw,5);
-    }
-
-    // Shield bubble
-    if(e.shieldHp&&e.shieldHp>0){
-      X.strokeStyle='rgba(68,136,255,0.5)';X.lineWidth=2;
-      X.beginPath();X.arc(e.x,e.y,e.size+5,0,Math.PI*2);X.stroke();
-    }
-
-    // Regen sparkle
-    if(e.regenRate>0){
-      var rsp=Math.sin(e.wobble*1.5)*0.4+0.4;
-      X.fillStyle='rgba(51,221,170,'+rsp+')';
-      X.beginPath();X.arc(e.x-e.size*0.7,e.y-e.size*0.6,2.5,0,Math.PI*2);X.fill();
-    }
-
-    // Swarm — smaller, no extra decoration
-
-    // Boss crown
-    if(e.type==='boss'){
-      X.fillStyle=COL.gold;
-      X.beginPath();
-      X.moveTo(e.x-10,e.y-e.size-2);
-      X.lineTo(e.x-7,e.y-e.size-12);
-      X.lineTo(e.x-2,e.y-e.size-6);
-      X.lineTo(e.x+2,e.y-e.size-14);
-      X.lineTo(e.x+7,e.y-e.size-6);
-      X.lineTo(e.x+10,e.y-e.size-12);
-      X.lineTo(e.x+12,e.y-e.size-2);
+    else if(e.type==='dodge'){
+      // Star/ninja shape
+      X.fillStyle=e.color;X.beginPath();
+      for(var p=0;p<5;p++){
+        var a1=(p/5)*Math.PI*2-Math.PI/2;
+        var a2=((p+0.5)/5)*Math.PI*2-Math.PI/2;
+        X.lineTo(ex+Math.cos(a1)*s,ey+Math.sin(a1)*s);
+        X.lineTo(ex+Math.cos(a2)*s*0.5,ey+Math.sin(a2)*s*0.5);
+      }
       X.closePath();X.fill();
-      // Gem
-      X.fillStyle=COL.red;
-      X.beginPath();X.arc(e.x+2,e.y-e.size-9,2.5,0,Math.PI*2);X.fill();
+      X.strokeStyle='rgba(255,255,255,0.3)';X.lineWidth=1;X.stroke();
+      // Sparkle
+      var sp=wb*0.5+0.5;
+      X.fillStyle='rgba(255,255,255,'+sp+')';X.beginPath();X.arc(ex,ey-s*0.8,2,0,Math.PI*2);X.fill();
+      // Eye
+      X.fillStyle='#fff';X.beginPath();X.arc(ex,ey-s*0.1,s*0.3,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex+s*0.05,ey-s*0.1,s*0.12,0,Math.PI*2);X.fill();
     }
+    else if(e.type==='shield'){
+      // Hexagon with shield
+      X.fillStyle=e.color;X.beginPath();
+      for(var p=0;p<6;p++){var a=(p/6)*Math.PI*2-Math.PI/2;X.lineTo(ex+Math.cos(a)*s,ey+Math.sin(a)*s);}
+      X.closePath();X.fill();
+      X.strokeStyle='rgba(255,255,255,0.3)';X.lineWidth=1.5;X.stroke();
+      // Shield icon
+      if(e.shieldHp>0){
+        X.strokeStyle='rgba(200,230,255,0.6)';X.lineWidth=2;
+        X.beginPath();X.arc(ex,ey,s+5,0,Math.PI*2);X.stroke();
+        X.beginPath();X.arc(ex,ey,s+3,0,Math.PI*2);X.stroke();
+      }
+      // Eyes
+      X.fillStyle='#fff';X.beginPath();X.arc(ex-s*0.25,ey-s*0.1,s*0.2,0,Math.PI*2);X.arc(ex+s*0.25,ey-s*0.1,s*0.2,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex-s*0.18,ey-s*0.1,s*0.08,0,Math.PI*2);X.arc(ex+s*0.32,ey-s*0.1,s*0.08,0,Math.PI*2);X.fill();
+    }
+    else if(e.type==='swarm'){
+      // Tiny diamond
+      X.fillStyle=e.color;
+      X.beginPath();X.moveTo(ex,ey-s);X.lineTo(ex+s,ey);X.lineTo(ex,ey+s);X.lineTo(ex-s,ey);X.closePath();X.fill();
+      X.strokeStyle='rgba(255,255,255,0.2)';X.lineWidth=1;X.stroke();
+      // Dot eye
+      X.fillStyle='#fff';X.beginPath();X.arc(ex,ey-s*0.2,s*0.3,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex+s*0.05,ey-s*0.2,s*0.12,0,Math.PI*2);X.fill();
+    }
+    else if(e.type==='regen'){
+      // Rounded blob with pulse
+      var bg=X.createRadialGradient(ex,ey,1,ex,ey,s);
+      bg.addColorStop(0,'#66eedd');bg.addColorStop(1,'#228877');
+      X.fillStyle=bg;X.beginPath();X.arc(ex,ey,s,0,Math.PI*2);X.fill();
+      // Pulse ring
+      var rp=((frameCount%60)/60)*s*2;
+      X.strokeStyle='rgba(51,221,170,'+(1-rp/(s*2))*0.3+')';X.lineWidth=1.5;
+      X.beginPath();X.arc(ex,ey,s+rp,0,Math.PI*2);X.stroke();
+      // Heart icon
+      X.fillStyle='rgba(255,100,100,0.7)';
+      X.beginPath();X.arc(ex-s*0.15,ey-s*0.15,s*0.2,0,Math.PI*2);X.fill();
+      X.beginPath();X.arc(ex+s*0.15,ey-s*0.15,s*0.2,0,Math.PI*2);X.fill();
+      X.beginPath();X.moveTo(ex-s*0.35,ey-s*0.05);X.lineTo(ex,ey+s*0.35);X.lineTo(ex+s*0.35,ey-s*0.05);X.fill();
+      // Eyes
+      X.fillStyle='#fff';X.beginPath();X.arc(ex-s*0.3,ey-s*0.1,s*0.18,0,Math.PI*2);X.arc(ex+s*0.3,ey-s*0.1,s*0.18,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex-s*0.24,ey-s*0.1,s*0.08,0,Math.PI*2);X.arc(ex+s*0.36,ey-s*0.1,s*0.08,0,Math.PI*2);X.fill();
+    }
+    else if(e.type==='boss'){
+      // Large spiky circle
+      X.fillStyle=e.color;X.beginPath();
+      for(var p=0;p<12;p++){
+        var a=(p/12)*Math.PI*2;
+        var r2=p%2===0?s:s*0.7;
+        X.lineTo(ex+Math.cos(a)*r2,ey+Math.sin(a)*r2);
+      }
+      X.closePath();X.fill();
+      X.strokeStyle='rgba(255,255,255,0.2)';X.lineWidth=2;X.stroke();
+      // Crown
+      X.fillStyle=COL.gold;
+      X.beginPath();X.moveTo(ex-10,ey-s-2);X.lineTo(ex-7,ey-s-12);X.lineTo(ex-2,ey-s-6);
+      X.lineTo(ex+2,ey-s-14);X.lineTo(ex+7,ey-s-6);X.lineTo(ex+10,ey-s-12);X.lineTo(ex+12,ey-s-2);X.closePath();X.fill();
+      X.fillStyle=COL.red;X.beginPath();X.arc(ex+2,ey-s-9,2.5,0,Math.PI*2);X.fill();
+      // Evil eyes
+      X.fillStyle='#ff0';X.beginPath();X.arc(ex-s*0.3,ey-s*0.15,s*0.22,0,Math.PI*2);X.arc(ex+s*0.3,ey-s*0.15,s*0.22,0,Math.PI*2);X.fill();
+      X.fillStyle='#000';X.beginPath();X.arc(ex-s*0.25,ey-s*0.15,s*0.1,0,Math.PI*2);X.arc(ex+s*0.35,ey-s*0.15,s*0.1,0,Math.PI*2);X.fill();
+      // Angry mouth
+      X.strokeStyle='#000';X.lineWidth=2;X.beginPath();X.arc(ex,ey+s*0.2,s*0.3,0.15*Math.PI,0.85*Math.PI);X.stroke();
+    }
+
+    drawEnemyHP(e);
   }
 }
 
