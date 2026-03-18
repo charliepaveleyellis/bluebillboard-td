@@ -73,7 +73,7 @@
   #upgradePopup { position:fixed; z-index:5; background:rgba(0,10,30,0.95);
     border:2px solid #2ea3f2; border-radius:12px; padding:12px 16px;
     color:#fff; text-align:center; display:none; min-width:120px;
-    box-shadow:0 0 20px rgba(46,163,242,0.3); }
+    box-shadow:0 0 20px rgba(46,163,242,0.3); touch-action:none; }
   #upgradePopup .up-title { font-size:12px; color:#2ea3f2; font-weight:700; text-transform:uppercase; }
   #upgradePopup .up-level { font-size:10px; color:#d9d9d9; margin:4px 0; }
   #upgradePopup .up-btn { display:inline-block; margin-top:6px; padding:6px 16px; font-size:11px;
@@ -387,16 +387,23 @@ function showUpgrade(tIdx){
   }
   document.getElementById('sellBtn').textContent='Sell (+'+sellPrice+')';
 
-  upgradePopup.style.left=Math.min(t.x,C.width-140)+'px';
-  upgradePopup.style.top=Math.max(60,t.y-80)+'px';
+  // Position well above the tower so finger doesn't overlap buttons
+  var popLeft=Math.max(10,Math.min(t.x-60,C.width-140));
+  var popTop=t.y-120;
+  if(popTop<60) popTop=t.y+40;
+  upgradePopup.style.left=popLeft+'px';
+  upgradePopup.style.top=popTop+'px';
   upgradePopup.style.display='block';
+  // Block interactions briefly so the tap that opened this can't hit buttons
+  upgradePopup.style.pointerEvents='none';
+  setTimeout(function(){ upgradePopup.style.pointerEvents='auto'; },400);
 }
 
-function closeUpgrade(){ if(upgradePopup) upgradePopup.style.display='none'; selectedTowerIdx=-1; }
+function closeUpgrade(){ if(upgradePopup){ upgradePopup.style.display='none'; upgradePopup.style.pointerEvents='none'; } selectedTowerIdx=-1; }
 
 upBtn.addEventListener('click',function(e){
   e.stopPropagation();
-  if(selectedTowerIdx<0) return;
+  if(selectedTowerIdx<0||upgradePopup.style.pointerEvents==='none') return;
   var t=towers[selectedTowerIdx];
   if(t.level>=4) return;
   var def=TOWER_DEFS[t.type];
@@ -415,14 +422,29 @@ upBtn.addEventListener('click',function(e){
   }
   updateHUD(); closeUpgrade();
 });
-upBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
+upBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();
+  if(selectedTowerIdx<0||upgradePopup.style.pointerEvents==='none') return;
+  // Duplicate upgrade logic for touch
+  var t2=towers[selectedTowerIdx];if(!t2||t2.level>=4) return;
+  var def2=TOWER_DEFS[t2.type];var cost2=Math.floor(def2.upgCost*(1+t2.level*0.8));
+  if(coins<cost2) return;coins-=cost2;t2.level++;t2.dmg*=1.4;t2.range+=10;
+  t2.rate=Math.max(10,t2.rate-5);if(t2.splash)t2.splash+=8;sfxUpgrade();
+  for(var ii=0;ii<12;ii++){var aa=(ii/12)*Math.PI*2;particles.push({x:t2.x,y:t2.y,vx:Math.cos(aa)*4,vy:Math.sin(aa)*4,life:20,size:3,color:COL.gold});}
+  updateHUD();closeUpgrade();
+},{passive:false});
+upBtn.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
 upClose.addEventListener('click',function(e){e.stopPropagation(); closeUpgrade();});
-upClose.addEventListener('touchstart',function(e){e.stopPropagation();});
+upClose.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault(); closeUpgrade();},{passive:false});
+upClose.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
+// Block all touch events on upgrade popup from reaching canvas
+upgradePopup.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
+upgradePopup.addEventListener('touchend',function(e){e.stopPropagation();},{passive:false});
+upgradePopup.addEventListener('click',function(e){e.stopPropagation();});
 
 var sellBtn=document.getElementById('sellBtn');
 sellBtn.addEventListener('click',function(e){
   e.stopPropagation();
-  if(selectedTowerIdx<0) return;
+  if(selectedTowerIdx<0||upgradePopup.style.pointerEvents==='none') return;
   var t=towers[selectedTowerIdx];
   var def=TOWER_DEFS[t.type];
   var sellPrice=Math.floor(def.cost*0.5);
@@ -434,7 +456,14 @@ sellBtn.addEventListener('click',function(e){
   towers.splice(selectedTowerIdx,1);
   updateHUD(); closeUpgrade();
 });
-sellBtn.addEventListener('touchstart',function(e){e.stopPropagation();});
+sellBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();
+  if(selectedTowerIdx<0||upgradePopup.style.pointerEvents==='none') return;
+  var t3=towers[selectedTowerIdx];if(!t3) return;
+  var def3=TOWER_DEFS[t3.type];var sp=Math.floor(def3.cost*0.5);coins+=sp;
+  for(var ii=0;ii<8;ii++){var aa=(ii/8)*Math.PI*2;particles.push({x:t3.x,y:t3.y,vx:Math.cos(aa)*3,vy:Math.sin(aa)*3,life:15,size:3,color:COL.neonRed});}
+  towers.splice(selectedTowerIdx,1);updateHUD();closeUpgrade();
+},{passive:false});
+sellBtn.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
 
 // ─── DRAG & DROP TOWER PLACEMENT ─────────────────
 var dragging=null; // {type, x, y, valid} — tower being dragged
