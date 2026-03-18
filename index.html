@@ -891,16 +891,30 @@ function drawEnemies(){
 function drawBullets(){
   for(var i=0;i<bullets.length;i++){
     var b=bullets[i];
-    // Glow
     X.shadowColor=b.color;X.shadowBlur=6;
     X.fillStyle=b.color;
     X.beginPath();X.arc(b.x,b.y,b.size||3,0,Math.PI*2);X.fill();
     X.shadowBlur=0;
-    // Trail
     X.globalAlpha=0.3;
     X.fillStyle=b.color;
     X.beginPath();X.arc(b.x-b.vx*0.8,b.y-b.vy*0.8,(b.size||3)*0.5,0,Math.PI*2);X.fill();
-    X.beginPath();X.arc(b.x-b.vx*1.5,b.y-b.vy*1.5,(b.size||3)*0.3,0,Math.PI*2);X.fill();
+    X.globalAlpha=1;
+  }
+  // Draw lightning arcs (Tesla + Sniper tracers)
+  for(var i=0;i<lightningArcs.length;i++){
+    var a=lightningArcs[i];
+    var col=a.color||'#aa66ff';
+    X.strokeStyle=col;X.lineWidth=2;X.globalAlpha=a.life/6;
+    X.beginPath();X.moveTo(a.x1,a.y1);
+    // Jagged lightning segments
+    var segs=5;
+    for(var s=1;s<segs;s++){
+      var t2=s/segs;
+      var mx=a.x1+(a.x2-a.x1)*t2+(Math.random()-0.5)*15;
+      var my=a.y1+(a.y2-a.y1)*t2+(Math.random()-0.5)*15;
+      X.lineTo(mx,my);
+    }
+    X.lineTo(a.x2,a.y2);X.stroke();
     X.globalAlpha=1;
   }
 }
@@ -919,41 +933,130 @@ function drawParticles(){
 
 // ─── GAME LOGIC ───────────────────────────────────
 
+// Store lightning arcs for drawing
+var lightningArcs=[];
+
+function findTarget(t){
+  var target=null;
+  for(var j=0;j<enemies.length;j++){
+    var e=enemies[j];
+    var dx=e.x-t.x,dy=e.y-t.y;
+    if(Math.sqrt(dx*dx+dy*dy)<t.range&&(target===null||e.t>target.t)) target=e;
+  }
+  return target;
+}
+
+function findEnemiesInRange(x,y,range){
+  var found=[];
+  for(var j=0;j<enemies.length;j++){
+    var dx=enemies[j].x-x,dy=enemies[j].y-y;
+    if(Math.sqrt(dx*dx+dy*dy)<range) found.push(j);
+  }
+  return found;
+}
+
+function fireProjectile(t,target){
+  var spd=10;
+  var dx=target.x-t.x,dy=target.y-t.y;
+  var dist=Math.sqrt(dx*dx+dy*dy);
+  var timeToHit=dist/spd;
+  var futurePos=posOnPath(Math.min(1,target.t+target.speed*timeToHit*0.5));
+  var fdx=futurePos.x-t.x,fdy=futurePos.y-t.y;
+  var fdist=Math.sqrt(fdx*fdx+fdy*fdy);
+  t.angle=Math.atan2(fdy,fdx)+Math.PI/2;
+  return {fdx:fdx/fdist,fdy:fdy/fdist,spd:spd};
+}
+
 function updateTowers(){
+  lightningArcs=[];
   for(var i=0;i<towers.length;i++){
     var t=towers[i];
     t.cooldown--;
     if(t.cooldown>0) continue;
 
-    var target=null,minDist=t.range+1;
-    for(var j=0;j<enemies.length;j++){
-      var e=enemies[j];
-      var dx=e.x-t.x,dy=e.y-t.y;
-      var dist=Math.sqrt(dx*dx+dy*dy);
-      // Prioritize enemies furthest along path
-      if(dist<t.range&&(target===null||e.t>target.t)){
-        target=e;minDist=dist;
-      }
-    }
+    var target=findTarget(t);
+    if(!target) continue;
 
-    if(target){
-      t.cooldown=t.rate;
-      t.fireAnim=5;
-      // Lead targeting — aim where the enemy will be
-      var spd=10;
-      var dx=target.x-t.x,dy=target.y-t.y;
-      var dist=Math.sqrt(dx*dx+dy*dy);
-      var timeToHit=dist/spd;
-      // Predict future position
-      var futurePos=posOnPath(Math.min(1,target.t+target.speed*timeToHit*0.5));
-      var fdx=futurePos.x-t.x,fdy=futurePos.y-t.y;
-      var fdist=Math.sqrt(fdx*fdx+fdy*fdy);
-      t.angle=Math.atan2(fdy,fdx)+Math.PI/2;
+    t.cooldown=t.rate;
+    t.fireAnim=5;
+
+    if(t.type==='chain'){
+      // TESLA — zap ALL enemies in range, no bullets
+      var inRange=findEnemiesInRange(t.x,t.y,t.range);
+      for(var j=0;j<inRange.length;j++){
+        var e=enemies[inRange[j]];
+        // Shield absorbs
+        var dmg=t.dmg;
+        if(e.shieldHp&&e.shieldHp>0){var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;}
+        e.hp-=dmg;
+        // Lightning arc from tower to enemy
+        lightningArcs.push({x1:t.x,y1:t.y,x2:e.x,y2:e.y,life:6});
+        particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-2,life:8,size:2,color:'#aa66ff'});
+      }
+      if(inRange.length>0) playSound(1500,'square',0.05,0.04);
+      t.angle+=0.2; // spin
+    }
+    else if(t.type==='slow'){
+      // FREEZE — slow ALL enemies in range, no bullets
+      var inRange=findEnemiesInRange(t.x,t.y,t.range);
+      for(var j=0;j<inRange.length;j++){
+        var e=enemies[inRange[j]];
+        e.slowTimer=Math.max(e.slowTimer,60);
+        e.hp-=t.dmg;
+        particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-1,life:10,size:2,color:'#00ccff'});
+      }
+      if(inRange.length>0) sfxShoot();
+      t.angle+=0.1;
+    }
+    else if(t.type==='sniper'){
+      // SNIPER — instant hit, no bullet travel
+      var aim=fireProjectile(t,target);
+      var dmg=t.dmg;
+      if(target.shieldHp&&target.shieldHp>0){var ab=Math.min(target.shieldHp,dmg);target.shieldHp-=ab;dmg-=ab;}
+      target.hp-=dmg;
+      sfxShoot();
+      // Tracer line
+      lightningArcs.push({x1:t.x,y1:t.y,x2:target.x,y2:target.y,life:4,color:COL.gold});
+      particles.push({x:target.x,y:target.y,vx:0,vy:-3,life:12,size:3,color:COL.gold});
+    }
+    else if(t.type==='rapid'){
+      // MINIGUN — fast bullets with slight spread
+      var aim=fireProjectile(t,target);
+      var spread=(Math.random()-0.5)*0.3;
       bullets.push({
-        x:t.x,y:t.y,vx:fdx/fdist*spd,vy:fdy/fdist*spd,
-        dmg:t.dmg,splash:t.splash,slow:t.slow,
-        poison:t.poison||0,chain:t.chain||0,
-        color:t.color,size:t.splash?5:(t.chain?4:3),life:60
+        x:t.x,y:t.y,vx:(aim.fdx+spread)*aim.spd*1.2,vy:(aim.fdy+spread)*aim.spd*1.2,
+        dmg:t.dmg,splash:0,slow:0,poison:0,chain:0,
+        color:t.color,size:2,life:40
+      });
+      sfxShoot();
+    }
+    else if(t.type==='splash'){
+      // CANNON — slow heavy shell that explodes
+      var aim=fireProjectile(t,target);
+      bullets.push({
+        x:t.x,y:t.y,vx:aim.fdx*6,vy:aim.fdy*6,
+        dmg:t.dmg,splash:t.splash,slow:0,poison:0,chain:0,
+        color:t.color,size:6,life:80
+      });
+      sfxShoot();
+    }
+    else if(t.type==='poison'){
+      // POISON — lob a poison cloud that lingers
+      var aim=fireProjectile(t,target);
+      bullets.push({
+        x:t.x,y:t.y,vx:aim.fdx*8,vy:aim.fdy*8,
+        dmg:t.dmg,splash:0,slow:0,poison:t.poison,chain:0,
+        color:t.color,size:4,life:50
+      });
+      sfxShoot();
+    }
+    else {
+      // BLASTER — standard projectile with lead targeting
+      var aim=fireProjectile(t,target);
+      bullets.push({
+        x:t.x,y:t.y,vx:aim.fdx*aim.spd,vy:aim.fdy*aim.spd,
+        dmg:t.dmg,splash:0,slow:0,poison:0,chain:0,
+        color:t.color,size:3,life:60
       });
       sfxShoot();
     }
@@ -961,6 +1064,12 @@ function updateTowers(){
 }
 
 function updateBullets(){
+  // Decay lightning arcs
+  for(var i=lightningArcs.length-1;i>=0;i--){
+    lightningArcs[i].life--;
+    if(lightningArcs[i].life<=0) lightningArcs.splice(i,1);
+  }
+
   for(var i=bullets.length-1;i>=0;i--){
     var b=bullets[i];
     b.x+=b.vx;b.y+=b.vy;b.life--;
@@ -972,57 +1081,42 @@ function updateBullets(){
       if(Math.sqrt(dx*dx+dy*dy)<e.size+10){
         // Dodge check
         if(e.dodgeChance>0&&Math.random()<e.dodgeChance){
-          // Dodge! Enemy shifts sideways
           particles.push({x:e.x,y:e.y,vx:0,vy:-2,life:15,size:2,color:'#cc00cc'});
-          bullets.splice(i,1);
-          break;
+          bullets.splice(i,1);break;
         }
-        // Shield absorbs damage
+        // Shield absorbs
         var dmg=b.dmg;
         if(e.shieldHp&&e.shieldHp>0){
-          var absorbed=Math.min(e.shieldHp,dmg);
-          e.shieldHp-=absorbed;
-          dmg-=absorbed;
+          var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;
           particles.push({x:e.x,y:e.y-e.size,vx:0,vy:-2,life:12,size:3,color:'#4488ff'});
         }
         e.hp-=dmg;
         sfxHit();
-        if(b.slow) e.slowTimer=90;
-        // Poison — damage over time
+        // Poison
         if(b.poison) e.poisonTimer=Math.max(e.poisonTimer||0,b.poison*30);
-        // Chain lightning — jump to nearby enemies
-        if(b.chain&&b.chain>0){
-          var chainTargets=[];
-          for(var k=0;k<enemies.length;k++){
-            if(k===j) continue;
-            var cdx=e.x-enemies[k].x,cdy=e.y-enemies[k].y;
-            if(Math.sqrt(cdx*cdx+cdy*cdy)<70) chainTargets.push(k);
-          }
-          for(var k=0;k<Math.min(b.chain,chainTargets.length);k++){
-            enemies[chainTargets[k]].hp-=b.dmg*0.6;
-            // Lightning visual
-            particles.push({x:enemies[chainTargets[k]].x,y:enemies[chainTargets[k]].y,
-              vx:(Math.random()-0.5)*2,vy:-2,life:10,size:3,color:'#aa66ff'});
-          }
-          playSound(1500,'square',0.05,0.04);
-        }
+        // Splash explosion
         if(b.splash>0){
           for(var k=0;k<enemies.length;k++){
             if(k===j) continue;
             var sdx=b.x-enemies[k].x,sdy=b.y-enemies[k].y;
-            if(Math.sqrt(sdx*sdx+sdy*sdy)<b.splash) enemies[k].hp-=b.dmg*0.5;
+            if(Math.sqrt(sdx*sdx+sdy*sdy)<b.splash){
+              enemies[k].hp-=b.dmg*0.6;
+              // Splash also applies poison if present
+              if(b.poison) enemies[k].poisonTimer=Math.max(enemies[k].poisonTimer||0,b.poison*20);
+            }
           }
           sfxExplosion();
-          for(var k=0;k<8;k++){
-            var a=(k/8)*Math.PI*2;
-            particles.push({x:b.x,y:b.y,vx:Math.cos(a)*4,vy:Math.sin(a)*4,life:15,size:3,color:COL.red});
+          // Explosion ring
+          for(var k=0;k<12;k++){
+            var a=(k/12)*Math.PI*2;
+            particles.push({x:b.x,y:b.y,vx:Math.cos(a)*5,vy:Math.sin(a)*5,life:18,size:3,color:COL.red});
           }
         }
+        // Hit sparks
         for(var k=0;k<3;k++){
           particles.push({x:b.x,y:b.y,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,life:12,size:2,color:b.color});
         }
-        bullets.splice(i,1);
-        break;
+        bullets.splice(i,1);break;
       }
     }
   }
