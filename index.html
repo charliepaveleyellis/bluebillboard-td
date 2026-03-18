@@ -241,25 +241,25 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:50,range:80,rate:25,dmg:1,color:COL.blue,name:'Blaster',splash:0,upgCost:40},
-  slow:  {cost:75,range:70,rate:40,dmg:0.5,color:'#00ccff',name:'Freeze',splash:0,slow:0.5,upgCost:50},
-  splash:{cost:120,range:90,rate:55,dmg:2,color:COL.red,name:'Cannon',splash:40,upgCost:75},
-  sniper:{cost:100,range:150,rate:70,dmg:4,color:COL.gold,name:'Sniper',splash:0,upgCost:65},
-  poison:{cost:90,range:75,rate:35,dmg:0.3,color:'#44cc44',name:'Poison',splash:0,poison:3,upgCost:55},
-  chain: {cost:150,range:85,rate:50,dmg:1.5,color:'#aa66ff',name:'Tesla',splash:0,chain:3,upgCost:80},
-  rapid: {cost:80,range:65,rate:8,dmg:0.3,color:'#ff66aa',name:'Minigun',splash:0,upgCost:45}
+  basic: {cost:40,range:85,rate:22,dmg:1.2,color:COL.blue,name:'Blaster',splash:0,upgCost:30},
+  slow:  {cost:60,range:75,rate:35,dmg:0.4,color:'#00ccff',name:'Freeze',splash:0,slow:0.6,upgCost:40},
+  splash:{cost:110,range:90,rate:50,dmg:2.5,color:COL.red,name:'Cannon',splash:45,upgCost:65},
+  sniper:{cost:90,range:160,rate:65,dmg:5,color:COL.gold,name:'Sniper',splash:0,upgCost:55},
+  poison:{cost:70,range:80,rate:30,dmg:0.5,color:'#44cc44',name:'Poison',splash:0,poison:4,upgCost:45},
+  chain: {cost:130,range:90,rate:45,dmg:2,color:'#aa66ff',name:'Tesla',splash:0,chain:3,upgCost:70},
+  rapid: {cost:65,range:70,rate:12,dmg:0.4,color:'#ff66aa',name:'Minigun',splash:0,upgCost:35}
 };
 
 var ENEMY_DEFS={
-  basic: {hp:3,speed:0.0012,size:10,color:'#ff5a4d',reward:10,name:'Scout'},
-  fast:  {hp:2,speed:0.0022,size:8,color:'#ff8c00',reward:12,name:'Runner'},
-  tank:  {hp:10,speed:0.0007,size:14,color:'#aa0000',reward:25,name:'Tank'},
-  healer:{hp:5,speed:0.001,size:11,color:'#00cc66',reward:20,name:'Healer',healRate:0.02},
-  dodge: {hp:4,speed:0.0015,size:9,color:'#cc00cc',reward:18,name:'Dodger',dodgeChance:0.3},
-  shield:{hp:6,speed:0.001,size:12,color:'#4488ff',reward:22,name:'Shielder',shield:4},
-  swarm: {hp:1,speed:0.0025,size:6,color:'#ffaa00',reward:5,name:'Swarm'},
-  regen: {hp:8,speed:0.0009,size:12,color:'#33ddaa',reward:20,name:'Regen',regenRate:0.03},
-  boss:  {hp:30,speed:0.0005,size:18,color:'#880088',reward:80,name:'Boss'}
+  basic: {hp:4,speed:0.001,size:10,color:'#ff5a4d',reward:8,name:'Scout'},
+  fast:  {hp:2.5,speed:0.002,size:8,color:'#ff8c00',reward:10,name:'Runner'},
+  tank:  {hp:14,speed:0.0006,size:14,color:'#aa0000',reward:20,name:'Tank'},
+  healer:{hp:5,speed:0.0009,size:11,color:'#00cc66',reward:15,name:'Healer',healRate:0.015},
+  dodge: {hp:4,speed:0.0013,size:9,color:'#cc00cc',reward:15,name:'Dodger',dodgeChance:0.25},
+  shield:{hp:6,speed:0.0009,size:12,color:'#4488ff',reward:18,name:'Shielder',shield:5},
+  swarm: {hp:1.5,speed:0.002,size:6,color:'#ffaa00',reward:4,name:'Swarm'},
+  regen: {hp:7,speed:0.0008,size:12,color:'#33ddaa',reward:16,name:'Regen',regenRate:0.015},
+  boss:  {hp:35,speed:0.0004,size:18,color:'#880088',reward:60,name:'Boss'}
 };
 
 // ─── STATE ────────────────────────────────────────
@@ -422,12 +422,12 @@ C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; var t
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
-  // Easy start, hard later: 2 enemies wave 1, ramps up fast after wave 5
+  // Smooth difficulty curve
   var count;
-  if(w<=3) count=2+w;           // 3, 4, 5
-  else if(w<=6) count=4+w;       // 8, 9, 10
-  else if(w<=10) count=5+w*2;    // 19, 21, 23, 25
-  else count=10+w*2;             // 32+
+  if(w<=3) count=2+w;              // 3, 4, 5
+  else if(w<=6) count=3+w;         // 7, 8, 9
+  else if(w<=10) count=2+w+Math.floor(w/2); // 11, 13, 14, 16
+  else count=5+w+Math.floor(w/2);  // 22+
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -483,7 +483,7 @@ function startWave(){
 
 function spawnEnemy(type){
   var def=ENEMY_DEFS[type];
-  var hpScale=1+(wave-1)*0.15;
+  var hpScale=1+(wave-1)*0.1; // gentler HP scaling
   enemies.push({
     t:0,type:type,hp:def.hp*hpScale,maxHp:def.hp*hpScale,
     speed:def.speed,baseSpeed:def.speed,size:def.size,color:def.color,
@@ -564,7 +564,7 @@ function drawPath(){
   X.fillStyle='rgba(0,0,0,0.4)';
   X.fillRect(end.x-lbW/2,end.y+6,lbW,lbH);
   X.fillStyle=lives>5?COL.green:(lives>2?COL.gold:COL.red);
-  X.fillRect(end.x-lbW/2,end.y+6,lbW*(lives/10),lbH);
+  X.fillRect(end.x-lbW/2,end.y+6,lbW*(lives/15),lbH);
 }
 
 function drawDecorations(){
@@ -1038,7 +1038,7 @@ function updateEnemies(){
     // Poison damage over time
     if(e.poisonTimer>0){
       e.poisonTimer--;
-      e.hp-=0.02;
+      e.hp-=0.04;
       if(frameCount%8===0) particles.push({x:e.x+Math.random()*6-3,y:e.y-e.size,vx:0,vy:-1,life:10,size:2,color:'#44cc44'});
     }
 
@@ -1087,11 +1087,11 @@ function updateSpawning(){
   spawnTimer--;
   if(spawnTimer<=0&&spawnQueue.length>0){
     spawnEnemy(spawnQueue.shift());
-    spawnTimer=35-Math.min(wave*2,20);
+    spawnTimer=40-Math.min(wave,15); // 40 down to 25, never faster
   }
   if(spawnQueue.length===0&&enemies.length===0){
-    waveActive=false;waveCooldown=90;
-    coins+=10+wave*5;updateHUD();
+    waveActive=false;waveCooldown=120; // more time between waves to build
+    coins+=20+wave*8;updateHUD(); // better wave bonus
   }
 }
 
@@ -1129,7 +1129,7 @@ function startGame(){
   initAudio();
   if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
 
-  coins=100;lives=10;score=0;wave=0;totalKills=0;
+  coins=120;lives=15;score=0;wave=0;totalKills=0;
   towers=[];enemies=[];bullets=[];particles=[];
   spawnQueue=[];waveActive=false;waveCooldown=60;
   gameOver=false;selectedTower='basic';frameCount=0;gameSpeed=1;
