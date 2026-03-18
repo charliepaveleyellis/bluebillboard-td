@@ -632,7 +632,10 @@ function handleTap(px,py){
   closeUpgrade();
   for(var i=0;i<towers.length;i++){
     var dx=px-towers[i].x,dy=py-towers[i].y;
-    if(Math.sqrt(dx*dx+dy*dy)<22){ showUpgrade(i); return; }
+    // Wider hit area: 35px radius, plus check above center where the tower barrel draws
+    var hitDist=Math.sqrt(dx*dx+dy*dy);
+    var aboveHit=(dy>0?hitDist:Math.sqrt(dx*dx)); // if tapping above, only check horizontal distance
+    if(hitDist<35||(dy<0&&dy>-35&&aboveHit<20)){ showUpgrade(i); return; }
   }
 }
 
