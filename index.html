@@ -775,8 +775,8 @@ function updateHUD(){
 // ─── DRAW FUNCTIONS ───────────────────────────────
 
 function drawBackground(){
-  // AR mode: semi-transparent overlay so camera shows through
-  X.fillStyle='rgba(10,10,26,0.35)';
+  // AR mode: translucent dark blue overlay — camera visible but tinted
+  X.fillStyle='rgba(0,20,60,0.65)';
   X.fillRect(0,0,C.width,C.height);
 
   // Perspective grid — digital network overlay
