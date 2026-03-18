@@ -310,12 +310,19 @@ function showUpgrade(tIdx){
   var def=TOWER_DEFS[t.type];
   var upgCost=Math.floor(def.upgCost*(1+t.level*0.5));
   var sellPrice=Math.floor(def.cost*0.5);
+  var maxLevel=t.level>=4; // 0-4 = levels 1-5
   selectedTowerIdx=tIdx;
 
   upTitle.textContent=def.name+' Lv'+(t.level+1);
-  upLevel.textContent='Level '+(t.level+1)+' → '+(t.level+2);
-  upBtn.textContent='Upgrade ('+upgCost+')';
-  upBtn.classList.toggle('disabled',coins<upgCost);
+  if(maxLevel){
+    upLevel.textContent='MAX LEVEL';
+    upBtn.textContent='MAX';
+    upBtn.classList.add('disabled');
+  } else {
+    upLevel.textContent='Level '+(t.level+1)+' → '+(t.level+2);
+    upBtn.textContent='Upgrade ('+upgCost+')';
+    upBtn.classList.toggle('disabled',coins<upgCost);
+  }
   document.getElementById('sellBtn').textContent='Sell (+'+sellPrice+')';
 
   upgradePopup.style.left=Math.min(t.x,C.width-140)+'px';
@@ -329,6 +336,7 @@ upBtn.addEventListener('click',function(e){
   e.stopPropagation();
   if(selectedTowerIdx<0) return;
   var t=towers[selectedTowerIdx];
+  if(t.level>=4) return; // max level 5
   var def=TOWER_DEFS[t.type];
   var cost=Math.floor(def.upgCost*(1+t.level*0.5));
   if(coins<cost) return;
@@ -619,7 +627,7 @@ function drawTowers(){
     X.beginPath();X.arc(t.x,t.y,17,0,Math.PI*2);X.stroke();
 
     // Level indicators
-    for(var lv=0;lv<t.level&&lv<3;lv++){
+    for(var lv=0;lv<t.level&&lv<5;lv++){
       var la=-0.5+lv*0.5;
       X.fillStyle=COL.gold;
       X.beginPath();X.arc(t.x+Math.cos(la)*12,t.y+Math.sin(la)*12,2.5,0,Math.PI*2);X.fill();
