@@ -15,8 +15,9 @@
   #camera { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0; }
   #camera.hidden { display:none; }
   .fallback-bg { position:fixed; top:0; left:0; right:0; bottom:0; z-index:0;
-    background:linear-gradient(135deg,#000 0%,#003d7a 50%,#000 100%); }
+    background:linear-gradient(135deg,#0a0a1a 0%,#003d7a 50%,#0a0a1a 100%); }
   .fallback-bg.hidden { display:none; }
+  #camera { object-fit:cover; }
   canvas { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; touch-action:none; }
 
   #hud { position:fixed; top:0; left:0; right:0; z-index:2;
@@ -568,11 +569,11 @@ function updateHUD(){
 // ─── DRAW FUNCTIONS ───────────────────────────────
 
 function drawBackground(){
-  // Near-black digital space
-  X.fillStyle=COL.dark;
+  // AR mode: semi-transparent overlay so camera shows through
+  X.fillStyle='rgba(10,10,26,0.35)';
   X.fillRect(0,0,C.width,C.height);
 
-  // Perspective grid — digital network
+  // Perspective grid — digital network overlay
   var spacing=40;
   gridOffset=(gridOffset+0.3)%spacing;
 
@@ -580,14 +581,14 @@ function drawBackground(){
   // Vertical lines
   for(var x=0;x<C.width;x+=spacing){
     var isBright=(Math.floor(x/spacing)%4===0);
-    X.strokeStyle=isBright?'rgba(0,61,122,0.15)':'rgba(0,61,122,0.06)';
+    X.strokeStyle=isBright?'rgba(0,61,122,0.12)':'rgba(0,61,122,0.04)';
     X.beginPath();X.moveTo(x,0);X.lineTo(x,C.height);X.stroke();
   }
   // Horizontal lines with scroll
   for(var y=-spacing;y<C.height+spacing;y+=spacing){
     var yy=y+gridOffset;
     var isBright=(Math.floor((y+spacing*100)/spacing)%4===0);
-    X.strokeStyle=isBright?'rgba(0,61,122,0.15)':'rgba(0,61,122,0.06)';
+    X.strokeStyle=isBright?'rgba(0,61,122,0.12)':'rgba(0,61,122,0.04)';
     X.beginPath();X.moveTo(0,yy);X.lineTo(C.width,yy);X.stroke();
   }
 
