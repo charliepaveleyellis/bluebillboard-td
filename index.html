@@ -695,33 +695,27 @@ function generateWave(w){
       else if(r<0.64) type='shield';
       else if(r<0.75) type='dodge';
     } else if(w<=20){
-      // Post-15: nightmare — elites everywhere
+      // Post-15: nightmare — elites everywhere, fewer random bosses
       if(r<0.06) type='fast';
       else if(r<0.12) type='swarm';
       else if(r<0.18) type='healer';
       else if(r<0.32) type='regen';
       else if(r<0.50) type='tank';
-      else if(r<0.64) type='shield';
-      else if(r<0.80) type='dodge';
-      else type='boss';
+      else if(r<0.68) type='shield';
+      else type='dodge';
     } else {
-      // Post-20: apocalypse — wall of tanks, bosses, dodgers
+      // Post-20: apocalypse — wall of tanks, shields, dodgers
       if(r<0.04) type='healer';
       else if(r<0.15) type='regen';
-      else if(r<0.35) type='tank';
-      else if(r<0.50) type='shield';
-      else if(r<0.68) type='dodge';
-      else type='boss';
+      else if(r<0.38) type='tank';
+      else if(r<0.58) type='shield';
+      else type='dodge';
     }
 
     // Boss waves: every 3 from w5, every 2 from w11, every wave from w20
     var bossInterval=w>=20?1:(w>=11?2:3);
     if(w>=5&&w%bossInterval===0&&i===count-1) type='boss';
     if(w>=12&&w%bossInterval===0&&i===count-2) type='boss';
-    if(w>=15&&w%bossInterval===0&&i===count-3) type='boss';
-    // 4-5 bosses per boss wave from wave 20
-    if(w>=20&&w%bossInterval===0&&i===count-4) type='boss';
-    if(w>=20&&w%bossInterval===0&&i===count-5) type='boss';
 
     q.push(type);
   }
