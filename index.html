@@ -186,27 +186,115 @@ function initAudio(){
   try { audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } catch(e){ audioCtx=null; }
 }
 
-function playSound(freq, type, dur, vol){
+// Basic tone helper
+function playTone(freq,type,dur,vol,detune){
   if(!audioCtx) return;
-  try {
+  try{
+    var t=audioCtx.currentTime;
     var o=audioCtx.createOscillator();
     var g=audioCtx.createGain();
     o.type=type||'square';
     o.frequency.value=freq;
-    g.gain.value=vol||0.08;
-    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+(dur||0.1));
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime+(dur||0.1));
+    if(detune) o.detune.value=detune;
+    g.gain.setValueAtTime(vol||0.06,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+(dur||0.1));
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(t);o.stop(t+(dur||0.1));
   }catch(e){}
 }
 
-function sfxShoot(){ playSound(800,'square',0.05,0.06); }
-function sfxHit(){ playSound(400,'sawtooth',0.08,0.07); }
-function sfxKill(){ playSound(600,'square',0.1,0.08); playSound(900,'sine',0.15,0.05); }
-function sfxWave(){ playSound(523,'sine',0.2,0.1); setTimeout(function(){playSound(659,'sine',0.2,0.1);},100); setTimeout(function(){playSound(784,'sine',0.3,0.1);},200); }
-function sfxPlace(){ playSound(1000,'sine',0.08,0.08); }
-function sfxExplosion(){ playSound(100,'sawtooth',0.3,0.1); }
-function sfxUpgrade(){ playSound(600,'sine',0.1,0.08); setTimeout(function(){playSound(800,'sine',0.1,0.08);},80); setTimeout(function(){playSound(1000,'sine',0.15,0.08);},160); }
+// Frequency sweep helper
+function playSweep(startFreq,endFreq,type,dur,vol){
+  if(!audioCtx) return;
+  try{
+    var t=audioCtx.currentTime;
+    var o=audioCtx.createOscillator();
+    var g=audioCtx.createGain();
+    o.type=type||'sawtooth';
+    o.frequency.setValueAtTime(startFreq,t);
+    o.frequency.exponentialRampToValueAtTime(endFreq,t+dur);
+    g.gain.setValueAtTime(vol||0.06,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(t);o.stop(t+dur);
+  }catch(e){}
+}
+
+// Noise burst helper (for explosions, impacts)
+function playNoise(dur,vol){
+  if(!audioCtx) return;
+  try{
+    var t=audioCtx.currentTime;
+    var bufSize=audioCtx.sampleRate*dur;
+    var buf=audioCtx.createBuffer(1,bufSize,audioCtx.sampleRate);
+    var data=buf.getChannelData(0);
+    for(var i=0;i<bufSize;i++) data[i]=(Math.random()*2-1);
+    var src=audioCtx.createBufferSource();
+    src.buffer=buf;
+    var g=audioCtx.createGain();
+    g.gain.setValueAtTime(vol||0.06,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    // Low-pass filter for thump
+    var filt=audioCtx.createBiquadFilter();
+    filt.type='lowpass';filt.frequency.value=800;
+    src.connect(filt);filt.connect(g);g.connect(audioCtx.destination);
+    src.start(t);src.stop(t+dur);
+  }catch(e){}
+}
+
+// ── SHOOT — sharp digital zap, quick and punchy
+function sfxShoot(){
+  playSweep(1200,600,'square',0.04,0.05);
+  playTone(2400,'sine',0.02,0.03);
+}
+
+// ── HIT — digital crunch impact
+function sfxHit(){
+  playNoise(0.06,0.06);
+  playSweep(500,200,'square',0.06,0.04);
+}
+
+// ── KILL — glitchy digital dissolve with rising tone
+function sfxKill(){
+  playNoise(0.08,0.05);
+  playSweep(300,1200,'sawtooth',0.15,0.06);
+  setTimeout(function(){ playTone(1400,'sine',0.1,0.04); },50);
+  setTimeout(function(){ playTone(1800,'sine',0.08,0.03); },100);
+}
+
+// ── WAVE — ominous alarm siren, rising threat
+function sfxWave(){
+  playSweep(200,500,'sawtooth',0.3,0.08);
+  setTimeout(function(){ playSweep(300,700,'sawtooth',0.3,0.08); },150);
+  setTimeout(function(){ playSweep(400,900,'square',0.4,0.06); },300);
+  setTimeout(function(){ playTone(900,'sine',0.2,0.06); },500);
+}
+
+// ── PLACE — satisfying lock-in with confirmation beeps
+function sfxPlace(){
+  playTone(600,'sine',0.06,0.07);
+  setTimeout(function(){ playTone(900,'sine',0.06,0.07); },60);
+  setTimeout(function(){ playTone(1200,'triangle',0.1,0.06); },120);
+  playNoise(0.04,0.03);
+}
+
+// ── EXPLOSION — heavy bass boom with debris scatter
+function sfxExplosion(){
+  playNoise(0.35,0.12);
+  playSweep(150,30,'sawtooth',0.4,0.1);
+  playTone(60,'sine',0.3,0.08);
+  setTimeout(function(){ playNoise(0.15,0.05); },100);
+  setTimeout(function(){ playSweep(800,200,'square',0.15,0.04); },50);
+}
+
+// ── UPGRADE — ascending power-up with sparkle
+function sfxUpgrade(){
+  playTone(400,'triangle',0.08,0.06);
+  setTimeout(function(){ playTone(600,'triangle',0.08,0.06); },70);
+  setTimeout(function(){ playTone(800,'triangle',0.08,0.06); },140);
+  setTimeout(function(){ playTone(1200,'sine',0.12,0.07); },210);
+  setTimeout(function(){ playTone(1600,'sine',0.15,0.05); playNoise(0.06,0.03); },280);
+}
 
 // ─── CAMERA ───────────────────────────────────────
 (async function(){
@@ -1707,7 +1795,7 @@ function updateTowers(){
         lightningArcs.push({x1:t.x,y1:t.y,x2:e.x,y2:e.y,life:6});
         particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-2,life:8,size:2,color:COL.purple});
       }
-      if(inRange.length>0) playSound(1500,'square',0.05,0.04);
+      if(inRange.length>0){ playSweep(2000,400,'sawtooth',0.08,0.05); playTone(1500,'square',0.03,0.03); }
       t.angle+=0.2;
     }
     else if(t.type==='slow'){
