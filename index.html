@@ -244,7 +244,7 @@ var TOWER_DEFS={
   basic: {cost:40,range:85,rate:22,dmg:1.2,color:COL.blue,name:'Blaster',splash:0,upgCost:30},
   slow:  {cost:60,range:75,rate:35,dmg:0.4,color:'#00ccff',name:'Freeze',splash:0,slow:0.6,upgCost:40},
   splash:{cost:110,range:90,rate:50,dmg:2.5,color:COL.red,name:'Cannon',splash:45,upgCost:65},
-  sniper:{cost:90,range:160,rate:65,dmg:5,color:COL.gold,name:'Sniper',splash:0,upgCost:55},
+  sniper:{cost:90,range:9999,rate:120,dmg:7,color:COL.gold,name:'Sniper',splash:0,upgCost:55},
   poison:{cost:70,range:80,rate:30,dmg:0.5,color:'#44cc44',name:'Poison',splash:0,poison:4,upgCost:45},
   chain: {cost:130,range:90,rate:45,dmg:2,color:'#aa66ff',name:'Tesla',splash:0,chain:3,upgCost:70},
   rapid: {cost:65,range:70,rate:12,dmg:0.4,color:'#ff66aa',name:'Minigun',splash:0,upgCost:35}
@@ -603,8 +603,8 @@ function drawDecorations(){
 }
 
 function drawTowerBase(t){
-  X.strokeStyle='rgba(255,255,255,0.04)';X.lineWidth=1;
-  X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
+  if(t.range<9000){X.strokeStyle='rgba(255,255,255,0.04)';X.lineWidth=1;
+  X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();}
   X.fillStyle='rgba(0,0,0,0.2)';
   X.beginPath();X.ellipse(t.x+2,t.y+3,18,12,0,0,Math.PI*2);X.fill();
   var bg=X.createRadialGradient(t.x-3,t.y-3,2,t.x,t.y,18);
