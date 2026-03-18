@@ -32,12 +32,13 @@
   #towerBar { position:fixed; bottom:0; left:0; right:0; z-index:2;
     display:flex; justify-content:center; gap:4px;
     padding:8px 4px 16px; background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
-    overflow-x:auto; }
+    overflow-x:auto; touch-action:none; }
   #towerBar.hidden { display:none; }
   .tower-btn {
     min-width:48px; width:48px; padding:5px 2px; border-radius:10px;
     border:2px solid rgba(46,163,242,0.3); background:rgba(0,10,30,0.85);
-    color:#fff; text-align:center; cursor:pointer; transition:all 0.2s;
+    color:#fff; text-align:center; cursor:grab; transition:all 0.2s;
+    touch-action:none; -webkit-touch-callout:none; user-select:none;
   }
   .tower-btn.selected { border-color:#2ea3f2; background:rgba(0,61,122,0.9); box-shadow:0 0 12px rgba(46,163,242,0.4); }
   .tower-btn.disabled { opacity:0.35; pointer-events:none; }
@@ -451,28 +452,28 @@ function dropTower(){
   dragging=null;
 }
 
-// Tower button drag — touch
+// Drag start from tower buttons
+var dragTouchId=null; // track which touch finger is dragging
+
 for(var i=0;i<towerBtns.length;i++){
   (function(btn){
+    // Touch drag start
     btn.addEventListener('touchstart',function(e){
       e.preventDefault();e.stopPropagation();
-      if(!running||gameOver) return;
+      if(!running||gameOver||dragging) return;
       var type=btn.dataset.type;
       var def=TOWER_DEFS[type];
       if(coins<def.cost) return;
       closeUpgrade();
-      var t=e.changedTouches[0];
+      var t=e.touches[0];
+      dragTouchId=t.identifier;
       dragging={type:type,x:t.clientX,y:t.clientY,valid:false};
-    });
-  })(towerBtns[i]);
-}
+    },{passive:false});
 
-// Tower button drag — mouse
-for(var i=0;i<towerBtns.length;i++){
-  (function(btn){
+    // Mouse drag start
     btn.addEventListener('mousedown',function(e){
       e.preventDefault();e.stopPropagation();
-      if(!running||gameOver) return;
+      if(!running||gameOver||dragging) return;
       var type=btn.dataset.type;
       var def=TOWER_DEFS[type];
       if(coins<def.cost) return;
@@ -482,18 +483,22 @@ for(var i=0;i<towerBtns.length;i++){
   })(towerBtns[i]);
 }
 
-// Track drag movement — touch
-document.addEventListener('touchmove',function(e){
-  if(!dragging) return;
+// Track drag — touch (on window to catch moves everywhere)
+window.addEventListener('touchmove',function(e){
+  if(!dragging||dragTouchId===null) return;
   e.preventDefault();
-  var t=e.changedTouches[0];
-  dragging.x=t.clientX;
-  dragging.y=t.clientY;
-  dragging.valid=isValidPlacement(dragging.x,dragging.y);
+  for(var ti=0;ti<e.touches.length;ti++){
+    if(e.touches[ti].identifier===dragTouchId){
+      dragging.x=e.touches[ti].clientX;
+      dragging.y=e.touches[ti].clientY;
+      dragging.valid=isValidPlacement(dragging.x,dragging.y);
+      break;
+    }
+  }
 },{passive:false});
 
-// Track drag movement — mouse
-document.addEventListener('mousemove',function(e){
+// Track drag — mouse
+window.addEventListener('mousemove',function(e){
   if(!dragging) return;
   dragging.x=e.clientX;
   dragging.y=e.clientY;
@@ -501,16 +506,30 @@ document.addEventListener('mousemove',function(e){
 });
 
 // Drop — touch
-document.addEventListener('touchend',function(e){
-  if(!dragging) return;
-  e.preventDefault();
-  dropTower();
+window.addEventListener('touchend',function(e){
+  if(!dragging||dragTouchId===null) return;
+  for(var ti=0;ti<e.changedTouches.length;ti++){
+    if(e.changedTouches[ti].identifier===dragTouchId){
+      // Update final position from the end touch
+      dragging.x=e.changedTouches[ti].clientX;
+      dragging.y=e.changedTouches[ti].clientY;
+      dragging.valid=isValidPlacement(dragging.x,dragging.y);
+      dropTower();
+      dragTouchId=null;
+      break;
+    }
+  }
 },{passive:false});
 
 // Drop — mouse
-document.addEventListener('mouseup',function(e){
+window.addEventListener('mouseup',function(e){
   if(!dragging) return;
   dropTower();
+});
+
+// Cancel drag if touch is cancelled
+window.addEventListener('touchcancel',function(e){
+  dragging=null;dragTouchId=null;
 });
 
 // Canvas tap — only for upgrading existing towers
