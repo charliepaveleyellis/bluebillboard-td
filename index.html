@@ -650,14 +650,13 @@ C.addEventListener('touchstart',function(e){
 
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
+  // Smooth count curve — no big jumps
   var count;
   if(w<=3) count=2+w;                           // 3,4,5
   else if(w<=6) count=3+w;                      // 7,8,9
   else if(w<=10) count=2+w+Math.floor(w/2);     // 11-17
-  else if(w<=15) count=4+w+w;                   // 26-34
-  else if(w<=20) count=w*3+w;                   // 64-80
-  else if(w<=25) count=w*4;                     // 84-100
-  else count=w*5;                               // 130+ (apocalypse)
+  else count=Math.floor(17+(w-10)*3.5);          // 20,24,27,31,34,38,41,45,48,52...
+  // Smooth linear growth ~3.5 per wave from w11 onwards
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -676,7 +675,7 @@ function generateWave(w){
       else if(r<0.4) type='regen';
       else if(r<0.5) type='tank';
       else if(r<0.57) type='shield';
-    } else if(w<=10){
+    } else if(w<=12){
       if(r<0.1) type='fast';
       else if(r<0.2) type='swarm';
       else if(r<0.27) type='healer';
@@ -684,41 +683,45 @@ function generateWave(w){
       else if(r<0.48) type='tank';
       else if(r<0.58) type='shield';
       else if(r<0.65) type='dodge';
-    } else if(w<=15){
-      // Post-10: heavily weighted toward tough enemies
-      if(r<0.05) type='basic';
-      else if(r<0.12) type='fast';
-      else if(r<0.22) type='swarm';
-      else if(r<0.28) type='healer';
-      else if(r<0.38) type='regen';
-      else if(r<0.52) type='tank';
-      else if(r<0.64) type='shield';
-      else if(r<0.75) type='dodge';
-    } else if(w<=20){
-      // Post-15: nightmare — elites everywhere, fewer random bosses
+    } else if(w<=18){
+      // Gradual ramp — more elites, less basic
+      if(r<0.04) type='basic';
+      else if(r<0.10) type='fast';
+      else if(r<0.18) type='swarm';
+      else if(r<0.24) type='healer';
+      else if(r<0.34) type='regen';
+      else if(r<0.48) type='tank';
+      else if(r<0.60) type='shield';
+      else type='dodge';
+    } else {
+      // Post-18: full elites
       if(r<0.06) type='fast';
       else if(r<0.12) type='swarm';
       else if(r<0.18) type='healer';
-      else if(r<0.32) type='regen';
-      else if(r<0.50) type='tank';
-      else if(r<0.68) type='shield';
-      else type='dodge';
-    } else {
-      // Post-20: apocalypse — wall of tanks, shields, dodgers
-      if(r<0.04) type='healer';
-      else if(r<0.15) type='regen';
-      else if(r<0.38) type='tank';
-      else if(r<0.58) type='shield';
+      else if(r<0.30) type='regen';
+      else if(r<0.46) type='tank';
+      else if(r<0.62) type='shield';
       else type='dodge';
     }
 
-    // Boss waves: every 3 from w5, every 2 from w11, every wave from w20
-    var bossInterval=w>=20?1:(w>=11?2:3);
-    if(w>=5&&w%bossInterval===0&&i===count-1) type='boss';
-    if(w>=12&&w%bossInterval===0&&i===count-2) type='boss';
-
     q.push(type);
   }
+
+  // Add bosses at the end — number scales gradually with wave
+  var numBosses=0;
+  if(w>=5) numBosses=1;
+  if(w>=8) numBosses=2;
+  if(w>=12) numBosses=3;
+  if(w>=16) numBosses=4;
+  if(w>=20) numBosses=5;
+  if(w>=25) numBosses=6+Math.floor((w-25)/3);
+  // Only on boss waves (every 3 from w5, every 2 from w11, every wave from w20)
+  var bossInterval=w>=20?1:(w>=11?2:3);
+  if(w%bossInterval!==0) numBosses=Math.max(0,numBosses-2); // fewer on non-boss waves
+  for(var b=0;b<numBosses&&b<q.length;b++){
+    q[q.length-1-b]='boss';
+  }
+
   return q;
 }
 
