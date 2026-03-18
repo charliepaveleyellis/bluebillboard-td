@@ -1004,7 +1004,7 @@ function updateBullets(){
             particles.push({x:enemies[chainTargets[k]].x,y:enemies[chainTargets[k]].y,
               vx:(Math.random()-0.5)*2,vy:-2,life:10,size:3,color:'#aa66ff'});
           }
-          snd(1500,'square',0.05,0.04);
+          playSound(1500,'square',0.05,0.04);
         }
         if(b.splash>0){
           for(var k=0;k<enemies.length;k++){
