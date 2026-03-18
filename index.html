@@ -462,10 +462,12 @@ C.addEventListener('touchstart',function(e){ if(!running||gameOver)return; var t
 // ─── WAVE SYSTEM ──────────────────────────────────
 function generateWave(w){
   var count;
-  if(w<=3) count=2+w;
-  else if(w<=6) count=3+w;
-  else if(w<=10) count=2+w+Math.floor(w/2);
-  else count=5+w+Math.floor(w/2);
+  if(w<=3) count=2+w;                           // 3,4,5
+  else if(w<=6) count=3+w;                      // 7,8,9
+  else if(w<=10) count=2+w+Math.floor(w/2);     // 11-17
+  else if(w<=15) count=4+w+w;                   // 26-34  (big jump)
+  else if(w<=20) count=w*3;                     // 48-60
+  else count=w*3+Math.floor(w/2);               // 66+    (relentless)
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -484,7 +486,7 @@ function generateWave(w){
       else if(r<0.4) type='regen';
       else if(r<0.5) type='tank';
       else if(r<0.57) type='shield';
-    } else {
+    } else if(w<=10){
       if(r<0.1) type='fast';
       else if(r<0.2) type='swarm';
       else if(r<0.27) type='healer';
@@ -492,10 +494,34 @@ function generateWave(w){
       else if(r<0.48) type='tank';
       else if(r<0.58) type='shield';
       else if(r<0.65) type='dodge';
+    } else if(w<=15){
+      // Post-10: heavily weighted toward tough enemies
+      if(r<0.05) type='basic';
+      else if(r<0.12) type='fast';
+      else if(r<0.22) type='swarm';
+      else if(r<0.28) type='healer';
+      else if(r<0.38) type='regen';
+      else if(r<0.52) type='tank';
+      else if(r<0.64) type='shield';
+      else if(r<0.75) type='dodge';
+    } else {
+      // Post-15: nightmare — almost no basic, mostly elites
+      if(r<0.08) type='fast';
+      else if(r<0.15) type='swarm';
+      else if(r<0.22) type='healer';
+      else if(r<0.34) type='regen';
+      else if(r<0.50) type='tank';
+      else if(r<0.64) type='shield';
+      else if(r<0.78) type='dodge';
+      else type='boss';
     }
 
-    if(w>=5&&w%3===0&&i===count-1) type='boss';
-    if(w>=12&&w%3===0&&i===count-2) type='boss';
+    // Boss waves: every 3 waves from w5, every 2 waves from w11
+    var bossInterval=w>=11?2:3;
+    if(w>=5&&w%bossInterval===0&&i===count-1) type='boss';
+    if(w>=12&&w%bossInterval===0&&i===count-2) type='boss';
+    // Triple boss from wave 15
+    if(w>=15&&w%bossInterval===0&&i===count-3) type='boss';
 
     q.push(type);
   }
@@ -515,10 +541,15 @@ function startWave(){
 
 function spawnEnemy(type){
   var def=ENEMY_DEFS[type];
-  var hpScale=1+(wave-1)*0.1;
+  // HP scales gently to w10, then ramps hard
+  var hpScale;
+  if(wave<=10) hpScale=1+(wave-1)*0.1;          // 1.0 – 1.9
+  else hpScale=1.9+(wave-10)*0.25;              // 2.15, 2.4, ... grows fast
+  // Speed boost after wave 10: enemies move up to 40% faster
+  var spdBoost=wave>10?1+Math.min((wave-10)*0.04,0.4):1;
   enemies.push({
     t:0,type:type,hp:def.hp*hpScale,maxHp:def.hp*hpScale,
-    speed:def.speed,baseSpeed:def.speed,size:def.size,color:def.color,
+    speed:def.speed*spdBoost,baseSpeed:def.speed*spdBoost,size:def.size,color:def.color,
     reward:def.reward,slowTimer:0,poisonTimer:0,x:0,y:0,
     healRate:def.healRate||0,dodgeChance:def.dodgeChance||0,
     regenRate:def.regenRate||0,
@@ -1644,10 +1675,14 @@ function updateSpawning(){
   spawnTimer--;
   if(spawnTimer<=0&&spawnQueue.length>0){
     spawnEnemy(spawnQueue.shift());
-    spawnTimer=40-Math.min(wave,15);
+    // Faster spawning after wave 10: enemies pour in quicker
+    if(wave<=10) spawnTimer=40-Math.min(wave,15);       // 40 down to 25
+    else spawnTimer=Math.max(12,25-Math.floor((wave-10)*1.5)); // 25 down to 12
   }
   if(spawnQueue.length===0&&enemies.length===0){
-    waveActive=false;waveCooldown=120;
+    waveActive=false;
+    // Less build time after wave 10
+    waveCooldown=wave<=10?120:Math.max(60,120-(wave-10)*8);
     coins+=20+wave*8;updateHUD();
   }
 }
