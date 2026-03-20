@@ -246,13 +246,15 @@ var PATHS={
       {cost:40,desc:'Amplifier - Boosts beam intensity',dmgMult:1.1},
       {cost:65,desc:'Long Barrel - Extended range',rangeMod:10},
       {cost:110,desc:'Power Core - Higher output',dmgMult:1.1},
-      {cost:280,desc:'PLASMA CANNON - Piercing explosive rounds',dmgMult:1.1,pierce:true,addSplash:15}
+      {cost:280,desc:'PLASMA CANNON - Piercing explosive rounds',dmgMult:1.1,pierce:true,addSplash:15},
+      {cost:2800,desc:'NOVA BLASTER - Devastating plasma explosions',dmgMult:2,addSplash:30,rateMult:0.6}
     ]},
     B:{name:'Twin Shot',icon:'\u2747',levels:[
       {cost:35,desc:'Split Barrel - Fires 2 rounds',multishot:2},
       {cost:60,desc:'Tri-Barrel - Fires 3 rounds',multishot:3,rateMod:-2},
       {cost:100,desc:'Quad Array - Fires 4 rounds',multishot:4,rateMod:-2},
-      {cost:280,desc:'BULLET STORM - 5 rounds per volley',multishot:5,dmgMult:1.1,rateMod:-2}
+      {cost:280,desc:'BULLET STORM - 5 rounds per volley',multishot:5,dmgMult:1.1,rateMod:-2},
+      {cost:2800,desc:'LEAD WALL - 8 rounds, massive DMG',multishot:8,dmgMult:1.5,rateMod:-3}
     ]}
   },
   slow:{
@@ -260,13 +262,15 @@ var PATHS={
       {cost:70,desc:'Brittle Ice - Frozen take +25% DMG',bonusDmgMark:0.25},
       {cost:100,desc:'Deep Chill - 2 second freeze',slowDur:120},
       {cost:170,desc:'Arctic Core - 3s freeze, more DMG',dmgMult:1.3,slowDur:180},
-      {cost:450,desc:'ABSOLUTE ZERO - Shatters frozen enemies below 15% HP',shatter:0.15,bonusDmgMark:0.4,dmgMult:1.3}
+      {cost:450,desc:'ABSOLUTE ZERO - Shatters frozen enemies below 15% HP',shatter:0.15,bonusDmgMark:0.4,dmgMult:1.3},
+      {cost:4500,desc:'ENTROPY - Shatters below 30%, enemies take double DMG',shatter:0.3,bonusDmgMark:1.0,dmgMult:1.5}
     ]},
     B:{name:'Blizzard',icon:'\u2602',levels:[
       {cost:70,desc:'Cold Front - Wider freeze area',rangeMod:20,splashSlow:30},
       {cost:100,desc:'Snow Storm - Even wider reach',rangeMod:25,splashSlow:40},
       {cost:170,desc:'Polar Vortex - Massive area, more DMG',rangeMod:15,splashSlow:15,dmgMult:1.3},
-      {cost:450,desc:'ICE AGE - Enormous freeze field',rangeMod:60,splashSlow:60,slowDur:150}
+      {cost:450,desc:'ICE AGE - Enormous freeze field',rangeMod:60,splashSlow:60,slowDur:150},
+      {cost:4500,desc:'GLACIAL EPOCH - Freezes entire map permanently',rangeMod:9000,splashSlow:200,slowDur:600}
     ]}
   },
   rapid:{
@@ -274,13 +278,15 @@ var PATHS={
       {cost:60,desc:'Spin Up - Much faster fire rate',rateMult:0.6},
       {cost:90,desc:'Turbo Feed - Faster + stronger rounds',rateMult:0.7,dmgMult:1.3},
       {cost:150,desc:'Nitro Boost - Even faster firing',rateMult:0.75,dmgMult:1.2},
-      {cost:400,desc:'HYPERDRIVE - Insane fire speed',rateMult:0.5,dmgMult:1.3}
+      {cost:400,desc:'HYPERDRIVE - Insane fire speed',rateMult:0.5,dmgMult:1.3},
+      {cost:4000,desc:'SINGULARITY - Near instant fire, melts everything',rateMult:0.3,dmgMult:2}
     ]},
     B:{name:'Heavy Rounds',icon:'\u25C6',levels:[
       {cost:60,desc:'AP Rounds - Pierce shields, big DMG',dmgMult:1.8,armorBreak:true},
       {cost:90,desc:'Tungsten Core - Higher impact',dmgMult:1.5},
       {cost:150,desc:'Depleted Uranium - More DMG + range',dmgMult:1.3,rangeMod:12},
-      {cost:400,desc:'RAILGUN - Devastating piercing shots',dmgMult:2,pierce:true}
+      {cost:400,desc:'RAILGUN - Devastating piercing shots',dmgMult:2,pierce:true},
+      {cost:4000,desc:'ANTIMATTER GUN - Infinite pierce, obliterating rounds',dmgMult:3,rangeMod:30}
     ]}
   },
   poison:{
@@ -288,13 +294,15 @@ var PATHS={
       {cost:80,desc:'Contagion - Poison spreads on kill',spreadPoison:true,dmgMult:1.2},
       {cost:115,desc:'Virulent Strain - Stronger DOT + range',poisonMult:1.8,spreadPoison:true,rangeMod:10},
       {cost:190,desc:'Bio Weapon - Much stronger toxin',poisonMult:1.5,dmgMult:1.3},
-      {cost:480,desc:'PANDEMIC - Toxic cloud poisons all nearby',poisonAura:65,poisonMult:2,dmgMult:1.3}
+      {cost:480,desc:'PANDEMIC - Toxic cloud poisons all nearby',poisonAura:65,poisonMult:2,dmgMult:1.3},
+      {cost:4800,desc:'EXTINCTION EVENT - Massive toxic cloud, 3x DOT',poisonAura:120,poisonMult:3,dmgMult:2}
     ]},
     B:{name:'Acid',icon:'\u2620',levels:[
       {cost:80,desc:'Corrosive - Melts shields + DMG',armorBreak:true,dmgMult:1.3,poisonMult:1.3},
       {cost:115,desc:'Sulfuric Bath - Stronger acid burn',armorBreak:true,poisonMult:1.8},
       {cost:190,desc:'Chemical Warfare - More DMG + DOT',dmgMult:1.4,poisonMult:1.5,rangeMod:10},
-      {cost:480,desc:'DISSOLVE - Extreme acid melts everything',poisonMult:2.5,dmgMult:1.8}
+      {cost:480,desc:'DISSOLVE - Extreme acid melts everything',poisonMult:2.5,dmgMult:1.8},
+      {cost:4800,desc:'BLACK HOLE ACID - Erases enemies from existence',poisonMult:4,dmgMult:3,rangeMod:20}
     ]}
   },
   sniper:{
@@ -302,13 +310,15 @@ var PATHS={
       {cost:130,desc:'Steady Aim - 20% chance for x3 crit',crit:0.2},
       {cost:190,desc:'Sharpshooter - 35% crit + DMG',crit:0.35,dmgMult:1.2},
       {cost:300,desc:'Lethal Precision - 50% crit + DMG',crit:0.5,dmgMult:1.3},
-      {cost:800,desc:'DEADEYE - Executes enemies below 15% HP',execute:0.15,crit:0.65,dmgMult:1.3}
+      {cost:800,desc:'DEADEYE - Executes enemies below 15% HP',execute:0.15,crit:0.65,dmgMult:1.3},
+      {cost:8000,desc:'REAPER - Executes below 35%, always crits',execute:0.35,crit:1.0,dmgMult:2}
     ]},
     B:{name:'Spotter',icon:'\u25CE',levels:[
       {cost:130,desc:'Target Lock - Marks for +20% DMG',mark:0.2},
       {cost:190,desc:'Threat Scanner - Marks for +40% DMG',mark:0.4},
       {cost:300,desc:'Recon Drone - Marks for +60%, more range',mark:0.6,rangeMod:15},
-      {cost:800,desc:'COMMAND - Marks ALL enemies for +80% DMG',markAll:true,mark:0.8}
+      {cost:800,desc:'COMMAND - Marks ALL enemies for +80% DMG',markAll:true,mark:0.8},
+      {cost:8000,desc:'OMNISCIENCE - All enemies marked for +150% DMG',markAll:true,mark:1.5}
     ]}
   },
   splash:{
@@ -316,13 +326,15 @@ var PATHS={
       {cost:160,desc:'Heavy Shell - Bigger blast + DMG',splashMod:20,dmgMult:1.4},
       {cost:240,desc:'Cluster Bomb - Wider explosion',splashMod:25,dmgMult:1.3},
       {cost:380,desc:'Artillery Strike - Huge blast, faster',splashMod:20,dmgMult:1.4,rateMult:0.85},
-      {cost:900,desc:'NUCLEAR - Devastating explosion',splashMod:40,dmgMult:1.8,rateMult:0.8}
+      {cost:900,desc:'NUCLEAR - Devastating explosion',splashMod:40,dmgMult:1.8,rateMult:0.8},
+      {cost:9000,desc:'SUPERNOVA - Screen-clearing detonation',splashMod:80,dmgMult:3,rateMult:0.6}
     ]},
     B:{name:'Napalm',icon:'\u2668',levels:[
       {cost:160,desc:'Incendiary - Burns ground 2 seconds',burn:120,burnDmg:0.025},
       {cost:240,desc:'Thermite - Burns 3 seconds',burn:180,burnDmg:0.04},
       {cost:380,desc:'White Phosphorus - Hotter, longer burn',burn:240,burnDmg:0.06},
-      {cost:900,desc:'HELLFIRE - Eternal flames engulf the path',burn:420,burnDmg:0.08}
+      {cost:900,desc:'HELLFIRE - Eternal flames engulf the path',burn:420,burnDmg:0.08},
+      {cost:9000,desc:'SOLAR FLARE - Path becomes permanent fire',burn:9999,burnDmg:0.15}
     ]}
   },
   chain:{
@@ -330,13 +342,15 @@ var PATHS={
       {cost:220,desc:'Arc Splitter - Hits +2 targets',chainMod:2,dmgMult:1.3},
       {cost:320,desc:'Chain Reactor - Hits +3 targets, faster',chainMod:3,dmgMult:1.2,rateMult:0.8},
       {cost:500,desc:'Surge Amplifier - More DMG + speed',dmgMult:1.4,chainMod:2,rateMult:0.8},
-      {cost:1200,desc:'THUNDERSTORM - Hits ALL in range',chainMod:999,dmgMult:1.5,rateMult:0.6,rangeMod:20}
+      {cost:1200,desc:'THUNDERSTORM - Hits ALL in range',chainMod:999,dmgMult:1.5,rateMult:0.6,rangeMod:20},
+      {cost:12000,desc:'WRATH OF GOD - Constant lightning storm of doom',dmgMult:3,rateMult:0.3,rangeMod:40}
     ]},
     B:{name:'EMP',icon:'\u2300',levels:[
       {cost:220,desc:'Pulse Wave - 0.5s stun',stun:30,chainMod:1},
       {cost:320,desc:'Shock Burst - 1s stun, breaks shields',stun:60,armorBreak:true,chainMod:1},
       {cost:500,desc:'Overcharge Pulse - 1.5s stun + DMG',stun:90,dmgMult:1.3,chainMod:1},
-      {cost:1200,desc:'BLACKOUT - Massive area stun',stun:120,armorBreak:true,chainMod:2}
+      {cost:1200,desc:'BLACKOUT - Massive area stun',stun:120,armorBreak:true,chainMod:2},
+      {cost:12000,desc:'OBLIVION - 5 second stun, nothing moves',stun:300,armorBreak:true,chainMod:5}
     ]}
   },
   laser:{
@@ -344,13 +358,15 @@ var PATHS={
       {cost:1800,desc:'Focused Beam - More DMG',dmgMult:1.5},
       {cost:2500,desc:'Plasma Core - Huge DMG + speed',dmgMult:1.5,rateMult:0.7},
       {cost:4000,desc:'Overcharged - Massive blast radius',dmgMult:1.5,splashMod:30},
-      {cost:8000,desc:'DEATH STAR - Obliterates everything',dmgMult:2,splashMod:50,rateMult:0.5}
+      {cost:8000,desc:'DEATH STAR - Obliterates everything',dmgMult:2,splashMod:50,rateMult:0.5},
+      {cost:50000,desc:'BIG BANG - Erases reality itself',dmgMult:5,splashMod:100,rateMult:0.3}
     ]},
     B:{name:'Ion Cannon',icon:'\u269B',levels:[
       {cost:1800,desc:'Ion Charge - Stuns on hit',stun:60},
       {cost:2500,desc:'Charged Shot - Longer stun + DMG',stun:90,dmgMult:1.3},
       {cost:4000,desc:'Disruptor - Breaks all shields',armorBreak:true,dmgMult:1.5,stun:120},
-      {cost:8000,desc:'EXTINCTION - Stun + execute below 25%',stun:180,execute:0.25,dmgMult:2}
+      {cost:8000,desc:'EXTINCTION - Stun + execute below 25%',stun:180,execute:0.25,dmgMult:2},
+      {cost:50000,desc:'VOID CANNON - Execute below 50%, permanent stun',stun:600,execute:0.5,dmgMult:3}
     ]}
   },
   nexus:{
@@ -358,13 +374,15 @@ var PATHS={
       {cost:2200,desc:'Battle Aura - Nearby towers +15% DMG',auraDmg:0.15},
       {cost:3500,desc:'War Cry - +25% DMG + speed',auraDmg:0.25,auraRate:0.1},
       {cost:5000,desc:'Fury - +35% DMG + 20% speed',auraDmg:0.35,auraRate:0.2},
-      {cost:10000,desc:'GOD MODE - +50% DMG + 30% speed to all nearby',auraDmg:0.5,auraRate:0.3}
+      {cost:10000,desc:'GOD MODE - +50% DMG + 30% speed to all nearby',auraDmg:0.5,auraRate:0.3},
+      {cost:80000,desc:'ASCENDANT - +100% DMG + 50% speed, infinite aura',auraDmg:1.0,auraRate:0.5,rangeMod:9000}
     ]},
     B:{name:'Shield Gen',icon:'\u2742',levels:[
       {cost:2200,desc:'Barrier - Slows all enemies in range',slow:0.4,rangeMod:20},
       {cost:3500,desc:'Force Field - Stronger slow + DMG',slow:0.6,dmgMult:1,rangeMod:20},
       {cost:5000,desc:'Stasis Field - Heavy slow + marks',slow:0.8,rangeMod:20,bonusDmgMark:0.3},
-      {cost:10000,desc:'TIME STOP - Nearly freezes all enemies',slow:0.95,rangeMod:40,bonusDmgMark:0.5}
+      {cost:10000,desc:'TIME STOP - Nearly freezes all enemies',slow:0.95,rangeMod:40,bonusDmgMark:0.5},
+      {cost:80000,desc:'REALITY ANCHOR - Enemies frozen + take 3x DMG',slow:0.99,rangeMod:9000,bonusDmgMark:2.0}
     ]}
   }
 };

@@ -45,15 +45,16 @@ function showUpgrade(tIdx){
     pathABtn.style.borderColor=def.color;
     pathBBtn.style.borderColor=def.color;
     upPathsDiv.style.display='block';
-  } else if(t.path && t.level<5){
+  } else if(t.path && t.level<6){
     var pLvl=t.level-1;
     var pDef=pathData[t.path];
     if(pLvl>=0&&pLvl<pDef.levels.length){
       var cost=pDef.levels[pLvl].cost;
       var lvlDef=pDef.levels[pLvl];
       var isUltimate=pLvl===3;
-      upLevel.textContent=isUltimate?'ULTIMATE':lvlDef.desc;
-      upBtn.textContent=(isUltimate?'\u2B50 ':'')+lvlDef.desc+' ('+cost+')';
+      var isAscended=pLvl===4;
+      upLevel.textContent=isAscended?'\u2728 ASCENDED \u2728':(isUltimate?'ULTIMATE':lvlDef.desc);
+      upBtn.textContent=(isAscended?'\u2728 ':(isUltimate?'\u2B50 ':''))+lvlDef.desc+' ('+cost+')';
       upBtn.classList.remove('disabled');
       upBtn.classList.toggle('disabled',coins<cost);
       upGeneric.style.display='block';
@@ -130,7 +131,7 @@ function doUpgrade(){
     t.dmg*=1.12;
     t.range+=6;
     t.rate=Math.max(10,t.rate-2);
-  } else if(t.path && t.level<5){
+  } else if(t.path && t.level<6){
     // Continue chosen path
     var pLvl=t.level-1;
     var pDef=PATHS[t.type][t.path];
