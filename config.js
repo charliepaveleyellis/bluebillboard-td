@@ -240,100 +240,100 @@ var TOWER_DEFS={
 var PATHS={
   basic:{
     A:{name:'Overcharge',icon:'\u26A1',levels:[
-      {cost:40,desc:'+DMG',dmgMult:1.1},
-      {cost:65,desc:'+Range',rangeMod:10},
-      {cost:110,desc:'+DMG',dmgMult:1.1},
-      {cost:280,desc:'PLASMA CANNON',dmgMult:1.1,pierce:true,addSplash:15}
+      {cost:40,desc:'Amplifier - Boosts beam intensity',dmgMult:1.1},
+      {cost:65,desc:'Long Barrel - Extended range',rangeMod:10},
+      {cost:110,desc:'Power Core - Higher output',dmgMult:1.1},
+      {cost:280,desc:'PLASMA CANNON - Piercing explosive rounds',dmgMult:1.1,pierce:true,addSplash:15}
     ]},
     B:{name:'Twin Shot',icon:'\u2747',levels:[
-      {cost:35,desc:'Double shot',multishot:2},
-      {cost:60,desc:'Triple shot',multishot:3,rateMod:-2},
-      {cost:100,desc:'Quad shot',multishot:4,rateMod:-2},
-      {cost:280,desc:'BULLET STORM',multishot:5,dmgMult:1.1,rateMod:-2}
+      {cost:35,desc:'Split Barrel - Fires 2 rounds',multishot:2},
+      {cost:60,desc:'Tri-Barrel - Fires 3 rounds',multishot:3,rateMod:-2},
+      {cost:100,desc:'Quad Array - Fires 4 rounds',multishot:4,rateMod:-2},
+      {cost:280,desc:'BULLET STORM - 5 rounds per volley',multishot:5,dmgMult:1.1,rateMod:-2}
     ]}
   },
   slow:{
     A:{name:'Permafrost',icon:'\u2744',levels:[
-      {cost:70,desc:'Frozen +25% DMG',bonusDmgMark:0.25},
-      {cost:100,desc:'Deep freeze 2s',slowDur:120},
-      {cost:170,desc:'Freeze 3s +DMG',dmgMult:1.3,slowDur:180},
-      {cost:450,desc:'ABSOLUTE ZERO',shatter:0.15,bonusDmgMark:0.4,dmgMult:1.3}
+      {cost:70,desc:'Brittle Ice - Frozen take +25% DMG',bonusDmgMark:0.25},
+      {cost:100,desc:'Deep Chill - 2 second freeze',slowDur:120},
+      {cost:170,desc:'Arctic Core - 3s freeze, more DMG',dmgMult:1.3,slowDur:180},
+      {cost:450,desc:'ABSOLUTE ZERO - Shatters frozen enemies below 15% HP',shatter:0.15,bonusDmgMark:0.4,dmgMult:1.3}
     ]},
     B:{name:'Blizzard',icon:'\u2602',levels:[
-      {cost:70,desc:'+Range, AOE slow',rangeMod:20,splashSlow:30},
-      {cost:100,desc:'Bigger blizzard',rangeMod:25,splashSlow:40},
-      {cost:170,desc:'Wider + DMG',rangeMod:15,splashSlow:15,dmgMult:1.3},
-      {cost:450,desc:'ICE AGE',rangeMod:60,splashSlow:60,slowDur:150}
+      {cost:70,desc:'Cold Front - Wider freeze area',rangeMod:20,splashSlow:30},
+      {cost:100,desc:'Snow Storm - Even wider reach',rangeMod:25,splashSlow:40},
+      {cost:170,desc:'Polar Vortex - Massive area, more DMG',rangeMod:15,splashSlow:15,dmgMult:1.3},
+      {cost:450,desc:'ICE AGE - Enormous freeze field',rangeMod:60,splashSlow:60,slowDur:150}
     ]}
   },
   rapid:{
     A:{name:'Overdrive',icon:'\u21BB',levels:[
-      {cost:60,desc:'Faster fire',rateMult:0.6},
-      {cost:90,desc:'+Speed +DMG',rateMult:0.7,dmgMult:1.3},
-      {cost:150,desc:'Even faster',rateMult:0.75,dmgMult:1.2},
-      {cost:400,desc:'HYPERDRIVE',rateMult:0.5,dmgMult:1.3}
+      {cost:60,desc:'Spin Up - Much faster fire rate',rateMult:0.6},
+      {cost:90,desc:'Turbo Feed - Faster + stronger rounds',rateMult:0.7,dmgMult:1.3},
+      {cost:150,desc:'Nitro Boost - Even faster firing',rateMult:0.75,dmgMult:1.2},
+      {cost:400,desc:'HYPERDRIVE - Insane fire speed',rateMult:0.5,dmgMult:1.3}
     ]},
     B:{name:'Heavy Rounds',icon:'\u25C6',levels:[
-      {cost:60,desc:'+DMG, Break shields',dmgMult:1.8,armorBreak:true},
-      {cost:90,desc:'+DMG',dmgMult:1.5},
-      {cost:150,desc:'+DMG +Range',dmgMult:1.3,rangeMod:12},
-      {cost:400,desc:'RAILGUN',dmgMult:2,pierce:true}
+      {cost:60,desc:'AP Rounds - Pierce shields, big DMG',dmgMult:1.8,armorBreak:true},
+      {cost:90,desc:'Tungsten Core - Higher impact',dmgMult:1.5},
+      {cost:150,desc:'Depleted Uranium - More DMG + range',dmgMult:1.3,rangeMod:12},
+      {cost:400,desc:'RAILGUN - Devastating piercing shots',dmgMult:2,pierce:true}
     ]}
   },
   poison:{
     A:{name:'Plague',icon:'\u2623',levels:[
-      {cost:80,desc:'Spreads on kill +DMG',spreadPoison:true,dmgMult:1.2},
-      {cost:115,desc:'Stronger DOT +Range',poisonMult:1.8,spreadPoison:true,rangeMod:10},
-      {cost:190,desc:'+DOT +DMG',poisonMult:1.5,dmgMult:1.3},
-      {cost:480,desc:'PANDEMIC',poisonAura:65,poisonMult:2,dmgMult:1.3}
+      {cost:80,desc:'Contagion - Poison spreads on kill',spreadPoison:true,dmgMult:1.2},
+      {cost:115,desc:'Virulent Strain - Stronger DOT + range',poisonMult:1.8,spreadPoison:true,rangeMod:10},
+      {cost:190,desc:'Bio Weapon - Much stronger toxin',poisonMult:1.5,dmgMult:1.3},
+      {cost:480,desc:'PANDEMIC - Toxic cloud poisons all nearby',poisonAura:65,poisonMult:2,dmgMult:1.3}
     ]},
     B:{name:'Acid',icon:'\u2620',levels:[
-      {cost:80,desc:'Breaks shields +DMG',armorBreak:true,dmgMult:1.3,poisonMult:1.3},
-      {cost:115,desc:'Stronger acid +DOT',armorBreak:true,poisonMult:1.8},
-      {cost:190,desc:'+DMG +DOT +Range',dmgMult:1.4,poisonMult:1.5,rangeMod:10},
-      {cost:480,desc:'DISSOLVE',poisonMult:2.5,dmgMult:1.8}
+      {cost:80,desc:'Corrosive - Melts shields + DMG',armorBreak:true,dmgMult:1.3,poisonMult:1.3},
+      {cost:115,desc:'Sulfuric Bath - Stronger acid burn',armorBreak:true,poisonMult:1.8},
+      {cost:190,desc:'Chemical Warfare - More DMG + DOT',dmgMult:1.4,poisonMult:1.5,rangeMod:10},
+      {cost:480,desc:'DISSOLVE - Extreme acid melts everything',poisonMult:2.5,dmgMult:1.8}
     ]}
   },
   sniper:{
     A:{name:'Assassin',icon:'\u2694',levels:[
-      {cost:130,desc:'20% Crit x3 DMG',crit:0.2},
-      {cost:190,desc:'35% Crit +DMG',crit:0.35,dmgMult:1.2},
-      {cost:300,desc:'50% Crit +DMG',crit:0.5,dmgMult:1.3},
-      {cost:800,desc:'DEADEYE',execute:0.15,crit:0.65,dmgMult:1.3}
+      {cost:130,desc:'Steady Aim - 20% chance for x3 crit',crit:0.2},
+      {cost:190,desc:'Sharpshooter - 35% crit + DMG',crit:0.35,dmgMult:1.2},
+      {cost:300,desc:'Lethal Precision - 50% crit + DMG',crit:0.5,dmgMult:1.3},
+      {cost:800,desc:'DEADEYE - Executes enemies below 15% HP',execute:0.15,crit:0.65,dmgMult:1.3}
     ]},
     B:{name:'Spotter',icon:'\u25CE',levels:[
-      {cost:130,desc:'Marks +20% DMG',mark:0.2},
-      {cost:190,desc:'Marks +40% DMG',mark:0.4},
-      {cost:300,desc:'Marks +60%',mark:0.6,rangeMod:15},
-      {cost:800,desc:'COMMAND',markAll:true,mark:0.8}
+      {cost:130,desc:'Target Lock - Marks for +20% DMG',mark:0.2},
+      {cost:190,desc:'Threat Scanner - Marks for +40% DMG',mark:0.4},
+      {cost:300,desc:'Recon Drone - Marks for +60%, more range',mark:0.6,rangeMod:15},
+      {cost:800,desc:'COMMAND - Marks ALL enemies for +80% DMG',markAll:true,mark:0.8}
     ]}
   },
   splash:{
     A:{name:'Megablast',icon:'\u2738',levels:[
-      {cost:160,desc:'Bigger boom +DMG',splashMod:20,dmgMult:1.4},
-      {cost:240,desc:'Larger radius +DMG',splashMod:25,dmgMult:1.3},
-      {cost:380,desc:'+Blast +DMG +Speed',splashMod:20,dmgMult:1.4,rateMult:0.85},
-      {cost:900,desc:'NUCLEAR',splashMod:40,dmgMult:1.8,rateMult:0.8}
+      {cost:160,desc:'Heavy Shell - Bigger blast + DMG',splashMod:20,dmgMult:1.4},
+      {cost:240,desc:'Cluster Bomb - Wider explosion',splashMod:25,dmgMult:1.3},
+      {cost:380,desc:'Artillery Strike - Huge blast, faster',splashMod:20,dmgMult:1.4,rateMult:0.85},
+      {cost:900,desc:'NUCLEAR - Devastating explosion',splashMod:40,dmgMult:1.8,rateMult:0.8}
     ]},
     B:{name:'Napalm',icon:'\u2668',levels:[
-      {cost:160,desc:'Burns ground 2s',burn:120,burnDmg:0.025},
-      {cost:240,desc:'Burns 3s',burn:180,burnDmg:0.04},
-      {cost:380,desc:'Hotter flames',burn:240,burnDmg:0.06},
-      {cost:900,desc:'HELLFIRE',burn:420,burnDmg:0.08}
+      {cost:160,desc:'Incendiary - Burns ground 2 seconds',burn:120,burnDmg:0.025},
+      {cost:240,desc:'Thermite - Burns 3 seconds',burn:180,burnDmg:0.04},
+      {cost:380,desc:'White Phosphorus - Hotter, longer burn',burn:240,burnDmg:0.06},
+      {cost:900,desc:'HELLFIRE - Eternal flames engulf the path',burn:420,burnDmg:0.08}
     ]}
   },
   chain:{
     A:{name:'Overload',icon:'\u2607',levels:[
-      {cost:220,desc:'+2 Targets +DMG',chainMod:2,dmgMult:1.3},
-      {cost:320,desc:'+3 Targets +Speed',chainMod:3,dmgMult:1.2,rateMult:0.8},
-      {cost:500,desc:'All in range +DMG',chainMod:999,dmgMult:1.4,rateMult:0.8},
-      {cost:1200,desc:'THUNDERSTORM',dmgMult:1.5,rateMult:0.6,rangeMod:20}
+      {cost:220,desc:'Arc Splitter - Hits +2 targets',chainMod:2,dmgMult:1.3},
+      {cost:320,desc:'Chain Reactor - Hits +3 targets, faster',chainMod:3,dmgMult:1.2,rateMult:0.8},
+      {cost:500,desc:'Surge Amplifier - More DMG + speed',dmgMult:1.4,chainMod:2,rateMult:0.8},
+      {cost:1200,desc:'THUNDERSTORM - Hits ALL in range',chainMod:999,dmgMult:1.5,rateMult:0.6,rangeMod:20}
     ]},
     B:{name:'EMP',icon:'\u2300',levels:[
-      {cost:220,desc:'Stun 0.5s',stun:30,chainMod:1},
-      {cost:320,desc:'Stun 1s + shields',stun:60,armorBreak:true,chainMod:1},
-      {cost:500,desc:'Stun 1.5s +DMG',stun:90,dmgMult:1.3,chainMod:1},
-      {cost:1200,desc:'BLACKOUT area stun',stun:120,armorBreak:true,chainMod:2}
+      {cost:220,desc:'Pulse Wave - 0.5s stun',stun:30,chainMod:1},
+      {cost:320,desc:'Shock Burst - 1s stun, breaks shields',stun:60,armorBreak:true,chainMod:1},
+      {cost:500,desc:'Overcharge Pulse - 1.5s stun + DMG',stun:90,dmgMult:1.3,chainMod:1},
+      {cost:1200,desc:'BLACKOUT - Massive area stun',stun:120,armorBreak:true,chainMod:2}
     ]}
   }
 };
