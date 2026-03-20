@@ -234,7 +234,7 @@ var TOWER_DEFS={
   sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
   poison:{cost:75,range:85,rate:26,dmg:0.7,color:COL.neonGreen,name:'Poison',splash:0,poison:5,upgCost:55},
   chain: {cost:275,range:95,rate:38,dmg:3.0,color:COL.purple,name:'Tesla',splash:0,chain:4,upgCost:180,canHitFlying:true},
-  rapid: {cost:50,range:80,rate:8,dmg:0.6,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
+  rapid: {cost:50,range:80,rate:5,dmg:0.55,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
 
 var PATHS={
