@@ -47,11 +47,17 @@ function showUpgrade(tIdx){
   } else if(t.path && t.level<4){
     var pLvl=t.level-1;
     var pDef=pathData[t.path];
-    if(pLvl<pDef.levels.length){
+    if(pLvl>=0&&pLvl<pDef.levels.length){
       var cost=pDef.levels[pLvl].cost;
-      upLevel.textContent=pDef.name+' '+(pLvl+1)+' \u2192 '+(pLvl+2);
-      upBtn.textContent='Upgrade ('+cost+')';
+      var isUltimate=pLvl===2;
+      upLevel.textContent=isUltimate?'ULTIMATE':pDef.name+' '+(pLvl+1)+' \u2192 '+(pLvl+2);
+      upBtn.textContent=(isUltimate?'\u2B50 ':'')+'Upgrade ('+cost+')';
+      upBtn.classList.remove('disabled');
       upBtn.classList.toggle('disabled',coins<cost);
+      upGeneric.style.display='block';
+    } else {
+      upLevel.textContent='MAX LEVEL';
+      upBtn.textContent='MAX';upBtn.classList.add('disabled');
       upGeneric.style.display='block';
     }
   } else {
