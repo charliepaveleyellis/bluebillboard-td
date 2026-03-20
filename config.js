@@ -174,11 +174,11 @@ function drawHex(cx,cy,r){
 }
 
 // ─── PATH ─────────────────────────────────────────
-var PATH_END_Y=isMobile?0.74:0.82;
+var PATH_END_Y=isMobile?0.74:0.88;
 var PATH_REL=[
   {x:0.5,y:-0.05},{x:0.5,y:0.07},{x:0.2,y:0.17},{x:0.15,y:0.31},
   {x:0.45,y:0.40},{x:0.8,y:0.33},{x:0.85,y:0.48},{x:0.55,y:0.57},
-  {x:0.2,y:isMobile?0.50:0.54},{x:0.15,y:isMobile?0.62:0.67},{x:0.5,y:isMobile?0.68:0.74},{x:0.5,y:PATH_END_Y}
+  {x:0.2,y:isMobile?0.50:0.56},{x:0.15,y:isMobile?0.62:0.70},{x:0.5,y:isMobile?0.68:0.78},{x:0.5,y:PATH_END_Y}
 ];
 
 function getPath(){
