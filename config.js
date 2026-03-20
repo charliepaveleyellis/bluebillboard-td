@@ -235,7 +235,9 @@ var TOWER_DEFS={
   sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
   poison:{cost:75,range:90,rate:22,dmg:1.0,color:COL.neonGreen,name:'Poison',splash:0,poison:6,upgCost:55},
   chain: {cost:275,range:95,rate:38,dmg:3.0,color:COL.purple,name:'Tesla',splash:0,chain:4,upgCost:180,canHitFlying:true},
-  rapid: {cost:50,range:80,rate:5,dmg:0.55,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
+  rapid: {cost:50,range:80,rate:5,dmg:0.55,color:'#4488ff',name:'Minigun',splash:0,upgCost:40},
+  laser: {cost:2000,range:9999,rate:60,dmg:50,color:'#ff2200',name:'Orbital',splash:30,upgCost:1500,canHitFlying:true},
+  nexus: {cost:3000,range:120,rate:80,dmg:0,color:'#ffffff',name:'Nexus',splash:0,upgCost:2000,auraBoost:true}
 };
 
 var PATHS={
@@ -335,6 +337,34 @@ var PATHS={
       {cost:320,desc:'Shock Burst - 1s stun, breaks shields',stun:60,armorBreak:true,chainMod:1},
       {cost:500,desc:'Overcharge Pulse - 1.5s stun + DMG',stun:90,dmgMult:1.3,chainMod:1},
       {cost:1200,desc:'BLACKOUT - Massive area stun',stun:120,armorBreak:true,chainMod:2}
+    ]}
+  },
+  laser:{
+    A:{name:'Death Ray',icon:'\u2622',levels:[
+      {cost:1800,desc:'Focused Beam - More DMG',dmgMult:1.5},
+      {cost:2500,desc:'Plasma Core - Huge DMG + speed',dmgMult:1.5,rateMult:0.7},
+      {cost:4000,desc:'Overcharged - Massive blast radius',dmgMult:1.5,splashMod:30},
+      {cost:8000,desc:'DEATH STAR - Obliterates everything',dmgMult:2,splashMod:50,rateMult:0.5}
+    ]},
+    B:{name:'Ion Cannon',icon:'\u269B',levels:[
+      {cost:1800,desc:'Ion Charge - Stuns on hit',stun:60},
+      {cost:2500,desc:'Charged Shot - Longer stun + DMG',stun:90,dmgMult:1.3},
+      {cost:4000,desc:'Disruptor - Breaks all shields',armorBreak:true,dmgMult:1.5,stun:120},
+      {cost:8000,desc:'EXTINCTION - Stun + execute below 25%',stun:180,execute:0.25,dmgMult:2}
+    ]}
+  },
+  nexus:{
+    A:{name:'War Shrine',icon:'\u2726',levels:[
+      {cost:2200,desc:'Battle Aura - Nearby towers +15% DMG',auraDmg:0.15},
+      {cost:3500,desc:'War Cry - +25% DMG + speed',auraDmg:0.25,auraRate:0.1},
+      {cost:5000,desc:'Fury - +35% DMG + 20% speed',auraDmg:0.35,auraRate:0.2},
+      {cost:10000,desc:'GOD MODE - +50% DMG + 30% speed to all nearby',auraDmg:0.5,auraRate:0.3}
+    ]},
+    B:{name:'Shield Gen',icon:'\u2742',levels:[
+      {cost:2200,desc:'Barrier - Slows all enemies in range',slow:0.4,rangeMod:20},
+      {cost:3500,desc:'Force Field - Stronger slow + DMG',slow:0.6,dmgMult:1,rangeMod:20},
+      {cost:5000,desc:'Stasis Field - Heavy slow + marks',slow:0.8,rangeMod:20,bonusDmgMark:0.3},
+      {cost:10000,desc:'TIME STOP - Nearly freezes all enemies',slow:0.95,rangeMod:40,bonusDmgMark:0.5}
     ]}
   }
 };

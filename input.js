@@ -73,7 +73,7 @@ function confirmDrop(){
     color:def.color,splash:def.splash||0,slow:def.slow||0,
     poison:def.poison||0,chain:def.chain||0,
     cooldown:0,angle:0,fireAnim:0,
-    path:null,multishot:0,pierce:false,armorBreak:false,stun:0,burn:0,burnDmg:0,crit:0,mark:0,spreadPoison:false,splashSlow:0,bonusDmgMark:0,slowDur:0,shatter:0,execute:0,markAll:false,poisonAura:0,
+    path:null,multishot:0,pierce:false,armorBreak:false,stun:0,burn:0,burnDmg:0,crit:0,mark:0,spreadPoison:false,splashSlow:0,bonusDmgMark:0,slowDur:0,shatter:0,execute:0,markAll:false,poisonAura:0,auraDmg:0,auraRate:0,
     totalSpent:def.cost,
     targetMode:'first'
   });

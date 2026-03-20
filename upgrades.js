@@ -108,6 +108,9 @@ function applyPathUpgrade(t, pathKey, levelIdx){
   if(pDef.execute) t.execute=pDef.execute;
   if(pDef.markAll) t.markAll=true;
   if(pDef.poisonAura) t.poisonAura=pDef.poisonAura;
+  if(pDef.auraDmg) t.auraDmg=pDef.auraDmg;
+  if(pDef.auraRate) t.auraRate=pDef.auraRate;
+  if(pDef.slow) t.slow=pDef.slow;
   t.level++;
   if(!t.path) t.path=pathKey;
 }

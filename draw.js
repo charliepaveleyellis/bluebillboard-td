@@ -739,6 +739,47 @@ function drawTowers(){
       }
     }
 
+    if(t.type==='laser'){
+      // ORBITAL LASER — vertical beam from sky
+      var beamW=3+Math.sin(frameCount*0.1)*1;
+      neonGlow('#ff2200',12,function(){
+        X.strokeStyle='#ff2200';X.lineWidth=beamW;
+        X.beginPath();X.moveTo(0,0);X.lineTo(0,-40);X.stroke();
+      });
+      X.strokeStyle='#ff6644';X.lineWidth=1;
+      X.beginPath();X.moveTo(0,-40);X.lineTo(-6,-48);X.stroke();
+      X.beginPath();X.moveTo(0,-40);X.lineTo(6,-48);X.stroke();
+      // Targeting reticle
+      neonGlow('#ff4400',8,function(){
+        X.strokeStyle='#ff4400';X.lineWidth=1.5;
+        X.beginPath();X.arc(0,-40,6,0,Math.PI*2);X.stroke();
+        X.fillStyle='#ff0000';X.beginPath();X.arc(0,-40,2,0,Math.PI*2);X.fill();
+      });
+      // Heat shimmer
+      X.fillStyle='rgba(255,34,0,0.08)';
+      X.beginPath();X.arc(0,-20,10+Math.sin(frameCount*0.06)*3,0,Math.PI*2);X.fill();
+    }
+    else if(t.type==='nexus'){
+      // NEXUS — glowing crystal spire with aura rings
+      neonGlow('#ffffff',10,function(){
+        X.strokeStyle='#aabbff';X.lineWidth=3;
+        X.beginPath();X.moveTo(0,2);X.lineTo(-5,-10);X.lineTo(0,-30);X.lineTo(5,-10);X.closePath();X.stroke();
+      });
+      X.fillStyle='rgba(170,187,255,0.15)';
+      X.beginPath();X.moveTo(0,2);X.lineTo(-5,-10);X.lineTo(0,-30);X.lineTo(5,-10);X.closePath();X.fill();
+      // Pulsing aura rings
+      for(var nr=0;nr<3;nr++){
+        var nra=((frameCount+nr*20)%60)/60;
+        X.strokeStyle='rgba(170,187,255,'+(1-nra)*0.3+')';X.lineWidth=1.5;
+        X.beginPath();X.arc(0,-14,nra*20,0,Math.PI*2);X.stroke();
+      }
+      // Top gem
+      neonGlow('#ffffff',12,function(){
+        X.fillStyle='#ddeeff';X.beginPath();X.arc(0,-30,4,0,Math.PI*2);X.fill();
+        X.fillStyle='#fff';X.beginPath();X.arc(0,-30,2,0,Math.PI*2);X.fill();
+      });
+    }
+
     X.restore();
 
     // Center orb

@@ -96,6 +96,15 @@ function checkSynergies(){
         if(t2.path==='B'){synergies.push({i1:i,i2:j,type:'spotter'});t1._synergyMark=0.15;}
         if(t1.path==='B'){synergies.push({i1:i,i2:j,type:'spotter'});t2._synergyMark=0.15;}
       }
+      // Nexus War Shrine: buff nearby towers
+      if(t1.type==='nexus'&&t1.path==='A'&&t2.type!=='nexus'&&dist<t1.range){
+        synergies.push({i1:i,i2:j,type:'nexus'});
+        t2._nexusDmg=(t1.auraDmg||0);t2._nexusRate=(t1.auraRate||0);
+      }
+      if(t2.type==='nexus'&&t2.path==='A'&&t1.type!=='nexus'&&dist<t2.range){
+        synergies.push({i1:j,i2:i,type:'nexus'});
+        t1._nexusDmg=(t2.auraDmg||0);t1._nexusRate=(t2.auraRate||0);
+      }
     }
   }
   // Cold zones slow enemies
@@ -125,7 +134,8 @@ function updateTowers(){
       if(auraRange.length>0&&frameCount%20===0) particles.push({x:t.x,y:t.y,vx:0,vy:0,life:15,size:t.poisonAura/3,color:COL.neonGreen,ring:true,noGravity:true});
     }
     t.cooldown--;
-    if(t._synergyRate&&t.cooldown>0) t.cooldown=Math.max(1,t.cooldown-1); // double cooldown tick
+    if(t._synergyRate&&t.cooldown>0) t.cooldown=Math.max(1,t.cooldown-1);
+    if(t._nexusRate&&t.cooldown>0) t.cooldown=Math.max(1,Math.floor(t.cooldown*(1-t._nexusRate)));
     if(t.cooldown>0) continue;
 
     var target=findTarget(t);
@@ -133,6 +143,7 @@ function updateTowers(){
 
     t.cooldown=t.rate;
     t.fireAnim=5;
+    var nexusDmgMult=1+(t._nexusDmg||0);
 
     if(t.type==='chain'){
       var inRange=findEnemiesInRange(t.x,t.y,t.range);
@@ -140,7 +151,7 @@ function updateTowers(){
       for(var j=0;j<inRange.length&&hitCount<(t.chain||3);j++){
         if(enemies[inRange[j]].flying&&!t.canHitFlying) continue;
         var e=enemies[inRange[j]];
-        var dmg=t.dmg;
+        var dmg=t.dmg*nexusDmgMult;
         if(t.armorBreak){/* skip shield */}
         else if(e.shieldHp&&e.shieldHp>0){var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;}
         if(e.marked) dmg*=(1+e.marked);
@@ -182,7 +193,7 @@ function updateTowers(){
     }
     else if(t.type==='sniper'){
       var aim=fireProjectile(t,target);
-      var dmg=t.dmg;
+      var dmg=t.dmg*nexusDmgMult;
       // Crit
       if(t.crit&&Math.random()<t.crit) dmg*=3;
       if(t.armorBreak){/* skip shield */}
@@ -241,13 +252,49 @@ function updateTowers(){
       });
       sfxShoot();
     }
+    else if(t.type==='laser'){
+      // ORBITAL LASER — instant hit like sniper but massive damage + splash
+      var aim=fireProjectile(t,target);
+      var dmg=t.dmg;
+      if(t.armorBreak){/* skip shield */}
+      else if(target.shieldHp&&target.shieldHp>0){var ab=Math.min(target.shieldHp,dmg);target.shieldHp-=ab;dmg-=ab;}
+      if(target.marked) dmg*=(1+target.marked);
+      target.hp-=dmg;
+      if(t.execute&&target.hp>0&&target.hp/target.maxHp<=t.execute) target.hp=0;
+      if(t.stun&&!(target.stunImmune>0)&&!(target.stunTimer>0)) target.stunTimer=t.stun;
+      spawnFloatText(target.x,target.y-target.size,Math.ceil(dmg),'#ff2200',true);
+      lightningArcs.push({x1:t.x,y1:t.y-20,x2:target.x,y2:target.y,life:8,color:'#ff2200'});
+      // Splash damage
+      if(t.splash>0){
+        var laserSplash=findEnemiesInRange(target.x,target.y,t.splash);
+        for(var ls=0;ls<laserSplash.length;ls++){
+          if(enemies[laserSplash[ls]]===target) continue;
+          enemies[laserSplash[ls]].hp-=dmg*0.5;
+        }
+      }
+      sfxShoot();
+      particles.push({x:target.x,y:target.y,vx:0,vy:0,life:12,size:6,color:'#ff2200',ring:true,noGravity:true});
+      screenFlash=2;
+    }
+    else if(t.type==='nexus'){
+      // NEXUS — doesn't attack, buffs nearby towers (handled in checkSynergies)
+      // But if it has slow (Shield Gen path), apply slow to enemies in range
+      if(t.slow){
+        var nexRange=findEnemiesInRange(t.x,t.y,t.range);
+        for(var ni=0;ni<nexRange.length;ni++){
+          enemies[nexRange[ni]].slowTimer=Math.max(enemies[nexRange[ni]].slowTimer,30);
+          if(t.bonusDmgMark) enemies[nexRange[ni]].marked=Math.max(enemies[nexRange[ni]].marked||0,t.bonusDmgMark);
+        }
+      }
+      t.angle+=0.02;
+    }
     else {
       // basic tower — extra bullets do 60% damage
       var shotCount=t.multishot||1;
       for(var ms=0;ms<shotCount;ms++){
         var aim=fireProjectile(t,target);
         var spread=shotCount>1?(Math.random()-0.5)*0.35:0;
-        var shotDmg=ms===0?t.dmg:t.dmg*0.6;
+        var shotDmg=(ms===0?t.dmg:t.dmg*0.6)*nexusDmgMult;
         bullets.push({
           x:t.x,y:t.y,vx:(aim.fdx+spread)*aim.spd,vy:(aim.fdy+spread)*aim.spd,
           dmg:shotDmg,splash:t.splash||0,slow:t.slow||0,poison:0,chain:0,
