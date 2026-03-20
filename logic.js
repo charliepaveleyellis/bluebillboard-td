@@ -239,14 +239,15 @@ function updateTowers(){
       sfxShoot();
     }
     else {
-      // basic tower
+      // basic tower — extra bullets do 60% damage
       var shotCount=t.multishot||1;
       for(var ms=0;ms<shotCount;ms++){
         var aim=fireProjectile(t,target);
-        var spread=shotCount>1?(Math.random()-0.5)*0.3:0;
+        var spread=shotCount>1?(Math.random()-0.5)*0.35:0;
+        var shotDmg=ms===0?t.dmg:t.dmg*0.6;
         bullets.push({
           x:t.x,y:t.y,vx:(aim.fdx+spread)*aim.spd,vy:(aim.fdy+spread)*aim.spd,
-          dmg:t.dmg,splash:t.splash||0,slow:t.slow||0,poison:0,chain:0,
+          dmg:shotDmg,splash:t.splash||0,slow:t.slow||0,poison:0,chain:0,
           color:t.color,size:3,life:60,
           pierce:t.pierce,armorBreak:t.armorBreak
         });

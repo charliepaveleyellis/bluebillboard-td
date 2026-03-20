@@ -228,13 +228,13 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:30,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
+  basic: {cost:30,range:75,rate:26,dmg:0.8,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
-  splash:{cost:150,range:85,rate:50,dmg:3.0,color:COL.neonRed,name:'Cannon',splash:45,upgCost:110},
-  sniper:{cost:120,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90,canHitFlying:true},
+  splash:{cost:150,range:90,rate:42,dmg:4.0,color:COL.neonRed,name:'Cannon',splash:55,upgCost:100},
+  sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
   poison:{cost:75,range:85,rate:26,dmg:0.7,color:COL.neonGreen,name:'Poison',splash:0,poison:5,upgCost:55},
-  chain: {cost:275,range:90,rate:45,dmg:2.2,color:COL.purple,name:'Tesla',splash:0,chain:3,upgCost:200,canHitFlying:true},
-  rapid: {cost:50,range:72,rate:10,dmg:0.45,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
+  chain: {cost:275,range:95,rate:38,dmg:3.0,color:COL.purple,name:'Tesla',splash:0,chain:4,upgCost:180,canHitFlying:true},
+  rapid: {cost:50,range:72,rate:10,dmg:0.4,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
 
 var PATHS={
