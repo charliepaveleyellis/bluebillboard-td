@@ -253,47 +253,79 @@ function drawTowerBase(t){
     X.fillText('RANGE: INFINITE',t.x,t.y-28);
   }
 
-  // Shadow
-  X.fillStyle='rgba(0,0,0,0.3)';
-  X.beginPath();X.ellipse(t.x+2,t.y+3,18,12,0,0,Math.PI*2);X.fill();
+  // Level-based visual scaling
+  var hexR=17+Math.min(t.level,5)*0.8; // hex grows slightly per level
+  var borderW=2+Math.min(t.level,5)*0.3; // border thickens
+  var borderCol=t.color;
 
-  // Hexagonal base
-  var hexR=17;
+  // Level 3+: border brightens
+  if(t.level>=3){
+    var brightPulse=0.7+Math.sin(frameCount*0.06)*0.15;
+    borderCol=t.color;
+  }
 
+  // Level 4+: outer glow ring
+  if(t.level>=4){
+    var ringAlpha=0.12+Math.sin(frameCount*0.05)*0.06;
+    X.strokeStyle=t.color;X.globalAlpha=ringAlpha;X.lineWidth=1;
+    X.beginPath();X.arc(t.x,t.y,hexR+6+Math.sin(frameCount*0.04)*2,0,Math.PI*2);X.stroke();
+    X.globalAlpha=1;
+  }
+
+  // Level 5 (max): golden aura + particles
   if(t.level>=5){
-    var glowPulse=0.3+Math.sin(frameCount*0.06)*0.15;
-    var glowR=hexR+8+Math.sin(frameCount*0.04)*3;
+    var glowPulse=0.25+Math.sin(frameCount*0.06)*0.12;
+    var glowR=hexR+10+Math.sin(frameCount*0.04)*3;
     neonGlow(COL.gold,15,function(){
       X.fillStyle='rgba(255,221,0,'+glowPulse+')';
       X.beginPath();X.arc(t.x,t.y,glowR,0,Math.PI*2);X.fill();
     });
-    if(frameCount%4===0 && particles.length<MAX_PARTICLES){
+    if(frameCount%5===0 && particles.length<MAX_PARTICLES){
       var ringA=frameCount*0.08;
       particles.push({x:t.x+Math.cos(ringA)*(hexR+6),y:t.y+Math.sin(ringA)*(hexR+6),
         vx:0,vy:-0.5,life:12,size:2,color:COL.gold,noGravity:true});
     }
+    borderCol=COL.gold;
   }
 
+  // Shadow — grows with level
+  X.fillStyle='rgba(0,0,0,0.3)';
+  X.beginPath();X.ellipse(t.x+2,t.y+3,hexR+1,hexR*0.65,0,0,Math.PI*2);X.fill();
+
   // Dark fill
-  X.fillStyle='rgba(5,5,20,0.9)';
+  X.fillStyle=t.level>=5?'rgba(20,15,5,0.9)':t.level>=3?'rgba(8,8,25,0.9)':'rgba(5,5,20,0.9)';
   drawHex(t.x,t.y,hexR);
   X.fill();
 
-  // Pulsing neon border
-  var pulseAlpha=0.6+Math.sin(frameCount*0.05)*0.2;
-  neonGlow(t.color,6,function(){
-    X.strokeStyle=t.color;X.lineWidth=2;X.globalAlpha=pulseAlpha;
+  // Level 2+: inner hex ring
+  if(t.level>=2){
+    X.strokeStyle=t.color;X.globalAlpha=0.15+t.level*0.04;X.lineWidth=1;
+    drawHex(t.x,t.y,hexR*0.6);
+    X.stroke();X.globalAlpha=1;
+  }
+
+  // Pulsing neon border — gets brighter and thicker with level
+  var pulseAlpha=(0.5+Math.min(t.level,5)*0.08)+Math.sin(frameCount*0.05)*0.15;
+  neonGlow(borderCol,4+t.level,function(){
+    X.strokeStyle=borderCol;X.lineWidth=borderW;X.globalAlpha=pulseAlpha;
     drawHex(t.x,t.y,hexR);
     X.stroke();
     X.globalAlpha=1;
   });
 
-  // Level indicators — neon gold tick marks on hex edge
-  for(var lv=0;lv<t.level&&lv<6;lv++){
-    var la=(lv/6)*Math.PI*2-Math.PI/6;
-    var tx=t.x+Math.cos(la)*(hexR-3),ty=t.y+Math.sin(la)*(hexR-3);
-    X.fillStyle=COL.gold;
-    X.fillRect(tx-1.5,ty-1.5,3,3);
+  // Level chevrons on bottom edge — small pointed marks
+  if(t.level>0){
+    var chevCount=Math.min(t.level,5);
+    var chevSpacing=6;
+    var chevStartX=t.x-(chevCount-1)*chevSpacing/2;
+    var chevY=t.y+hexR+4;
+    for(var lv=0;lv<chevCount;lv++){
+      var cx=chevStartX+lv*chevSpacing;
+      X.fillStyle=t.level>=5?COL.gold:t.color;
+      X.beginPath();
+      X.moveTo(cx,chevY-3);X.lineTo(cx+2.5,chevY);X.lineTo(cx,chevY+3);X.lineTo(cx-2.5,chevY);
+      X.closePath();X.fill();
+    }
   }
 }
 
