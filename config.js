@@ -228,7 +228,7 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:30,range:82,rate:22,dmg:1.1,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
+  basic: {cost:30,range:85,rate:20,dmg:1.2,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
   splash:{cost:150,range:90,rate:42,dmg:4.0,color:COL.neonRed,name:'Cannon',splash:55,upgCost:100},
   sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
