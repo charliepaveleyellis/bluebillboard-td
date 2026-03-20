@@ -228,112 +228,112 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:40,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:50},
-  slow:  {cost:60,range:80,rate:32,dmg:0.6,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:65},
-  splash:{cost:100,range:90,rate:45,dmg:3.0,color:COL.neonRed,name:'Cannon',splash:50,upgCost:95},
-  sniper:{cost:100,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90},
-  poison:{cost:70,range:80,rate:28,dmg:0.6,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:70},
-  chain: {cost:150,range:85,rate:50,dmg:1.5,color:COL.purple,name:'Tesla',splash:0,chain:2,upgCost:120},
-  rapid: {cost:65,range:75,rate:10,dmg:0.5,color:'#4488ff',name:'Minigun',splash:0,upgCost:55}
+  basic: {cost:30,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
+  slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
+  splash:{cost:150,range:85,rate:50,dmg:3.0,color:COL.neonRed,name:'Cannon',splash:45,upgCost:110},
+  sniper:{cost:120,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90},
+  poison:{cost:75,range:78,rate:30,dmg:0.5,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:55},
+  chain: {cost:200,range:85,rate:55,dmg:1.5,color:COL.purple,name:'Tesla',splash:0,chain:2,upgCost:150},
+  rapid: {cost:50,range:72,rate:10,dmg:0.45,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
 
 var PATHS={
   basic:{
     A:{name:'Overcharge',icon:'\u26A1',levels:[
-      {cost:65,desc:'+DMG, Slow hit',dmgMult:1.4,addSlow:0.2},
-      {cost:110,desc:'Piercing shots',dmgMult:1.3,pierce:true},
-      {cost:180,desc:'+DMG +Range',dmgMult:1.4,rangeMod:15},
-      {cost:300,desc:'PLASMA CANNON',dmgMult:1.5,addSplash:25}
+      {cost:40,desc:'+DMG, Slow hit',dmgMult:1.3,addSlow:0.15},
+      {cost:60,desc:'Piercing shots',dmgMult:1.2,pierce:true},
+      {cost:100,desc:'+DMG +Range',dmgMult:1.2,rangeMod:12},
+      {cost:250,desc:'PLASMA CANNON',dmgMult:1.3,addSplash:20}
     ]},
     B:{name:'Twin Shot',icon:'\u2747',levels:[
-      {cost:55,desc:'Double shot +DMG',multishot:2,dmgMult:1.2,rateMod:-3},
-      {cost:90,desc:'Triple shot +Speed',multishot:3,dmgMult:1.3,rateMod:-4},
-      {cost:150,desc:'Quad shot +DMG',multishot:4,dmgMult:1.2,rateMod:-2},
-      {cost:260,desc:'BULLET STORM',multishot:5,dmgMult:1.4,rateMod:-4}
+      {cost:35,desc:'Double shot',multishot:2,rateMod:-2},
+      {cost:55,desc:'Triple shot',multishot:3,dmgMult:1.1,rateMod:-2},
+      {cost:90,desc:'Quad shot +Speed',multishot:4,dmgMult:1.1,rateMod:-2},
+      {cost:250,desc:'BULLET STORM',multishot:5,dmgMult:1.2,rateMod:-3}
     ]}
   },
   slow:{
     A:{name:'Permafrost',icon:'\u2744',levels:[
-      {cost:75,desc:'Frozen +30% DMG',bonusDmgMark:0.3},
-      {cost:120,desc:'Deep freeze 2s',slowDur:120},
-      {cost:200,desc:'+DMG, Freeze 2.5s',dmgMult:1.5,slowDur:150},
-      {cost:340,desc:'ABSOLUTE ZERO',shatter:0.15,bonusDmgMark:0.5,dmgMult:1.5}
+      {cost:70,desc:'Frozen +25% DMG',bonusDmgMark:0.25},
+      {cost:100,desc:'Deep freeze 2s',slowDur:120},
+      {cost:170,desc:'Freeze 3s +DMG',dmgMult:1.3,slowDur:180},
+      {cost:450,desc:'ABSOLUTE ZERO',shatter:0.15,bonusDmgMark:0.4,dmgMult:1.3}
     ]},
     B:{name:'Blizzard',icon:'\u2602',levels:[
-      {cost:75,desc:'+Range, AOE slow',rangeMod:25,splashSlow:35},
-      {cost:120,desc:'Bigger blizzard',rangeMod:35,splashSlow:50},
-      {cost:200,desc:'Wider + DMG',rangeMod:20,splashSlow:20,dmgMult:1.5},
-      {cost:340,desc:'ICE AGE',rangeMod:80,splashSlow:80,slowDur:180}
+      {cost:70,desc:'+Range, AOE slow',rangeMod:20,splashSlow:30},
+      {cost:100,desc:'Bigger blizzard',rangeMod:25,splashSlow:40},
+      {cost:170,desc:'Wider + DMG',rangeMod:15,splashSlow:15,dmgMult:1.3},
+      {cost:450,desc:'ICE AGE',rangeMod:60,splashSlow:60,slowDur:150}
     ]}
   },
   rapid:{
     A:{name:'Overdrive',icon:'\u21BB',levels:[
-      {cost:65,desc:'2x Fire speed',rateMult:0.5},
-      {cost:110,desc:'+Speed +DMG',rateMult:0.7,dmgMult:1.5},
-      {cost:200,desc:'Even faster',rateMult:0.7,dmgMult:1.3},
-      {cost:300,desc:'HYPERDRIVE',rateMult:0.4,dmgMult:1.5}
+      {cost:60,desc:'Faster fire',rateMult:0.6},
+      {cost:90,desc:'+Speed +DMG',rateMult:0.7,dmgMult:1.3},
+      {cost:150,desc:'Even faster',rateMult:0.75,dmgMult:1.2},
+      {cost:400,desc:'HYPERDRIVE',rateMult:0.5,dmgMult:1.3}
     ]},
     B:{name:'Heavy Rounds',icon:'\u25C6',levels:[
-      {cost:65,desc:'+DMG, Break shields',dmgMult:2.5,armorBreak:true},
-      {cost:110,desc:'Huge DMG',dmgMult:2},
-      {cost:200,desc:'+DMG +Range',dmgMult:1.5,rangeMod:15},
-      {cost:300,desc:'RAILGUN',dmgMult:3,pierce:true}
+      {cost:60,desc:'+DMG, Break shields',dmgMult:1.8,armorBreak:true},
+      {cost:90,desc:'+DMG',dmgMult:1.5},
+      {cost:150,desc:'+DMG +Range',dmgMult:1.3,rangeMod:12},
+      {cost:400,desc:'RAILGUN',dmgMult:2,pierce:true}
     ]}
   },
   poison:{
     A:{name:'Plague',icon:'\u2623',levels:[
-      {cost:80,desc:'Spreads on kill',spreadPoison:true},
-      {cost:130,desc:'Stronger spread',poisonMult:2,spreadPoison:true},
-      {cost:210,desc:'+DOT +Range',poisonMult:1.5,rangeMod:15},
-      {cost:320,desc:'PANDEMIC',poisonAura:60,poisonMult:2}
+      {cost:85,desc:'Spreads on kill',spreadPoison:true},
+      {cost:120,desc:'Stronger DOT',poisonMult:1.5,spreadPoison:true},
+      {cost:200,desc:'+DOT +Range',poisonMult:1.3,rangeMod:12},
+      {cost:500,desc:'PANDEMIC',poisonAura:55,poisonMult:1.5}
     ]},
     B:{name:'Acid',icon:'\u2620',levels:[
-      {cost:80,desc:'Breaks shields',armorBreak:true,poisonMult:1.5},
-      {cost:130,desc:'Melts everything',armorBreak:true,poisonMult:2},
-      {cost:210,desc:'+DMG +DOT',dmgMult:1.5,poisonMult:1.5},
-      {cost:320,desc:'DISSOLVE',poisonMult:3,dmgMult:2}
+      {cost:85,desc:'Breaks shields',armorBreak:true,poisonMult:1.3},
+      {cost:120,desc:'Stronger acid',armorBreak:true,poisonMult:1.5},
+      {cost:200,desc:'+DMG +DOT',dmgMult:1.3,poisonMult:1.3},
+      {cost:500,desc:'DISSOLVE',poisonMult:2,dmgMult:1.5}
     ]}
   },
   sniper:{
     A:{name:'Assassin',icon:'\u2694',levels:[
-      {cost:110,desc:'25% Crit x3 DMG',crit:0.25},
-      {cost:180,desc:'50% Crit',crit:0.5,dmgMult:1.3},
-      {cost:280,desc:'75% Crit +DMG',crit:0.75,dmgMult:1.4},
-      {cost:400,desc:'DEADEYE',execute:0.2,crit:0.9,dmgMult:1.5}
+      {cost:130,desc:'20% Crit x3 DMG',crit:0.2},
+      {cost:190,desc:'35% Crit +DMG',crit:0.35,dmgMult:1.2},
+      {cost:300,desc:'50% Crit +DMG',crit:0.5,dmgMult:1.3},
+      {cost:800,desc:'DEADEYE',execute:0.15,crit:0.65,dmgMult:1.3}
     ]},
     B:{name:'Spotter',icon:'\u25CE',levels:[
-      {cost:110,desc:'Marks +30% DMG',mark:0.3},
-      {cost:180,desc:'Marks +60% DMG',mark:0.6},
-      {cost:280,desc:'Marks +80% +Range',mark:0.8,rangeMod:20},
-      {cost:400,desc:'COMMAND',markAll:true,mark:1.0}
+      {cost:130,desc:'Marks +20% DMG',mark:0.2},
+      {cost:190,desc:'Marks +40% DMG',mark:0.4},
+      {cost:300,desc:'Marks +60%',mark:0.6,rangeMod:15},
+      {cost:800,desc:'COMMAND',markAll:true,mark:0.8}
     ]}
   },
   splash:{
     A:{name:'Megablast',icon:'\u2738',levels:[
-      {cost:130,desc:'Bigger boom +DMG',splashMod:25,dmgMult:1.5},
-      {cost:190,desc:'Nuke radius',splashMod:35,dmgMult:1.5},
-      {cost:300,desc:'+Blast +DMG',splashMod:20,dmgMult:1.5},
-      {cost:420,desc:'NUCLEAR',splashMod:50,dmgMult:2}
+      {cost:160,desc:'Bigger boom +DMG',splashMod:15,dmgMult:1.3},
+      {cost:240,desc:'Larger radius',splashMod:20,dmgMult:1.2},
+      {cost:380,desc:'+Blast +DMG',splashMod:15,dmgMult:1.3},
+      {cost:900,desc:'NUCLEAR',splashMod:30,dmgMult:1.5}
     ]},
     B:{name:'Napalm',icon:'\u2668',levels:[
-      {cost:130,desc:'Burns ground 3s',burn:180,burnDmg:0.03},
-      {cost:190,desc:'Inferno 5s',burn:300,burnDmg:0.05},
-      {cost:300,desc:'Hotter flames',burn:400,burnDmg:0.07},
-      {cost:420,desc:'HELLFIRE',burn:600,burnDmg:0.1}
+      {cost:160,desc:'Burns ground 2s',burn:120,burnDmg:0.025},
+      {cost:240,desc:'Burns 3s',burn:180,burnDmg:0.04},
+      {cost:380,desc:'Hotter flames',burn:240,burnDmg:0.06},
+      {cost:900,desc:'HELLFIRE',burn:420,burnDmg:0.08}
     ]}
   },
   chain:{
     A:{name:'Overload',icon:'\u2607',levels:[
-      {cost:150,desc:'+2 Targets +DMG',chainMod:2,dmgMult:1.4},
-      {cost:220,desc:'+3 Targets',chainMod:3,dmgMult:1.2},
-      {cost:350,desc:'+DMG +Speed',dmgMult:1.5,rateMult:0.8},
-      {cost:500,desc:'THUNDERSTORM',chainMod:5,dmgMult:1.5,rateMult:0.7}
+      {cost:220,desc:'+1 Target +DMG',chainMod:1,dmgMult:1.3},
+      {cost:320,desc:'+2 Targets',chainMod:2,dmgMult:1.2},
+      {cost:500,desc:'+DMG +Speed',dmgMult:1.3,rateMult:0.85},
+      {cost:1200,desc:'THUNDERSTORM',chainMod:4,dmgMult:1.4,rateMult:0.75}
     ]},
     B:{name:'EMP',icon:'\u2300',levels:[
-      {cost:150,desc:'Stun 0.8s',stun:48,chainMod:1},
-      {cost:220,desc:'Stun 1.5s + shields',stun:90,armorBreak:true,chainMod:1},
-      {cost:350,desc:'Stun 2s +DMG',stun:120,dmgMult:1.5,chainMod:1},
-      {cost:500,desc:'BLACKOUT area stun',stun:180,armorBreak:true,chainMod:2}
+      {cost:220,desc:'Stun 0.5s',stun:30,chainMod:1},
+      {cost:320,desc:'Stun 1s + shields',stun:60,armorBreak:true,chainMod:1},
+      {cost:500,desc:'Stun 1.5s +DMG',stun:90,dmgMult:1.3,chainMod:1},
+      {cost:1200,desc:'BLACKOUT area stun',stun:120,armorBreak:true,chainMod:2}
     ]}
   }
 };

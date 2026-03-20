@@ -127,7 +127,7 @@ function winGame(){
 
   document.getElementById('endTitle').textContent='NETWORK SECURED!';
   document.getElementById('endLabel').textContent='You Won!';
-  document.getElementById('finalScore').textContent='WAVE 20';
+  document.getElementById('finalScore').textContent='WAVE 30';
   document.getElementById('statsDisp').textContent=
     totalKills+' enemies defeated | '+towers.length+' towers built | Score: '+score;
   document.getElementById('continueBtn').style.display='inline-block';

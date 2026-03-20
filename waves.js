@@ -78,7 +78,7 @@ function generateWave(w){
   }
 
   // WAVE 20 FINAL BOSS — the Overlord
-  if(w===20){
+  if(w===30){
     q.push('mega');q.push('mega');q.push('mega');
     q.push('finalboss');
   }
@@ -97,10 +97,10 @@ function startWave(){
   spawnQueue=generateWave(wave);
   spawnTimer=0;waveActive=true;
   sfxWave();
-  if(wave===20) waveBanner.textContent='\u2620 FINAL WAVE \u2620 THE OVERLORD APPROACHES';
+  if(wave===30) waveBanner.textContent='\u2620 FINAL WAVE \u2620 THE OVERLORD APPROACHES';
   else waveBanner.textContent='\u26A0 WAVE '+wave+' INCOMING';
   waveBanner.classList.add('show');
-  setTimeout(function(){waveBanner.classList.remove('show');},wave===20?2500:1500);
+  setTimeout(function(){waveBanner.classList.remove('show');},wave===30?2500:1500);
 }
 
 function spawnEnemy(type){
