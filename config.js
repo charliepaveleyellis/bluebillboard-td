@@ -240,16 +240,16 @@ var TOWER_DEFS={
 var PATHS={
   basic:{
     A:{name:'Overcharge',icon:'\u26A1',levels:[
-      {cost:40,desc:'+DMG, Slow hit',dmgMult:1.3,addSlow:0.15},
-      {cost:60,desc:'Piercing shots',dmgMult:1.2,pierce:true},
-      {cost:100,desc:'+DMG +Range',dmgMult:1.2,rangeMod:12},
-      {cost:250,desc:'PLASMA CANNON',dmgMult:1.3,addSplash:20}
+      {cost:40,desc:'+DMG',dmgMult:1.15},
+      {cost:65,desc:'+DMG +Range',dmgMult:1.15,rangeMod:10},
+      {cost:110,desc:'+DMG',dmgMult:1.15},
+      {cost:280,desc:'PLASMA CANNON',dmgMult:1.15,pierce:true,addSplash:18}
     ]},
     B:{name:'Twin Shot',icon:'\u2747',levels:[
-      {cost:35,desc:'Double shot',multishot:2,rateMod:-2},
-      {cost:55,desc:'Triple shot',multishot:3,dmgMult:1.1,rateMod:-2},
-      {cost:90,desc:'Quad shot +Speed',multishot:4,dmgMult:1.1,rateMod:-2},
-      {cost:250,desc:'BULLET STORM',multishot:5,dmgMult:1.2,rateMod:-3}
+      {cost:35,desc:'Double shot',multishot:2},
+      {cost:60,desc:'Triple shot',multishot:3,rateMod:-2},
+      {cost:100,desc:'Quad shot',multishot:4,rateMod:-2},
+      {cost:280,desc:'BULLET STORM',multishot:5,dmgMult:1.1,rateMod:-2}
     ]}
   },
   slow:{

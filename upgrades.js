@@ -121,9 +121,9 @@ function doUpgrade(){
     if(coins<cost) return;
     coins-=cost;
     t.level++;
-    t.dmg*=1.25;
-    t.range+=8;
-    t.rate=Math.max(10,t.rate-3);
+    t.dmg*=1.12;
+    t.range+=6;
+    t.rate=Math.max(10,t.rate-2);
   } else if(t.path && t.level<5){
     // Continue chosen path
     var pLvl=t.level-1;
