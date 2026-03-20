@@ -6,7 +6,6 @@ function generateWave(w){
   else if(w<=6) count=3+w;                      // 7,8,9
   else if(w<=10) count=2+w+Math.floor(w/2);     // 11-17
   else count=Math.floor(17+(w-10)*3.5);          // 20,24,27,31,34,38,41,45,48,52...
-  // Smooth linear growth ~3.5 per wave from w11 onwards
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -19,57 +18,74 @@ function generateWave(w){
       else if(r<0.3) type='swarm';
       else if(r<0.38) type='healer';
     } else if(w<=8){
-      if(r<0.15) type='fast';
-      else if(r<0.25) type='swarm';
-      else if(r<0.32) type='healer';
-      else if(r<0.4) type='regen';
-      else if(r<0.5) type='tank';
-      else if(r<0.57) type='shield';
+      if(r<0.12) type='fast';
+      else if(r<0.22) type='swarm';
+      else if(r<0.29) type='healer';
+      else if(r<0.37) type='regen';
+      else if(r<0.47) type='tank';
+      else if(r<0.54) type='shield';
+      else if(r<0.60) type='ghost';
     } else if(w<=12){
-      if(r<0.1) type='fast';
-      else if(r<0.2) type='swarm';
-      else if(r<0.27) type='healer';
-      else if(r<0.35) type='regen';
-      else if(r<0.48) type='tank';
-      else if(r<0.58) type='shield';
-      else if(r<0.65) type='dodge';
+      if(r<0.08) type='fast';
+      else if(r<0.16) type='swarm';
+      else if(r<0.22) type='healer';
+      else if(r<0.30) type='regen';
+      else if(r<0.42) type='tank';
+      else if(r<0.52) type='shield';
+      else if(r<0.60) type='dodge';
+      else if(r<0.68) type='ghost';
+      else if(r<0.74) type='splitter';
     } else if(w<=18){
-      // Gradual ramp — more elites, less basic
       if(r<0.04) type='basic';
-      else if(r<0.10) type='fast';
-      else if(r<0.18) type='swarm';
-      else if(r<0.24) type='healer';
-      else if(r<0.34) type='regen';
-      else if(r<0.48) type='tank';
-      else if(r<0.60) type='shield';
-      else type='dodge';
+      else if(r<0.09) type='fast';
+      else if(r<0.15) type='swarm';
+      else if(r<0.21) type='healer';
+      else if(r<0.30) type='regen';
+      else if(r<0.42) type='tank';
+      else if(r<0.52) type='shield';
+      else if(r<0.60) type='dodge';
+      else if(r<0.68) type='ghost';
+      else if(r<0.76) type='splitter';
+      else if(r<0.82) type='mega';
     } else {
       // Post-18: full elites
-      if(r<0.06) type='fast';
-      else if(r<0.12) type='swarm';
-      else if(r<0.18) type='healer';
-      else if(r<0.30) type='regen';
-      else if(r<0.46) type='tank';
-      else if(r<0.62) type='shield';
-      else type='dodge';
+      if(r<0.05) type='fast';
+      else if(r<0.10) type='swarm';
+      else if(r<0.16) type='healer';
+      else if(r<0.26) type='regen';
+      else if(r<0.38) type='tank';
+      else if(r<0.48) type='shield';
+      else if(r<0.56) type='dodge';
+      else if(r<0.64) type='ghost';
+      else if(r<0.74) type='splitter';
+      else if(r<0.84) type='mega';
     }
 
     q.push(type);
   }
 
-  // Add bosses at the end — number scales gradually with wave
+  // Bosses at the end
   var numBosses=0;
   if(w>=5) numBosses=1;
   if(w>=8) numBosses=2;
   if(w>=12) numBosses=3;
   if(w>=16) numBosses=4;
-  if(w>=20) numBosses=5;
-  if(w>=25) numBosses=6+Math.floor((w-25)/3);
-  // Only on boss waves (every 3 from w5, every 2 from w11, every wave from w20)
+  if(w>=25) numBosses=5+Math.floor((w-25)/3);
   var bossInterval=w>=20?1:(w>=11?2:3);
-  if(w%bossInterval!==0) numBosses=Math.max(0,numBosses-2); // fewer on non-boss waves
+  if(w%bossInterval!==0) numBosses=Math.max(0,numBosses-2);
   for(var b=0;b<numBosses&&b<q.length;b++){
     q[q.length-1-b]='boss';
+  }
+
+  // WAVE 20 FINAL BOSS — the Overlord
+  if(w===20){
+    q.push('mega');q.push('mega');q.push('mega');
+    q.push('finalboss');
+  }
+
+  // Post-20 bonus bosses every 5 waves
+  if(w>20&&w%5===0){
+    q.push('finalboss');
   }
 
   return q;
@@ -81,9 +97,10 @@ function startWave(){
   spawnQueue=generateWave(wave);
   spawnTimer=0;waveActive=true;
   sfxWave();
-  waveBanner.textContent='\u26A0 WAVE '+wave+' INCOMING';
+  if(wave===20) waveBanner.textContent='\u2620 FINAL WAVE \u2620 THE OVERLORD APPROACHES';
+  else waveBanner.textContent='\u26A0 WAVE '+wave+' INCOMING';
   waveBanner.classList.add('show');
-  setTimeout(function(){waveBanner.classList.remove('show');},1500);
+  setTimeout(function(){waveBanner.classList.remove('show');},wave===20?2500:1500);
 }
 
 function spawnEnemy(type){
@@ -106,7 +123,7 @@ function spawnEnemy(type){
     shieldHp:def.shield?def.shield*hpScale:0,maxShield:def.shield?def.shield*hpScale:0,
     wobble:Math.random()*Math.PI*2,
     trailTimer:0,
-    stunTimer:0,marked:0,spreadPoison:false
+    stunTimer:0,stunImmune:0,marked:0,spreadPoison:false
   });
 }
 

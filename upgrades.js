@@ -44,12 +44,12 @@ function showUpgrade(tIdx){
     pathABtn.style.borderColor=def.color;
     pathBBtn.style.borderColor=def.color;
     upPathsDiv.style.display='block';
-  } else if(t.path && t.level<4){
+  } else if(t.path && t.level<5){
     var pLvl=t.level-1;
     var pDef=pathData[t.path];
     if(pLvl>=0&&pLvl<pDef.levels.length){
       var cost=pDef.levels[pLvl].cost;
-      var isUltimate=pLvl===2;
+      var isUltimate=pLvl===3;
       upLevel.textContent=isUltimate?'ULTIMATE':pDef.name+' '+(pLvl+1)+' \u2192 '+(pLvl+2);
       upBtn.textContent=(isUltimate?'\u2B50 ':'')+'Upgrade ('+cost+')';
       upBtn.classList.remove('disabled');
@@ -124,7 +124,7 @@ function doUpgrade(){
     t.dmg*=1.25;
     t.range+=8;
     t.rate=Math.max(10,t.rate-3);
-  } else if(t.path && t.level<4){
+  } else if(t.path && t.level<5){
     // Continue chosen path
     var pLvl=t.level-1;
     var pDef=PATHS[t.type][t.path];

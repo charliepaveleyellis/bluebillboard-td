@@ -65,7 +65,7 @@ function updateTowers(){
         else if(e.shieldHp&&e.shieldHp>0){var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;}
         if(e.marked) dmg*=(1+e.marked);
         e.hp-=dmg;
-        if(t.stun) e.stunTimer=Math.max(e.stunTimer||0,t.stun);
+        if(t.stun&&!(e.stunImmune>0)) {e.stunTimer=Math.max(e.stunTimer||0,t.stun);e.stunImmune=t.stun+120;}
         lightningArcs.push({x1:t.x,y1:t.y,x2:e.x,y2:e.y,life:6});
         particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-2,life:8,size:2,color:COL.purple});
         hitCount++;
@@ -218,7 +218,7 @@ function updateBullets(){
         // Slow on hit (basic overcharge path)
         if(b.slow) e.slowTimer=Math.max(e.slowTimer,60);
         // Stun on hit
-        if(b.stun) e.stunTimer=Math.max(e.stunTimer||0,b.stun);
+        if(b.stun&&!(e.stunImmune>0)){e.stunTimer=Math.max(e.stunTimer||0,b.stun);e.stunImmune=b.stun+120;}
         if(b.splash>0){
           for(var k=0;k<enemies.length;k++){
             if(k===j) continue;
@@ -292,6 +292,8 @@ function updateEnemies(){
   for(var i=enemies.length-1;i>=0;i--){
     var e=enemies[i];
 
+    // Stun immunity countdown
+    if(e.stunImmune>0) e.stunImmune--;
     // Stun handling
     if(e.stunTimer&&e.stunTimer>0){
       e.stunTimer--;
@@ -344,6 +346,33 @@ function updateEnemies(){
           }
         }
       }
+      // Splitter: spawn smaller enemies on death
+      if(e.type==='splitter'){
+        var splitDef=ENEMY_DEFS.swarm;
+        var spdBoost=1;if(wave>10)spdBoost=1+Math.min((wave-10)*0.06,1.0);
+        for(var sp2=0;sp2<2;sp2++){
+          enemies.push({
+            t:Math.max(0,e.t-0.01+sp2*0.02),type:'swarm',
+            hp:splitDef.hp*(1+(wave-1)*0.1),maxHp:splitDef.hp*(1+(wave-1)*0.1),
+            speed:splitDef.speed*spdBoost*1.2,baseSpeed:splitDef.speed*spdBoost*1.2,
+            size:splitDef.size,color:'#ff6600',reward:splitDef.reward,
+            slowTimer:0,poisonTimer:0,x:e.x+(sp2*8-4),y:e.y,
+            healRate:0,dodgeChance:0,regenRate:0,shieldHp:0,maxShield:0,
+            wobble:Math.random()*Math.PI*2,trailTimer:0,
+            stunTimer:0,stunImmune:0,marked:0,spreadPoison:false
+          });
+        }
+      }
+      // Finalboss: big explosion on death
+      if(e.type==='finalboss'){
+        for(var fb=0;fb<40;fb++){
+          var fba=(fb/40)*Math.PI*2+Math.random()*0.2;
+          particles.push({x:e.x,y:e.y,vx:Math.cos(fba)*(3+Math.random()*6),vy:Math.sin(fba)*(3+Math.random()*6),
+            life:30+Math.random()*15,size:2+Math.random()*4,color:fb%3===0?'#ff0044':fb%3===1?COL.gold:'#ff8800'});
+        }
+        particles.push({x:e.x,y:e.y,vx:0,vy:0,life:30,size:8,color:'#ff0044',ring:true,noGravity:true});
+        screenFlash=12;shakeX=(Math.random()-0.5)*15;shakeY=(Math.random()-0.5)*15;
+      }
       // Digital dissolve — 20 scattered tiny square particles
       for(var k=0;k<20;k++){
         var a=(k/20)*Math.PI*2+Math.random()*0.3;
@@ -353,7 +382,6 @@ function updateEnemies(){
       // 2 expanding neon ring particles
       particles.push({x:e.x,y:e.y,vx:0,vy:0,life:18,size:2,color:e.color,ring:true,noGravity:true});
       particles.push({x:e.x,y:e.y,vx:0,vy:0,life:12,size:4,color:COL.white,ring:true,noGravity:true});
-      // Brief "DELETED" text flash (via extra particle used as marker — handled in draw)
       enemies.splice(i,1);updateHUD();
     }
   }
