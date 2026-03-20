@@ -27,20 +27,28 @@ var lightningArcs=[];
 
 function findTarget(t){
   var target=null;
+  var flyTarget=null;
   var mode=t.targetMode||'first';
   for(var j=0;j<enemies.length;j++){
     var e=enemies[j];
     var dx=e.x-t.x,dy=e.y-t.y;
-    if(Math.sqrt(dx*dx+dy*dy)>=t.range) continue;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>=t.range) continue;
     if(e.flying&&!t.canHitFlying) continue;
     if(!isEnemyRevealed(e)) continue;
+    // Flying enemies: track separately, prioritize closest to base
+    if(e.flying&&t.canHitFlying){
+      if(!flyTarget||dist<Math.sqrt((flyTarget.x-t.x)*(flyTarget.x-t.x)+(flyTarget.y-t.y)*(flyTarget.y-t.y))) flyTarget=e;
+      continue;
+    }
     if(!target){target=e;continue;}
     if(mode==='first'&&e.t>target.t) target=e;
     else if(mode==='last'&&e.t<target.t) target=e;
     else if(mode==='strong'&&e.hp>target.hp) target=e;
     else if(mode==='weak'&&e.hp<target.hp) target=e;
   }
-  return target;
+  // Always prioritize flying enemies if tower can hit them
+  return flyTarget||target;
 }
 
 function findEnemiesInRange(x,y,range){
