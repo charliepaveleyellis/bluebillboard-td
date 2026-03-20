@@ -228,11 +228,11 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:30,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
+  basic: {cost:30,range:82,rate:22,dmg:1.1,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
   splash:{cost:150,range:90,rate:42,dmg:4.0,color:COL.neonRed,name:'Cannon',splash:55,upgCost:100},
   sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
-  poison:{cost:75,range:85,rate:26,dmg:0.7,color:COL.neonGreen,name:'Poison',splash:0,poison:5,upgCost:55},
+  poison:{cost:75,range:90,rate:22,dmg:1.0,color:COL.neonGreen,name:'Poison',splash:0,poison:6,upgCost:55},
   chain: {cost:275,range:95,rate:38,dmg:3.0,color:COL.purple,name:'Tesla',splash:0,chain:4,upgCost:180,canHitFlying:true},
   rapid: {cost:50,range:80,rate:5,dmg:0.55,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
@@ -282,16 +282,16 @@ var PATHS={
   },
   poison:{
     A:{name:'Plague',icon:'\u2623',levels:[
-      {cost:85,desc:'Spreads on kill',spreadPoison:true},
-      {cost:120,desc:'Stronger DOT',poisonMult:1.5,spreadPoison:true},
-      {cost:200,desc:'+DOT +Range',poisonMult:1.3,rangeMod:12},
-      {cost:500,desc:'PANDEMIC',poisonAura:55,poisonMult:1.5}
+      {cost:80,desc:'Spreads on kill +DMG',spreadPoison:true,dmgMult:1.2},
+      {cost:115,desc:'Stronger DOT +Range',poisonMult:1.8,spreadPoison:true,rangeMod:10},
+      {cost:190,desc:'+DOT +DMG',poisonMult:1.5,dmgMult:1.3},
+      {cost:480,desc:'PANDEMIC',poisonAura:65,poisonMult:2,dmgMult:1.3}
     ]},
     B:{name:'Acid',icon:'\u2620',levels:[
-      {cost:85,desc:'Breaks shields',armorBreak:true,poisonMult:1.3},
-      {cost:120,desc:'Stronger acid',armorBreak:true,poisonMult:1.5},
-      {cost:200,desc:'+DMG +DOT',dmgMult:1.3,poisonMult:1.3},
-      {cost:500,desc:'DISSOLVE',poisonMult:2,dmgMult:1.5}
+      {cost:80,desc:'Breaks shields +DMG',armorBreak:true,dmgMult:1.3,poisonMult:1.3},
+      {cost:115,desc:'Stronger acid +DOT',armorBreak:true,poisonMult:1.8},
+      {cost:190,desc:'+DMG +DOT +Range',dmgMult:1.4,poisonMult:1.5,rangeMod:10},
+      {cost:480,desc:'DISSOLVE',poisonMult:2.5,dmgMult:1.8}
     ]}
   },
   sniper:{
@@ -310,10 +310,10 @@ var PATHS={
   },
   splash:{
     A:{name:'Megablast',icon:'\u2738',levels:[
-      {cost:160,desc:'Bigger boom +DMG',splashMod:15,dmgMult:1.3},
-      {cost:240,desc:'Larger radius',splashMod:20,dmgMult:1.2},
-      {cost:380,desc:'+Blast +DMG',splashMod:15,dmgMult:1.3},
-      {cost:900,desc:'NUCLEAR',splashMod:30,dmgMult:1.5}
+      {cost:160,desc:'Bigger boom +DMG',splashMod:20,dmgMult:1.4},
+      {cost:240,desc:'Larger radius +DMG',splashMod:25,dmgMult:1.3},
+      {cost:380,desc:'+Blast +DMG +Speed',splashMod:20,dmgMult:1.4,rateMult:0.85},
+      {cost:900,desc:'NUCLEAR',splashMod:40,dmgMult:1.8,rateMult:0.8}
     ]},
     B:{name:'Napalm',icon:'\u2668',levels:[
       {cost:160,desc:'Burns ground 2s',burn:120,burnDmg:0.025},
@@ -324,10 +324,10 @@ var PATHS={
   },
   chain:{
     A:{name:'Overload',icon:'\u2607',levels:[
-      {cost:220,desc:'+1 Target +DMG',chainMod:1,dmgMult:1.3},
-      {cost:320,desc:'+2 Targets',chainMod:2,dmgMult:1.2},
-      {cost:500,desc:'+DMG +Speed',dmgMult:1.3,rateMult:0.85},
-      {cost:1200,desc:'THUNDERSTORM',chainMod:999,dmgMult:1.4,rateMult:0.75}
+      {cost:220,desc:'+2 Targets +DMG',chainMod:2,dmgMult:1.3},
+      {cost:320,desc:'+3 Targets +Speed',chainMod:3,dmgMult:1.2,rateMult:0.8},
+      {cost:500,desc:'All in range +DMG',chainMod:999,dmgMult:1.4,rateMult:0.8},
+      {cost:1200,desc:'THUNDERSTORM',dmgMult:1.5,rateMult:0.6,rangeMod:20}
     ]},
     B:{name:'EMP',icon:'\u2300',levels:[
       {cost:220,desc:'Stun 0.5s',stun:30,chainMod:1},
