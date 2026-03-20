@@ -124,13 +124,13 @@ function spawnEnemy(type){
   var def=ENEMY_DEFS[type];
   // HP scales gently to w10, ramps after, exponential late game
   var hpScale;
-  if(wave<=10) hpScale=1+(wave-1)*0.1;                // 1.0 – 1.9
-  else if(wave<=15) hpScale=1.9+(wave-10)*0.35;       // 2.25 – 3.65
-  else if(wave<=20) hpScale=3.65+(wave-15)*0.6;       // 4.25 – 6.65
-  else hpScale=6.65*Math.pow(1.15,wave-20);           // exponential: ~7.6, ~8.8, ~10.1...
-  // Speed boost: ramps to 50% by w15, 80% by w20, caps at 100%
+  if(wave<=10) hpScale=1+(wave-1)*0.08;               // 1.0 – 1.72
+  else if(wave<=15) hpScale=1.72+(wave-10)*0.28;      // 2.0 – 3.12
+  else if(wave<=20) hpScale=3.12+(wave-15)*0.45;      // 3.57 – 5.37
+  else hpScale=5.37*Math.pow(1.12,wave-20);           // softer exponential
+  // Speed boost: ramps slower, caps at 80%
   var spdBoost=1;
-  if(wave>10) spdBoost=1+Math.min((wave-10)*0.06,1.0);
+  if(wave>10) spdBoost=1+Math.min((wave-10)*0.04,0.8);
   enemies.push({
     t:0,type:type,hp:def.hp*hpScale,maxHp:def.hp*hpScale,
     speed:def.speed*spdBoost,baseSpeed:def.speed*spdBoost,size:def.size,color:def.color,

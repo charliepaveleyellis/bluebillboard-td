@@ -542,7 +542,7 @@ function updateSpawning(){
     if(lives>=waveLivesStart){bonusMult+=0.5;bonusParts.push('PERFECT +50%');}
     var waveTime=(frameCount-waveStartFrame);
     if(waveTime<200+wave*20){bonusMult+=0.25;bonusParts.push('FAST +25%');}
-    var waveBonus=wave<=10?(20+wave*8):(wave<=15?(20+wave*5):(20+wave*3));
+    var waveBonus=wave<=10?(25+wave*10):(wave<=15?(25+wave*7):(25+wave*4));
     waveBonus=Math.floor(waveBonus*bonusMult);
     coins+=waveBonus;updateHUD();
     if(bonusParts.length>0){

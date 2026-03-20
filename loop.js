@@ -97,7 +97,7 @@ function startGame(){
   initAudio();
   if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
 
-  coins=120;lives=15;score=0;wave=0;totalKills=0;
+  coins=150;lives=20;score=0;wave=0;totalKills=0;
   towers=[];enemies=[];bullets=[];particles=[];burnZones=[];floatingTexts=[];
   nextWavePreview=[];synergies=[];coldZones=[];
   spawnQueue=[];waveActive=false;waveCooldown=60;
