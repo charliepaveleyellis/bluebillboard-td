@@ -107,14 +107,42 @@ function endGame(){
   hud.classList.add('hidden');towerBar.classList.add('hidden');closeUpgrade();
 
   document.getElementById('finalScore').textContent=wave;
+  document.getElementById('endLabel').textContent='Waves Survived';
   document.getElementById('statsDisp').textContent=
     totalKills+' enemies defeated | '+towers.length+' towers built | Score: '+score;
+  document.getElementById('continueBtn').style.display='none';
+  document.getElementById('restartBtn').textContent='Try Again';
 
-  if(wave>=10) document.getElementById('endTitle').textContent='NETWORK SECURED!';
-  else if(wave>=6) document.getElementById('endTitle').textContent='WELL DEFENDED!';
+  if(wave>=15) document.getElementById('endTitle').textContent='SO CLOSE!';
+  else if(wave>=10) document.getElementById('endTitle').textContent='WELL DEFENDED!';
   else document.getElementById('endTitle').textContent='NETWORK BREACHED!';
 
   document.getElementById('endScreen').classList.remove('hidden');
+}
+
+function winGame(){
+  gameOver=true;running=false;
+  C.style.pointerEvents='none';
+  hud.classList.add('hidden');towerBar.classList.add('hidden');closeUpgrade();
+
+  document.getElementById('endTitle').textContent='NETWORK SECURED!';
+  document.getElementById('endLabel').textContent='You Won!';
+  document.getElementById('finalScore').textContent='WAVE 20';
+  document.getElementById('statsDisp').textContent=
+    totalKills+' enemies defeated | '+towers.length+' towers built | Score: '+score;
+  document.getElementById('continueBtn').style.display='inline-block';
+  document.getElementById('restartBtn').textContent='Quit';
+
+  document.getElementById('endScreen').classList.remove('hidden');
+}
+
+function continueGame(){
+  document.getElementById('endScreen').classList.add('hidden');
+  hud.classList.remove('hidden');towerBar.classList.remove('hidden');
+  C.style.pointerEvents='auto';
+  gameOver=false;running=true;
+  waveCooldown=90;
+  requestAnimationFrame(gameLoop);
 }
 
 // ─── BUTTON BINDING (after everything is defined) ──
@@ -122,6 +150,8 @@ document.getElementById('startBtn').ontouchend=function(){startGame();};
 document.getElementById('startBtn').onclick=function(){startGame();};
 document.getElementById('restartBtn').ontouchend=function(){startGame();};
 document.getElementById('restartBtn').onclick=function(){startGame();};
+document.getElementById('continueBtn').ontouchend=function(){continueGame();};
+document.getElementById('continueBtn').onclick=function(){continueGame();};
 
 // Fast forward button
 var ffBtn=document.getElementById('ffBtn');

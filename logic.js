@@ -384,6 +384,8 @@ function updateSpawning(){
     // Wave bonus coins taper off
     var waveBonus=wave<=10?(20+wave*8):(wave<=15?(20+wave*5):(20+wave*3));
     coins+=waveBonus;updateHUD();
+    // Win at wave 20
+    if(wave===20) winGame();
   }
 }
 
