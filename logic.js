@@ -119,7 +119,7 @@ function updateTowers(){
     if(t.poisonAura&&frameCount%10===0){
       var auraRange=findEnemiesInRange(t.x,t.y,t.poisonAura);
       for(var pa=0;pa<auraRange.length;pa++){
-        enemies[auraRange[pa]].poisonTimer=Math.max(enemies[auraRange[pa]].poisonTimer||0,30);
+        enemies[auraRange[pa]].poisonTimer=Math.max(enemies[auraRange[pa]].poisonTimer||0,9999);
         if(t.spreadPoison) enemies[auraRange[pa]].spreadPoison=true;
       }
       if(auraRange.length>0&&frameCount%20===0) particles.push({x:t.x,y:t.y,vx:0,vy:0,life:15,size:t.poisonAura/3,color:COL.neonGreen,ring:true,noGravity:true});
