@@ -232,7 +232,7 @@ var TOWER_DEFS={
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
   splash:{cost:150,range:85,rate:50,dmg:3.0,color:COL.neonRed,name:'Cannon',splash:45,upgCost:110},
   sniper:{cost:120,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90,canHitFlying:true},
-  poison:{cost:75,range:78,rate:30,dmg:0.5,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:55},
+  poison:{cost:75,range:85,rate:26,dmg:0.7,color:COL.neonGreen,name:'Poison',splash:0,poison:5,upgCost:55},
   chain: {cost:275,range:90,rate:45,dmg:2.2,color:COL.purple,name:'Tesla',splash:0,chain:3,upgCost:200,canHitFlying:true},
   rapid: {cost:50,range:72,rate:10,dmg:0.45,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };

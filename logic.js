@@ -390,7 +390,7 @@ function updateEnemies(){
 
     if(e.poisonTimer>0){
       e.poisonTimer--;
-      e.hp-=0.04;
+      e.hp-=0.07;
       if(frameCount%8===0) particles.push({x:e.x+Math.random()*6-3,y:e.y-e.size,vx:0,vy:-1,life:10,size:2,color:COL.neonGreen});
     }
 
