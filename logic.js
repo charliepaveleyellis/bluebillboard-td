@@ -65,7 +65,7 @@ function updateTowers(){
         else if(e.shieldHp&&e.shieldHp>0){var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;}
         if(e.marked) dmg*=(1+e.marked);
         e.hp-=dmg;
-        if(t.stun&&!(e.stunImmune>0)) {e.stunTimer=Math.max(e.stunTimer||0,t.stun);e.stunImmune=t.stun+120;}
+        if(t.stun&&!(e.stunImmune>0)&&!(e.stunTimer>0)) e.stunTimer=t.stun;
         lightningArcs.push({x1:t.x,y1:t.y,x2:e.x,y2:e.y,life:6});
         particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-2,life:8,size:2,color:COL.purple});
         hitCount++;
@@ -218,7 +218,7 @@ function updateBullets(){
         // Slow on hit (basic overcharge path)
         if(b.slow) e.slowTimer=Math.max(e.slowTimer,60);
         // Stun on hit
-        if(b.stun&&!(e.stunImmune>0)){e.stunTimer=Math.max(e.stunTimer||0,b.stun);e.stunImmune=b.stun+120;}
+        if(b.stun&&!(e.stunImmune>0)&&!(e.stunTimer>0)) e.stunTimer=b.stun;
         if(b.splash>0){
           for(var k=0;k<enemies.length;k++){
             if(k===j) continue;
@@ -292,14 +292,16 @@ function updateEnemies(){
   for(var i=enemies.length-1;i>=0;i--){
     var e=enemies[i];
 
-    // Stun immunity countdown
-    if(e.stunImmune>0) e.stunImmune--;
     // Stun handling
     if(e.stunTimer&&e.stunTimer>0){
       e.stunTimer--;
       if(frameCount%10===0) particles.push({x:e.x+(Math.random()-0.5)*8,y:e.y-e.size,vx:0,vy:-1,life:8,size:2,color:COL.purple});
+      // When stun ends, start immunity
+      if(e.stunTimer<=0) e.stunImmune=180;
       continue;
     }
+    // Stun immunity countdown (only ticks when NOT stunned)
+    if(e.stunImmune>0) e.stunImmune--;
 
     if(e.slowTimer>0){e.speed=e.baseSpeed*0.4;e.slowTimer--;}
     else e.speed=e.baseSpeed;
