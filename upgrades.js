@@ -50,9 +50,10 @@ function showUpgrade(tIdx){
     var pDef=pathData[t.path];
     if(pLvl>=0&&pLvl<pDef.levels.length){
       var cost=pDef.levels[pLvl].cost;
+      var lvlDef=pDef.levels[pLvl];
       var isUltimate=pLvl===3;
-      upLevel.textContent=isUltimate?'ULTIMATE':pDef.name+' '+(pLvl+1)+' \u2192 '+(pLvl+2);
-      upBtn.textContent=(isUltimate?'\u2B50 ':'')+'Upgrade ('+cost+')';
+      upLevel.textContent=isUltimate?'ULTIMATE':lvlDef.desc;
+      upBtn.textContent=(isUltimate?'\u2B50 ':'')+lvlDef.desc+' ('+cost+')';
       upBtn.classList.remove('disabled');
       upBtn.classList.toggle('disabled',coins<cost);
       upGeneric.style.display='block';
