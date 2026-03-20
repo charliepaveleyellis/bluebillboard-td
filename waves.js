@@ -25,7 +25,6 @@ function generateWave(w){
       else if(r<0.47) type='tank';
       else if(r<0.54) type='shield';
       else if(r<0.60) type='ghost';
-      else if(r<0.63) type='flying';
     } else if(w<=12){
       if(r<0.08) type='fast';
       else if(r<0.16) type='swarm';
@@ -36,8 +35,7 @@ function generateWave(w){
       else if(r<0.60) type='dodge';
       else if(r<0.68) type='ghost';
       else if(r<0.74) type='splitter';
-      else if(r<0.78) type='flying';
-      else if(r<0.82) type='camo';
+      else if(r<0.78) type='camo';
     } else if(w<=18){
       if(r<0.04) type='basic';
       else if(r<0.09) type='fast';
@@ -50,8 +48,7 @@ function generateWave(w){
       else if(r<0.68) type='ghost';
       else if(r<0.76) type='splitter';
       else if(r<0.82) type='mega';
-      else if(r<0.87) type='flying';
-      else if(r<0.92) type='camo';
+      else if(r<0.87) type='camo';
     } else {
       // Post-18: full elites
       if(r<0.05) type='fast';
@@ -64,8 +61,7 @@ function generateWave(w){
       else if(r<0.64) type='ghost';
       else if(r<0.74) type='splitter';
       else if(r<0.84) type='mega';
-      else if(r<0.89) type='flying';
-      else if(r<0.94) type='camo';
+      else if(r<0.89) type='camo';
     }
 
     q.push(type);
