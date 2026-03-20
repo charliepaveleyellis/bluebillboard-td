@@ -228,22 +228,22 @@ function buildDecorations(){
 
 // ─── TOWER / ENEMY DEFS ──────────────────────────
 var TOWER_DEFS={
-  basic: {cost:30,range:75,rate:26,dmg:0.8,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
+  basic: {cost:30,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
   splash:{cost:150,range:90,rate:42,dmg:4.0,color:COL.neonRed,name:'Cannon',splash:55,upgCost:100},
   sniper:{cost:120,range:9999,rate:120,dmg:12,color:COL.gold,name:'Sniper',splash:0,upgCost:85,canHitFlying:true},
   poison:{cost:75,range:85,rate:26,dmg:0.7,color:COL.neonGreen,name:'Poison',splash:0,poison:5,upgCost:55},
   chain: {cost:275,range:95,rate:38,dmg:3.0,color:COL.purple,name:'Tesla',splash:0,chain:4,upgCost:180,canHitFlying:true},
-  rapid: {cost:50,range:72,rate:10,dmg:0.4,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
+  rapid: {cost:50,range:80,rate:8,dmg:0.6,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
 
 var PATHS={
   basic:{
     A:{name:'Overcharge',icon:'\u26A1',levels:[
-      {cost:40,desc:'+DMG',dmgMult:1.15},
-      {cost:65,desc:'+DMG +Range',dmgMult:1.15,rangeMod:10},
-      {cost:110,desc:'+DMG',dmgMult:1.15},
-      {cost:280,desc:'PLASMA CANNON',dmgMult:1.15,pierce:true,addSplash:18}
+      {cost:40,desc:'+DMG',dmgMult:1.1},
+      {cost:65,desc:'+Range',rangeMod:10},
+      {cost:110,desc:'+DMG',dmgMult:1.1},
+      {cost:280,desc:'PLASMA CANNON',dmgMult:1.1,pierce:true,addSplash:15}
     ]},
     B:{name:'Twin Shot',icon:'\u2747',levels:[
       {cost:35,desc:'Double shot',multishot:2},
@@ -327,7 +327,7 @@ var PATHS={
       {cost:220,desc:'+1 Target +DMG',chainMod:1,dmgMult:1.3},
       {cost:320,desc:'+2 Targets',chainMod:2,dmgMult:1.2},
       {cost:500,desc:'+DMG +Speed',dmgMult:1.3,rateMult:0.85},
-      {cost:1200,desc:'THUNDERSTORM',chainMod:4,dmgMult:1.4,rateMult:0.75}
+      {cost:1200,desc:'THUNDERSTORM',chainMod:999,dmgMult:1.4,rateMult:0.75}
     ]},
     B:{name:'EMP',icon:'\u2300',levels:[
       {cost:220,desc:'Stun 0.5s',stun:30,chainMod:1},
