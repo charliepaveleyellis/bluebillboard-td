@@ -179,6 +179,7 @@ function toggleSpeed(e){
   else if(gameSpeed===3) gameSpeed=4;
   else if(gameSpeed===4) gameSpeed=5;
   else gameSpeed=1;
+  if(isMobile && gameSpeed>3) gameSpeed=1;
   ffDisp.textContent=gameSpeed+'x';
 }
 ffBtn.onclick=toggleSpeed;

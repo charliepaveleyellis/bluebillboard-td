@@ -5,7 +5,7 @@ function generateWave(w){
   if(w<=3) count=2+w;                           // 3,4,5
   else if(w<=6) count=3+w;                      // 7,8,9
   else if(w<=10) count=2+w+Math.floor(w/2);     // 11-17
-  else count=Math.floor(17+(w-10)*3.5);          // 20,24,27,31,34,38,41,45,48,52...
+  else count=Math.min(60, Math.floor(17+(w-10)*3.5));          // 20,24,27,31,34,38,41,45,48,52...
 
   var q=[];
   for(var i=0;i<count;i++){
@@ -117,6 +117,7 @@ function startWave(){
 }
 
 function spawnEnemy(type){
+  if(enemies.length>=80) return; // performance cap
   var def=ENEMY_DEFS[type];
   // HP scales gently to w10, ramps after, exponential late game
   var hpScale;

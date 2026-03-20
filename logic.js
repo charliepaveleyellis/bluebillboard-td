@@ -8,7 +8,7 @@ function spawnFloatText(x,y,text,color,big){
       ft.life=30;return;
     }
   }
-  if(floatingTexts.length>30) return;
+  if(floatingTexts.length>15) return;
   floatingTexts.push({x:x+(Math.random()-0.5)*10,y:y,text:''+text,color:color||'#fff',life:30,big:big||false});
 }
 
@@ -73,6 +73,7 @@ function fireProjectile(t,target){
 }
 
 function checkSynergies(){
+  if(frameCount%10!==0&&synergies.length>0) return; // only recheck every 10 frames
   synergies=[];coldZones=[];
   for(var i=0;i<towers.length;i++){towers[i]._synergyRate=false;towers[i]._synergyMark=0;}
   for(var i=0;i<towers.length;i++){
@@ -108,6 +109,8 @@ function checkSynergies(){
 }
 
 function updateTowers(){
+  // Cap bullets for performance
+  while(bullets.length>100) bullets.shift();
   checkSynergies();
   lightningArcs=[];
   for(var i=0;i<towers.length;i++){
@@ -317,7 +320,7 @@ function updateBullets(){
             }
           }
           // Napalm burn zone
-          if(b.burn) burnZones.push({x:b.x,y:b.y,life:b.burn,dmg:b.burnDmg,radius:b.splash});
+          if(b.burn&&burnZones.length<15) burnZones.push({x:b.x,y:b.y,life:b.burn,dmg:b.burnDmg,radius:b.splash});
           sfxExplosion();
           // Neon shockwave ring
           particles.push({x:b.x,y:b.y,vx:0,vy:0,life:20,size:3,color:COL.neonRed,ring:true,noGravity:true});
@@ -408,7 +411,7 @@ function updateEnemies(){
       e.t+=e.speed;
     }
 
-    if(e.healRate>0){
+    if(e.healRate>0 && enemies.length<50){
       for(var j=0;j<enemies.length;j++){
         if(j===i) continue;
         var dx=e.x-enemies[j].x,dy=e.y-enemies[j].y;

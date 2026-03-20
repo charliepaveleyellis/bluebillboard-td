@@ -6,7 +6,7 @@ iconWhite.src = 'icon-white.png';
 
 // ─── MOBILE / PERFORMANCE ────────────────────────
 var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-var MAX_PARTICLES = isMobile ? 80 : 200;
+var MAX_PARTICLES = isMobile ? 40 : 150;
 var shakeX = 0, shakeY = 0;
 var gridOffset = 0;
 
@@ -156,8 +156,8 @@ var COL={
 
 // ─── NEON GLOW HELPER ────────────────────────────
 function neonGlow(color, blur, fn){
-  var b = isMobile ? Math.floor(blur/2) : blur;
-  X.shadowColor=color; X.shadowBlur=b;
+  if(isMobile){fn();return;} // skip glow on mobile for performance
+  X.shadowColor=color; X.shadowBlur=blur;
   fn();
   X.shadowColor='transparent'; X.shadowBlur=0;
 }

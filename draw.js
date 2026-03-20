@@ -596,7 +596,7 @@ function drawEnemies(){
 
     // Trail particles
     e.trailTimer=(e.trailTimer||0)+1;
-    var trailFreq=e.type==='fast'?1:(isMobile?6:3);
+    var trailFreq=e.type==='fast'?3:(isMobile?10:5);
     if(e.trailTimer%trailFreq===0 && particles.length<MAX_PARTICLES){
       particles.push({x:e.x,y:e.y,vx:0,vy:0,life:10,size:2,color:e.color,noGravity:true});
     }
