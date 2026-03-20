@@ -171,6 +171,8 @@
 // ─── LOGO PRELOAD ────────────────────────────────
 var logoImg = new Image();
 logoImg.src = 'logo.png';
+var iconWhite = new Image();
+iconWhite.src = 'icon-white.png';
 
 // ─── MOBILE / PERFORMANCE ────────────────────────
 var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -343,9 +345,9 @@ function drawHex(cx,cy,r){
 
 // ─── PATH ─────────────────────────────────────────
 var PATH_REL=[
-  {x:0.5,y:-0.05},{x:0.5,y:0.08},{x:0.2,y:0.2},{x:0.15,y:0.35},
-  {x:0.45,y:0.45},{x:0.8,y:0.38},{x:0.85,y:0.55},{x:0.55,y:0.65},
-  {x:0.2,y:0.6},{x:0.15,y:0.75},{x:0.5,y:0.82},{x:0.5,y:0.95}
+  {x:0.5,y:-0.05},{x:0.5,y:0.07},{x:0.2,y:0.17},{x:0.15,y:0.31},
+  {x:0.45,y:0.40},{x:0.8,y:0.33},{x:0.85,y:0.48},{x:0.55,y:0.57},
+  {x:0.2,y:0.53},{x:0.15,y:0.66},{x:0.5,y:0.72},{x:0.5,y:0.84}
 ];
 
 function getPath(){
@@ -969,44 +971,44 @@ function drawPath(){
   X.stroke();
   X.setLineDash([]);X.globalAlpha=1;
 
-  // Billboard base at end — Blue Billboard digital screen
+  // Billboard screen at end
   var end=path[path.length-1];
   var bw=80,bh=50;
+  var bx=end.x-bw/2,by=end.y-bh/2;
 
-  // Dark screen body
-  X.fillStyle='rgba(0,10,30,0.95)';
-  X.fillRect(end.x-bw/2,end.y-bh/2,bw,bh);
+  // Screen body — dark with blue tint
+  X.fillStyle='rgba(0,8,24,0.95)';
+  X.fillRect(bx,by,bw,bh);
 
-  // Neon border glow
-  neonGlow(COL.bbBlue,12,function(){
-    X.strokeStyle=COL.bbBlue;X.lineWidth=2;
-    X.strokeRect(end.x-bw/2,end.y-bh/2,bw,bh);
-  });
+  // Screen content glow
+  var sg=X.createLinearGradient(bx,by,bx,by+bh);
+  sg.addColorStop(0,'rgba(46,163,242,0.12)');
+  sg.addColorStop(0.5,'rgba(46,163,242,0.06)');
+  sg.addColorStop(1,'rgba(46,163,242,0.12)');
+  X.fillStyle=sg;
+  X.fillRect(bx+2,by+2,bw-4,bh-4);
 
-  // Draw BB logo on the billboard
-  if(logoImg.complete && logoImg.naturalWidth>0){
-    var lw=50,lh=30;
-    X.drawImage(logoImg,end.x-lw/2,end.y-bh/2+4,lw,lh);
-  } else {
-    X.fillStyle=COL.white;X.font='bold 9px Courier New';X.textAlign='center';X.textBaseline='middle';
-    X.fillText('BLUE BILLBOARD',end.x,end.y-8);
+  // White billboard icon on the screen
+  if(iconWhite.complete && iconWhite.naturalWidth>0){
+    var ih=bh-8,iw=ih*(iconWhite.naturalWidth/iconWhite.naturalHeight);
+    X.drawImage(iconWhite,end.x-iw/2,by+(bh-ih)/2,iw,ih);
   }
 
-  // Holographic scan line over billboard
-  var scanY=end.y-bh/2+(frameCount%60)/60*bh;
+  // Holographic scan line
+  var scanY=by+(frameCount%60)/60*bh;
   X.strokeStyle='rgba(46,163,242,0.3)';X.lineWidth=1;
-  X.beginPath();X.moveTo(end.x-bw/2,scanY);X.lineTo(end.x+bw/2,scanY);X.stroke();
+  X.beginPath();X.moveTo(bx,scanY);X.lineTo(bx+bw,scanY);X.stroke();
 
-  // "DEFEND" text below logo
-  X.fillStyle=COL.bbBlue;X.font='bold 7px Courier New';X.textAlign='center';
-  X.fillText('DEFEND',end.x,end.y+bh/2-8);
+  // Neon border
+  neonGlow(COL.bbBlue,12,function(){
+    X.strokeStyle=COL.bbBlue;X.lineWidth=2;
+    X.strokeRect(bx,by,bw,bh);
+  });
 
-  // Lives bar — screen health
-  var lbW=60,lbH=5;
-  var lbY=end.y+bh/2-4;
+  // Lives bar at bottom of screen
+  var lbW=bw-8,lbH=5,lbY=by+bh-8;
   X.fillStyle='rgba(0,0,0,0.6)';
   X.fillRect(end.x-lbW/2,lbY,lbW,lbH);
-  // Gradient from BB blue to red based on lives
   var healthPct=lives/15;
   if(healthPct>0.5) X.fillStyle=COL.bbBlue;
   else if(healthPct>0.2) X.fillStyle=COL.gold;
