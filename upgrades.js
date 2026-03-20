@@ -30,8 +30,8 @@ function showUpgrade(tIdx){
 
   if(t.level===0){
     var cost=def.upgCost;
-    upLevel.textContent='Level 1 \u2192 2';
-    upBtn.textContent='Upgrade ('+cost+')';
+    upLevel.textContent='Systems Upgrade';
+    upBtn.textContent='Boost All Stats ('+cost+')';
     upBtn.classList.toggle('disabled',coins<cost);
     upGeneric.style.display='block';
   } else if(t.level===1 && !t.path){

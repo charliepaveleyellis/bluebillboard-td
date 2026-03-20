@@ -284,8 +284,8 @@ function updateBullets(){
         var dmg=b.dmg;
         // Marked bonus damage
         if(e.marked) dmg*=(1+e.marked);
-        // Armor break skips shields
-        if(b.armorBreak){/* skip shield */}
+        // Armor break or poison skips shields
+        if(b.armorBreak||b.poison){/* skip shield */}
         else if(e.shieldHp&&e.shieldHp>0){
           var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;
           // Shield break particles
