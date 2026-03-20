@@ -285,7 +285,6 @@ function drawTowerBase(t){
       particles.push({x:t.x+Math.cos(ringA)*(hexR+6),y:t.y+Math.sin(ringA)*(hexR+6),
         vx:0,vy:-0.5,life:12,size:2,color:COL.gold,noGravity:true});
     }
-    borderCol=COL.gold;
   }
 
   // Shadow — grows with level
@@ -382,13 +381,20 @@ function drawTowers(){
         }
         neonGlow(COL.bbBlue,6,function(){X.fillStyle=COL.white;X.beginPath();X.arc(0,-20,2,0,Math.PI*2);X.fill();});
       } else {
-        // Base/Overcharge — two barrels, thicker with level
-        var bw=2+Math.min(t.level,4)*0.4;
-        X.strokeStyle=t.level>=3?'#5599ff':COL.bbBlue;X.lineWidth=bw;
-        X.beginPath();X.moveTo(-4,-5);X.lineTo(-4,-22);X.stroke();
-        X.beginPath();X.moveTo(4,-5);X.lineTo(4,-22);X.stroke();
-        neonGlow(COL.bbBlue,6+t.level,function(){
-          X.fillStyle=COL.white;X.beginPath();X.arc(0,-22,2+t.level*0.3,0,Math.PI*2);X.fill();
+        // Overcharge path progression or base
+        var bLen=22+(t.path==='A'?t.level*2:0); // longer barrels for overcharge
+        var bw=2+(t.path==='A'?t.level*0.5:0);
+        var bCol=t.level>=4&&t.path==='A'?'#5599ff':COL.bbBlue;
+        X.strokeStyle=bCol;X.lineWidth=bw;
+        X.beginPath();X.moveTo(-4,-5);X.lineTo(-4,-bLen);X.stroke();
+        X.beginPath();X.moveTo(4,-5);X.lineTo(4,-bLen);X.stroke();
+        // Power Core glow at level 4
+        if(t.level>=4&&t.path==='A'){
+          X.fillStyle='rgba(85,153,255,0.2)';
+          X.beginPath();X.arc(0,-8,6,0,Math.PI*2);X.fill();
+        }
+        neonGlow(bCol,6+t.level,function(){
+          X.fillStyle=COL.white;X.beginPath();X.arc(0,-bLen,2+t.level*0.3,0,Math.PI*2);X.fill();
         });
       }
     }
@@ -416,18 +422,32 @@ function drawTowers(){
           X.fillRect(Math.cos(sa)*sr-1,-14+Math.sin(sa)*sr-1,2,2);
         }
       } else {
-        // Base freeze crystal — grows with level
+        var cSize=1+(t.path?t.level*0.1:t.level*0.05);
+        var isPerma=t.path==='A';
+        var isBliz=t.path==='B';
         neonGlow(COL.cyan,6,function(){
-          X.strokeStyle=COL.cyan;X.lineWidth=1.5;
+          X.strokeStyle=isPerma&&t.level>=4?'#aaffff':COL.cyan;
+          X.lineWidth=1.5+(isPerma?t.level*0.2:0);
           X.beginPath();X.moveTo(0,-24*cSize);X.lineTo(-7*cSize,-12);X.lineTo(0,-3);X.lineTo(7*cSize,-12);X.closePath();X.stroke();
-          X.globalAlpha=0.4;
-          X.beginPath();X.moveTo(0,-20*cSize);X.lineTo(-4*cSize,-12);X.lineTo(0,-6);X.lineTo(4*cSize,-12);X.closePath();X.stroke();
+          // Inner diamond — brighter for Permafrost
+          X.globalAlpha=isPerma?0.3+t.level*0.08:0.4;
+          X.fillStyle=isPerma&&t.level>=3?'rgba(170,255,255,0.3)':'rgba(0,255,255,0.15)';
+          X.beginPath();X.moveTo(0,-20*cSize);X.lineTo(-4*cSize,-12);X.lineTo(0,-6);X.lineTo(4*cSize,-12);X.closePath();X.fill();
           X.globalAlpha=1;
         });
-        for(var ic=0;ic<3+Math.min(t.level,3);ic++){
-          var ia=frameCount*0.06+ic*Math.PI*2/(3+Math.min(t.level,3));
+        // Frost ring for Arctic Core
+        if(isPerma&&t.level>=4){
+          X.strokeStyle='rgba(170,255,255,0.25)';X.lineWidth=1;
+          X.beginPath();X.arc(0,-12,12,0,Math.PI*2);X.stroke();
+        }
+        // Snow/ice particles — more and wider for Blizzard
+        var iceCount=isBliz?2+t.level:3;
+        var iceRadius=isBliz?8+t.level*2:10;
+        for(var ic=0;ic<iceCount;ic++){
+          var ia=frameCount*0.06+ic*Math.PI*2/iceCount;
           X.fillStyle='rgba(0,255,255,0.5)';
-          X.fillRect(Math.cos(ia)*10-1,-13+Math.sin(ia)*6-1,2,2);
+          var icSize=isBliz&&t.level>=3?2.5:2;
+          X.fillRect(Math.cos(ia)*iceRadius-icSize/2,-13+Math.sin(ia)*6-icSize/2,icSize,icSize);
         }
       }
     }
@@ -460,25 +480,35 @@ function drawTowers(){
           X.fillStyle='#fff';X.beginPath();X.arc(0,-22,2.5,0,Math.PI*2);X.fill();
         });
       } else if(t.path==='B'){
-        // Heavy Rounds — thick single barrel
-        var hw=2+t.level*0.5;
+        // Heavy Rounds → Railgun progression
+        var hw=2.5+t.level*0.5;
+        var hLen=22+t.level*2;
         X.strokeStyle='#6699ff';X.lineWidth=hw;
-        X.beginPath();X.moveTo(0,-5);X.lineTo(0,-22);X.stroke();
+        X.beginPath();X.moveTo(0,-3);X.lineTo(0,-hLen);X.stroke();
+        // Coils appear at level 3+
+        var numCoils=t.level>=4?2:(t.level>=3?1:0);
+        for(var rc=0;rc<numCoils;rc++){
+          var ry=-10-rc*6;
+          X.strokeStyle='rgba(100,150,255,0.4)';X.lineWidth=1;
+          X.beginPath();X.arc(0,ry,4+rc,0,Math.PI*2);X.stroke();
+        }
         neonGlow('#4488ff',6,function(){
-          X.fillStyle='#aaccff';X.beginPath();X.arc(0,-22,2,0,Math.PI*2);X.fill();
+          X.fillStyle='#aaccff';X.beginPath();X.arc(0,-hLen,2,0,Math.PI*2);X.fill();
         });
       } else {
-        // Base/Overdrive — spinning barrels, speed increases with level
-        var spin=frameCount*(0.15+t.level*0.05);
+        // Overdrive progression
+        var spinSpd=0.15+(t.path==='A'?t.level*0.08:0);
+        var spin=frameCount*spinSpd;
+        var barrelCol=t.level>=4&&t.path==='A'?'#ffaa66':(t.level>=3&&t.path==='A'?'#88aaff':COL.bbBlue);
         for(var b=0;b<3;b++){
           var ba=spin+b*Math.PI*2/3;
           var bx=Math.cos(ba)*3;
-          X.strokeStyle=COL.bbBlue;X.lineWidth=1.5;
+          X.strokeStyle=barrelCol;X.lineWidth=1.5;
           X.beginPath();X.moveTo(bx,-5);X.lineTo(bx,-20);X.stroke();
         }
-        if(t.level>=3){
-          X.fillStyle='rgba(46,163,242,0.15)';
-          X.beginPath();X.arc(0,-10,8,0,Math.PI*2);X.fill();
+        if(t.level>=3&&t.path==='A'){
+          X.fillStyle='rgba(255,170,100,'+(0.05+t.level*0.03)+')';
+          X.beginPath();X.arc(0,-12,7,0,Math.PI*2);X.fill();
         }
       }
     }
@@ -508,18 +538,35 @@ function drawTowers(){
         }
       }
       if(!(t.path&&t.level>=5)){
-        // Base/upgraded vial — grows with level
         var vs=1+t.level*0.06;
-        X.strokeStyle=t.path==='B'?'#aaff00':COL.neonGreen;X.lineWidth=1.5;
-        neonGlow(COL.neonGreen,6,function(){
+        var isPlague=t.path==='A';
+        var isAcid=t.path==='B';
+        var vialCol=isAcid?'#aadd00':COL.neonGreen;
+        X.strokeStyle=vialCol;X.lineWidth=1.5;
+        neonGlow(vialCol,6,function(){
           X.beginPath();X.moveTo(-2*vs,-18);X.lineTo(-2*vs,-10);X.lineTo(-5*vs,-6);X.lineTo(-5*vs,0);
           X.lineTo(5*vs,0);X.lineTo(5*vs,-6);X.lineTo(2*vs,-10);X.lineTo(2*vs,-18);X.closePath();X.stroke();
         });
-        X.fillStyle='rgba(0,255,102,0.3)';
+        X.fillStyle=isAcid?'rgba(170,221,0,0.35)':'rgba(0,255,102,0.3)';
         var liqH=Math.sin(frameCount*0.08)*2;
         X.fillRect(-4*vs,-5+liqH,8*vs,5-liqH);
+        // Plague: growing mist cloud
+        if(isPlague&&t.level>=3){
+          var mistR=4+t.level*2;
+          X.fillStyle='rgba(0,255,102,'+(0.04+t.level*0.02)+')';
+          X.beginPath();X.arc(0,-8,mistR,0,Math.PI*2);X.fill();
+        }
+        // Acid: bubbles
+        if(isAcid&&t.level>=3){
+          for(var bb=0;bb<t.level-1;bb++){
+            var by=-3-((frameCount*1.2+bb*15)%12);
+            X.fillStyle='rgba(170,221,0,0.5)';
+            X.beginPath();X.arc(-2+bb*2,by,1.2,0,Math.PI*2);X.fill();
+          }
+        }
+        // Drip
         var dripY=(frameCount*2)%20;
-        X.fillStyle=COL.neonGreen;X.globalAlpha=1-dripY/20;
+        X.fillStyle=vialCol;X.globalAlpha=1-dripY/20;
         X.fillRect(-1,dripY-1,2,3);X.globalAlpha=1;
       }
     }
@@ -549,17 +596,31 @@ function drawTowers(){
         X.strokeStyle='rgba(255,221,0,'+(1-scanR/15)*0.4+')';X.lineWidth=1;
         X.beginPath();X.arc(0,-24,scanR,0,Math.PI*2);X.stroke();
       } else {
-        // Base/upgrading sniper
+        var isAssassin=t.path==='A';
+        var isSpotter=t.path==='B';
         var barrelLen=32+Math.min(t.level,4)*2;
         X.strokeStyle=COL.gold;X.lineWidth=1.5+t.level*0.2;
         neonGlow(COL.gold,6,function(){
           X.beginPath();X.moveTo(0,-5);X.lineTo(0,-barrelLen);X.stroke();
         });
+        if(isSpotter&&t.level>=3){
+          // Small dish forming
+          X.strokeStyle=COL.gold;X.lineWidth=1.5;
+          X.beginPath();X.arc(0,-barrelLen-2,4+t.level-3,Math.PI+0.6,Math.PI*2-0.6);X.stroke();
+        }
+        // Scope
+        var scopeR=2+t.level*0.3;
         neonGlow('#ff0000',8,function(){
           X.fillStyle='#ff0000';
-          X.beginPath();X.arc(0,-barrelLen,2+t.level*0.2,0,Math.PI*2);X.fill();
+          X.beginPath();X.arc(0,-barrelLen,scopeR,0,Math.PI*2);X.fill();
         });
-        var lAlpha=0.15+Math.sin(frameCount*0.1)*0.1;
+        if(isAssassin&&t.level>=4){
+          // Crosshair forming
+          X.strokeStyle='rgba(255,0,0,0.3)';X.lineWidth=0.5;
+          X.beginPath();X.moveTo(-4,-barrelLen);X.lineTo(4,-barrelLen);X.stroke();
+          X.beginPath();X.moveTo(0,-barrelLen-4);X.lineTo(0,-barrelLen+4);X.stroke();
+        }
+        var lAlpha=0.1+Math.sin(frameCount*0.1)*0.08+(isAssassin?t.level*0.03:0);
         X.strokeStyle='rgba(255,0,0,'+lAlpha+')';X.lineWidth=0.5;
         X.beginPath();X.moveTo(0,-barrelLen);X.lineTo(0,-80);X.stroke();
       }
@@ -588,19 +649,30 @@ function drawTowers(){
           X.beginPath();X.arc(fx,fy,2+Math.random()*2,0,Math.PI*2);X.fill();
         }
       } else {
-        // Base/upgrading cannon
+        var isMega=t.path==='A';
+        var isNapalm=t.path==='B';
         var cw=2+Math.min(t.level,4)*0.3;
-        var cSpread=7+Math.min(t.level,4);
-        X.strokeStyle=COL.neonRed;X.lineWidth=cw;
-        neonGlow(COL.neonRed,6,function(){
+        var cSpread=7+Math.min(t.level,4)+(isMega?t.level:0);
+        var cannonCol=isNapalm&&t.level>=3?'#ff6600':COL.neonRed;
+        X.strokeStyle=cannonCol;X.lineWidth=cw;
+        neonGlow(cannonCol,6,function(){
           X.beginPath();X.moveTo(-3,-8);X.lineTo(-cSpread,-22);X.stroke();
           X.beginPath();X.moveTo(3,-8);X.lineTo(cSpread,-22);X.stroke();
         });
-        neonGlow(COL.neonRed,10,function(){
-          X.fillStyle=COL.neonRed;X.globalAlpha=0.6;
-          X.beginPath();X.arc(0,-22,3+t.level*0.3,0,Math.PI*2);X.fill();
+        // Mouth glow — bigger for Megablast
+        var mouthR=3+t.level*0.3+(isMega?t.level*0.5:0);
+        neonGlow(cannonCol,10,function(){
+          X.fillStyle=cannonCol;X.globalAlpha=0.6;
+          X.beginPath();X.arc(0,-22,mouthR,0,Math.PI*2);X.fill();
           X.globalAlpha=1;
         });
+        // Napalm: flame particles at tips
+        if(isNapalm&&t.level>=3){
+          for(var fl=0;fl<t.level-1;fl++){
+            X.fillStyle=fl%2?'#ff6600':'#ffaa00';
+            X.beginPath();X.arc((fl%2?-1:1)*cSpread,-22-Math.random()*4,1.5,0,Math.PI*2);X.fill();
+          }
+        }
       }
     }
     else if(t.type==='chain'){
