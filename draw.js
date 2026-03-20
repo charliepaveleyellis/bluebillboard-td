@@ -230,13 +230,27 @@ function drawDecorations(){
 }
 
 function drawTowerBase(t){
-  // Range circle — dashed neon ring
+  // Range circle — bright when selected, faint otherwise
+  var isSelected=(selectedTowerIdx>=0&&towers[selectedTowerIdx]===t);
   if(t.range<9000){
-    X.strokeStyle='rgba(46,163,242,0.06)';X.lineWidth=1;
-    X.setLineDash([6,6]);
-    X.lineDashOffset=-frameCount*0.5;
-    X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
-    X.setLineDash([]);
+    if(isSelected){
+      // Bright fill + solid ring when selected
+      X.fillStyle='rgba(46,163,242,0.06)';
+      X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.fill();
+      X.strokeStyle='rgba(46,163,242,0.4)';X.lineWidth=2;
+      X.setLineDash([8,4]);X.lineDashOffset=-frameCount*0.8;
+      X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
+      X.setLineDash([]);
+    } else {
+      X.strokeStyle='rgba(46,163,242,0.06)';X.lineWidth=1;
+      X.setLineDash([6,6]);X.lineDashOffset=-frameCount*0.5;
+      X.beginPath();X.arc(t.x,t.y,t.range,0,Math.PI*2);X.stroke();
+      X.setLineDash([]);
+    }
+  } else if(isSelected){
+    // Sniper: show "INFINITE" text instead of circle
+    X.fillStyle='rgba(255,221,0,0.3)';X.font='bold 8px Courier New';X.textAlign='center';
+    X.fillText('RANGE: INFINITE',t.x,t.y-28);
   }
 
   // Shadow
