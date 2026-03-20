@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>QR Code - Tower Defence</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#001a33;margin:0;">
+<div style="text-align:center;">
+<h1 style="color:#2ea3f2;font-family:Arial;margin-bottom:20px;">SCAN TO PLAY</h1>
+<div id="qr" style="background:#fff;padding:20px;display:inline-block;border-radius:12px;"></div>
+<p style="color:#d9d9d9;font-family:Arial;margin-top:16px;font-size:14px;">Powered by Blue Billboard</p>
+<p style="color:#666;font-family:Arial;margin-top:30px;font-size:12px;">Right-click the QR code → Save Image</p>
+</div>
+<script>
+new QRCode(document.getElementById("qr"), {
+  text: "https://charliepaveleyellis.github.io/bluebillboard-td/",
+  width: 300,
+  height: 300,
+  colorDark: "#003d7a",
+  colorLight: "#ffffff",
+  correctLevel: QRCode.CorrectLevel.H
+});
+</script>
+</body>
+</html>
