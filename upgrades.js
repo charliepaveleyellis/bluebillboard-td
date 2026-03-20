@@ -13,11 +13,12 @@ function updateTowerBar(){
 function showUpgrade(tIdx){
   var t=towers[tIdx];
   var def=TOWER_DEFS[t.type];
-  var sellPrice=Math.floor(def.cost*0.5 + (t.level>0?def.upgCost*0.3:0) + (t.path?def.upgCost*0.5*t.level:0));
+  var sellPrice=Math.floor((t.totalSpent||TOWER_DEFS[t.type].cost)*0.7);
   selectedTowerIdx=tIdx;
   var pathData=PATHS[t.type];
 
   upTitle.textContent=def.name+(t.path?' ['+pathData[t.path].name+']':'')+' Lv'+(t.level+1);
+  document.getElementById('targetBtn').textContent='Target: '+(({first:'First',last:'Last',strong:'Strongest',weak:'Weakest'})[t.targetMode||'first']);
 
   var upGeneric=document.getElementById('upGeneric');
   var upPathsDiv=document.getElementById('upPaths');
@@ -120,6 +121,7 @@ function doUpgrade(){
     var cost=def.upgCost;
     if(coins<cost) return;
     coins-=cost;
+    t.totalSpent=(t.totalSpent||0)+cost;
     t.level++;
     t.dmg*=1.12;
     t.range+=6;
@@ -132,6 +134,7 @@ function doUpgrade(){
     var cost=pDef.levels[pLvl].cost;
     if(coins<cost) return;
     coins-=cost;
+    t.totalSpent=(t.totalSpent||0)+cost;
     applyPathUpgrade(t, t.path, pLvl);
   } else {
     return;
@@ -153,6 +156,7 @@ function doPathUpgrade(pathKey){
   var cost=pDef.levels[0].cost;
   if(coins<cost) return;
   coins-=cost;
+  t.totalSpent=(t.totalSpent||0)+cost;
   applyPathUpgrade(t, pathKey, 0);
   sfxUpgrade();
   for(var i=0;i<12;i++){
@@ -175,6 +179,20 @@ pathBBtn.addEventListener('click',function(e){e.stopPropagation();doPathUpgrade(
 pathBBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();doPathUpgrade('B');},{passive:false});
 pathBBtn.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
 
+var targetModes=['first','last','strong','weak'];
+var targetLabels={first:'First',last:'Last',strong:'Strongest',weak:'Weakest'};
+var targetBtn=document.getElementById('targetBtn');
+function cycleTarget(){
+  if(selectedTowerIdx<0) return;
+  var t=towers[selectedTowerIdx];if(!t) return;
+  var idx=targetModes.indexOf(t.targetMode||'first');
+  t.targetMode=targetModes[(idx+1)%targetModes.length];
+  targetBtn.textContent='Target: '+targetLabels[t.targetMode];
+}
+targetBtn.addEventListener('click',function(e){e.stopPropagation();cycleTarget();});
+targetBtn.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault();cycleTarget();},{passive:false});
+targetBtn.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
+
 upClose.addEventListener('click',function(e){e.stopPropagation(); closeUpgrade();});
 upClose.addEventListener('touchend',function(e){e.stopPropagation();e.preventDefault(); closeUpgrade();},{passive:false});
 upClose.addEventListener('touchstart',function(e){e.stopPropagation();e.preventDefault();},{passive:false});
@@ -188,7 +206,7 @@ function doSell(){
   if(selectedTowerIdx<0||upgradePopup.style.pointerEvents==='none') return;
   var t=towers[selectedTowerIdx];if(!t) return;
   var def=TOWER_DEFS[t.type];
-  var sellPrice=Math.floor(def.cost*0.5 + (t.level>0?def.upgCost*0.3:0) + (t.path?def.upgCost*0.5*t.level:0));
+  var sellPrice=Math.floor((t.totalSpent||TOWER_DEFS[t.type].cost)*0.7);
   coins+=sellPrice;
   for(var i=0;i<8;i++){
     var a=(i/8)*Math.PI*2;

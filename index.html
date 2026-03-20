@@ -128,7 +128,7 @@
   <div class="tower-btn" data-type="poison"><div class="t-icon">~</div><div class="t-name">Poison</div><div class="t-cost">75</div></div>
   <div class="tower-btn" data-type="sniper"><div class="t-icon">+</div><div class="t-name">Sniper</div><div class="t-cost">120</div></div>
   <div class="tower-btn" data-type="splash"><div class="t-icon">#</div><div class="t-name">Cannon</div><div class="t-cost">150</div></div>
-  <div class="tower-btn" data-type="chain"><div class="t-icon">Z</div><div class="t-name">Tesla</div><div class="t-cost">200</div></div>
+  <div class="tower-btn" data-type="chain"><div class="t-icon">Z</div><div class="t-name">Tesla</div><div class="t-cost">275</div></div>
 </div>
 
 <!-- Drop confirm popup -->
@@ -149,7 +149,19 @@
     <div class="up-btn up-path" id="pathABtn" style="display:block;margin-top:4px;font-size:10px;"></div>
     <div class="up-btn up-path" id="pathBBtn" style="display:block;margin-top:4px;font-size:10px;"></div>
   </div>
+  <div class="up-btn" id="targetBtn" style="background:#224466;margin-top:4px;font-size:10px;">Target: First</div>
   <div class="up-btn" id="sellBtn" style="background:#ff3355;margin-top:4px;">Sell (25)</div>
+</div>
+
+<div id="towerInfo" style="position:fixed;z-index:8;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(0,10,30,0.95);border:2px solid #2ea3f2;border-radius:12px;padding:16px 20px;
+  color:#fff;text-align:center;display:none;min-width:200px;max-width:280px;
+  box-shadow:0 0 20px rgba(46,163,242,0.4);font-family:'Courier New',monospace;">
+  <div id="tiName" style="font-size:14px;color:#2ea3f2;font-weight:700;text-transform:uppercase;"></div>
+  <div id="tiStats" style="font-size:10px;color:#d9d9d9;margin:8px 0;line-height:1.6;"></div>
+  <div id="tiPathA" style="font-size:9px;color:#ffdd00;margin:4px 0;text-align:left;line-height:1.4;"></div>
+  <div id="tiPathB" style="font-size:9px;color:#00ffff;margin:4px 0;text-align:left;line-height:1.4;"></div>
+  <div style="font-size:8px;color:#666;margin-top:8px;">Release to dismiss</div>
 </div>
 
 <div id="waveBanner"></div>
@@ -158,6 +170,7 @@
   <img src="logo.png" alt="Blue Billboard" class="logo-img">
   <h1>Tower Defence</h1>
   <h2>Defend Blue Billboard's digital network from cyber attacks!<br>Tap to place towers. Tap a tower to upgrade it.<br>7 tower types. Survive the waves!</h2>
+  <div id="bestWaveStart" style="font-size:14px;color:#ffdd00;margin-bottom:10px;display:none;"></div>
   <button class="btn" id="startBtn">Defend!</button>
 </div>
 
@@ -167,19 +180,20 @@
   <div class="final-label" id="endLabel">Waves Survived</div>
   <div class="final-score" id="finalScore">0</div>
   <div class="stats" id="statsDisp"></div>
+  <div id="bestWaveEnd" style="font-size:14px;color:#ffdd00;margin-top:8px;display:none;"></div>
   <button class="btn" id="continueBtn" style="display:none;background:#006622;border-color:#33ff66;">Keep Going!</button>
   <button class="btn" id="restartBtn">Play Again</button>
 </div>
 
 <div class="powered-by">Powered by Blue Billboard</div>
 
-<script src="config.js?v=3"></script>
-<script src="state.js?v=3"></script>
-<script src="upgrades.js?v=3"></script>
-<script src="input.js?v=3"></script>
-<script src="waves.js?v=3"></script>
-<script src="draw.js?v=3"></script>
-<script src="logic.js?v=3"></script>
-<script src="loop.js?v=3"></script>
+<script src="config.js?v=4"></script>
+<script src="state.js?v=4"></script>
+<script src="upgrades.js?v=4"></script>
+<script src="input.js?v=4"></script>
+<script src="waves.js?v=4"></script>
+<script src="draw.js?v=4"></script>
+<script src="logic.js?v=4"></script>
+<script src="loop.js?v=4"></script>
 </body>
 </html>

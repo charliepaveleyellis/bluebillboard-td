@@ -231,9 +231,9 @@ var TOWER_DEFS={
   basic: {cost:30,range:80,rate:24,dmg:1.0,color:COL.bbBlue,name:'Blaster',splash:0,upgCost:25},
   slow:  {cost:60,range:80,rate:32,dmg:0.5,color:COL.cyan,name:'Freeze',splash:0,slow:0.6,upgCost:45},
   splash:{cost:150,range:85,rate:50,dmg:3.0,color:COL.neonRed,name:'Cannon',splash:45,upgCost:110},
-  sniper:{cost:120,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90},
+  sniper:{cost:120,range:9999,rate:140,dmg:8,color:COL.gold,name:'Sniper',splash:0,upgCost:90,canHitFlying:true},
   poison:{cost:75,range:78,rate:30,dmg:0.5,color:COL.neonGreen,name:'Poison',splash:0,poison:4,upgCost:55},
-  chain: {cost:200,range:85,rate:55,dmg:1.5,color:COL.purple,name:'Tesla',splash:0,chain:2,upgCost:150},
+  chain: {cost:275,range:90,rate:45,dmg:2.2,color:COL.purple,name:'Tesla',splash:0,chain:3,upgCost:200,canHitFlying:true},
   rapid: {cost:50,range:72,rate:10,dmg:0.45,color:'#4488ff',name:'Minigun',splash:0,upgCost:40}
 };
 
@@ -353,6 +353,13 @@ var ENEMY_DEFS={
   splitter:{hp:12,speed:0.0008,size:13,color:'#dd4400',reward:8,name:'Splitter',splits:2},
   mega:  {hp:35,speed:0.0005,size:16,color:'#ff2266',reward:15,name:'Mega',shield:10},
   boss:  {hp:50,speed:0.0005,size:18,color:'#cc00cc',reward:30,name:'Boss'},
-  finalboss:{hp:200,speed:0.0003,size:24,color:'#ff0044',reward:100,name:'OVERLORD',shield:50,regenRate:0.05,healRate:0.01}
+  finalboss:{hp:200,speed:0.0003,size:24,color:'#ff0044',reward:100,name:'OVERLORD',shield:50,regenRate:0.05,healRate:0.01},
+  flying:{hp:5,speed:0.0015,size:9,color:'#88ccff',reward:7,name:'Drone',flying:true},
+  camo:{hp:5,speed:0.0013,size:9,color:'#555577',reward:8,name:'Stealth',camo:true},
+  firewall:  {hp:60,speed:0.0004,size:18,color:'#ff6600',reward:40,name:'FIREWALL',shield:40},
+  rootkit:   {hp:30,speed:0.0006,size:16,color:'#44aa22',reward:35,name:'ROOTKIT'},
+  ransomware:{hp:40,speed:0.0007,size:16,color:'#ff2222',reward:45,name:'RANSOMWARE'},
+  trojan:    {hp:120,speed:0.0008,size:10,color:'#ff3355',reward:50,name:'TROJAN'},
+  worm:      {hp:50,speed:0.0006,size:15,color:'#aaff00',reward:40,name:'WORM'}
 };
 

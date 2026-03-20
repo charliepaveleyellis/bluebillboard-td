@@ -24,6 +24,19 @@ function isValidPlacement(px,py){
   return true;
 }
 
+var infoPanel=document.getElementById('towerInfo');
+var holdTimer=null;
+function showTowerInfo(type){
+  var def=TOWER_DEFS[type];
+  var pathData=PATHS[type];
+  document.getElementById('tiName').textContent=def.name+' ('+def.cost+' coins)';
+  document.getElementById('tiStats').textContent='DMG: '+def.dmg+' | Rate: '+def.rate+' | Range: '+(def.range>=9000?'Infinite':def.range);
+  document.getElementById('tiPathA').textContent=pathData.A.icon+' '+pathData.A.name+': '+pathData.A.levels.map(function(l){return l.desc;}).join(' \u2192 ');
+  document.getElementById('tiPathB').textContent=pathData.B.icon+' '+pathData.B.name+': '+pathData.B.levels.map(function(l){return l.desc;}).join(' \u2192 ');
+  infoPanel.style.display='block';
+}
+function hideTowerInfo(){if(infoPanel)infoPanel.style.display='none';if(holdTimer){clearTimeout(holdTimer);holdTimer=null;}}
+
 // Pending drop — waiting for confirm
 var pendingDrop=null; // {x, y, type}
 var dropPopup=document.getElementById('dropPopup');
@@ -60,7 +73,9 @@ function confirmDrop(){
     color:def.color,splash:def.splash||0,slow:def.slow||0,
     poison:def.poison||0,chain:def.chain||0,
     cooldown:0,angle:0,fireAnim:0,
-    path:null,multishot:0,pierce:false,armorBreak:false,stun:0,burn:0,burnDmg:0,crit:0,mark:0,spreadPoison:false,splashSlow:0,bonusDmgMark:0,slowDur:0,shatter:0,execute:0,markAll:false,poisonAura:0
+    path:null,multishot:0,pierce:false,armorBreak:false,stun:0,burn:0,burnDmg:0,crit:0,mark:0,spreadPoison:false,splashSlow:0,bonusDmgMark:0,slowDur:0,shatter:0,execute:0,markAll:false,poisonAura:0,
+    totalSpent:def.cost,
+    targetMode:'first'
   });
   sfxPlace();
   for(var i=0;i<10;i++){
@@ -100,6 +115,7 @@ for(var i=0;i<towerBtns.length;i++){
       var type=btn.dataset.type;
       var def=TOWER_DEFS[type];
       if(coins<def.cost) return;
+      holdTimer=setTimeout(function(){showTowerInfo(type);},500);
       closeUpgrade();
       var t=e.touches[0];
       dragTouchId=t.identifier;
@@ -121,6 +137,7 @@ for(var i=0;i<towerBtns.length;i++){
 
 // Track drag — touch (on window to catch moves everywhere)
 window.addEventListener('touchmove',function(e){
+  hideTowerInfo();
   if(!dragging||dragTouchId===null) return;
   e.preventDefault();
   for(var ti=0;ti<e.touches.length;ti++){
@@ -143,6 +160,7 @@ window.addEventListener('mousemove',function(e){
 
 // Drop — touch
 window.addEventListener('touchend',function(e){
+  hideTowerInfo();
   if(!dragging||dragTouchId===null) return;
   for(var ti=0;ti<e.changedTouches.length;ti++){
     if(e.changedTouches[ti].identifier===dragTouchId){
@@ -198,4 +216,6 @@ C.addEventListener('touchend',function(e){
   var t=e.changedTouches[0];
   handleTap(t.clientX,t.clientY);
 },{passive:true});
+
+window.addEventListener('touchend',hideTowerInfo);window.addEventListener('mouseup',hideTowerInfo);
 

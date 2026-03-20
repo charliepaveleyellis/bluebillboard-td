@@ -25,6 +25,7 @@ function generateWave(w){
       else if(r<0.47) type='tank';
       else if(r<0.54) type='shield';
       else if(r<0.60) type='ghost';
+      else if(r<0.63) type='flying';
     } else if(w<=12){
       if(r<0.08) type='fast';
       else if(r<0.16) type='swarm';
@@ -35,6 +36,8 @@ function generateWave(w){
       else if(r<0.60) type='dodge';
       else if(r<0.68) type='ghost';
       else if(r<0.74) type='splitter';
+      else if(r<0.78) type='flying';
+      else if(r<0.82) type='camo';
     } else if(w<=18){
       if(r<0.04) type='basic';
       else if(r<0.09) type='fast';
@@ -47,6 +50,8 @@ function generateWave(w){
       else if(r<0.68) type='ghost';
       else if(r<0.76) type='splitter';
       else if(r<0.82) type='mega';
+      else if(r<0.87) type='flying';
+      else if(r<0.92) type='camo';
     } else {
       // Post-18: full elites
       if(r<0.05) type='fast';
@@ -59,6 +64,8 @@ function generateWave(w){
       else if(r<0.64) type='ghost';
       else if(r<0.74) type='splitter';
       else if(r<0.84) type='mega';
+      else if(r<0.89) type='flying';
+      else if(r<0.94) type='camo';
     }
 
     q.push(type);
@@ -88,10 +95,20 @@ function generateWave(w){
     q.push('finalboss');
   }
 
+  // Mini-bosses every 5 waves
+  if(w===5) q.push('firewall');
+  if(w===10) q.push('rootkit');
+  if(w===15) q.push('ransomware');
+  if(w===20) q.push('trojan');
+  if(w===25) q.push('worm');
+
   return q;
 }
 
 function startWave(){
+  nextWavePreview=[];
+  waveLivesStart=lives;
+  waveStartFrame=frameCount;
   wave++;
   waveEl.textContent=wave;
   spawnQueue=generateWave(wave);
@@ -123,8 +140,18 @@ function spawnEnemy(type){
     shieldHp:def.shield?def.shield*hpScale:0,maxShield:def.shield?def.shield*hpScale:0,
     wobble:Math.random()*Math.PI*2,
     trailTimer:0,
-    stunTimer:0,stunImmune:0,marked:0,spreadPoison:false
+    stunTimer:0,stunImmune:0,marked:0,spreadPoison:false,
+    flying:!!def.flying,camo:!!def.camo
   });
+  if(def.flying){
+    var last=enemies[enemies.length-1];
+    last.x=Math.random()*C.width;
+    last.y=-20;
+    last.t=-1;
+  }
+  if(type==='ransomware') enemies[enemies.length-1].ransomHealTimer=600;
+  if(type==='rootkit') enemies[enemies.length-1].spawnTimer=0;
+  if(type==='worm') enemies[enemies.length-1].hasSplit=false;
 }
 
 function updateHUD(){

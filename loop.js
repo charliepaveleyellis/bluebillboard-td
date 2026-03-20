@@ -42,6 +42,7 @@ function gameLoop(){
   }
 
   drawTowers();
+  drawSynergies();
   // Draw ghost tower preview while dragging or pending confirm
   var ghost=dragging||pendingDrop;
   if(ghost){
@@ -64,7 +65,7 @@ function gameLoop(){
     else X.fillText('TAP PLACE TO CONFIRM',ghost.x,ghost.y-25);
     X.globalAlpha=1;
   }
-  drawEnemies();drawBullets();drawParticles();
+  drawEnemies();drawBullets();drawParticles();drawFloatingTexts();
 
   // Screen flash from explosions
   if(screenFlash>0){
@@ -72,6 +73,8 @@ function gameLoop(){
     X.fillRect(0,0,C.width,C.height);
     screenFlash--;
   }
+
+  drawWavePreview();
 
   X.restore();
 
@@ -81,15 +84,26 @@ function gameLoop(){
 // ─── START / END ──────────────────────────────────
 C.style.pointerEvents='none';
 
+function loadBestWave(){try{return parseInt(localStorage.getItem('bb_td_best_wave'))||0;}catch(e){return 0;}}
+function saveBestWave(w){try{var best=loadBestWave();if(w>best)localStorage.setItem('bb_td_best_wave',w);}catch(e){}}
+function showBestWave(){
+  var best=loadBestWave();
+  var el1=document.getElementById('bestWaveStart'),el2=document.getElementById('bestWaveEnd');
+  if(best>0){el1.textContent='BEST: Wave '+best;el1.style.display='block';if(el2){el2.textContent='BEST: Wave '+best;el2.style.display='block';}}
+  else{el1.style.display='none';if(el2)el2.style.display='none';}
+}
+
 function startGame(){
   initAudio();
   if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
 
   coins=120;lives=15;score=0;wave=0;totalKills=0;
-  towers=[];enemies=[];bullets=[];particles=[];burnZones=[];
+  towers=[];enemies=[];bullets=[];particles=[];burnZones=[];floatingTexts=[];
+  nextWavePreview=[];synergies=[];coldZones=[];
   spawnQueue=[];waveActive=false;waveCooldown=60;
   gameOver=false;selectedTower='basic';frameCount=0;gameSpeed=1;
   screenFlash=0;shakeX=0;shakeY=0;
+  waveLivesStart=0;waveStartFrame=0;
   dragging=null;closeDropConfirm();closeUpgrade();
   resize();
   buildDecorations();
@@ -117,6 +131,7 @@ function endGame(){
   else if(wave>=10) document.getElementById('endTitle').textContent='WELL DEFENDED!';
   else document.getElementById('endTitle').textContent='NETWORK BREACHED!';
 
+  saveBestWave(wave);showBestWave();
   document.getElementById('endScreen').classList.remove('hidden');
 }
 
@@ -133,6 +148,7 @@ function winGame(){
   document.getElementById('continueBtn').style.display='inline-block';
   document.getElementById('restartBtn').textContent='Quit';
 
+  saveBestWave(wave);showBestWave();
   document.getElementById('endScreen').classList.remove('hidden');
 }
 
@@ -160,9 +176,13 @@ function toggleSpeed(e){
   if(e) e.stopPropagation();
   if(gameSpeed===1) gameSpeed=2;
   else if(gameSpeed===2) gameSpeed=3;
+  else if(gameSpeed===3) gameSpeed=4;
+  else if(gameSpeed===4) gameSpeed=5;
   else gameSpeed=1;
   ffDisp.textContent=gameSpeed+'x';
 }
 ffBtn.onclick=toggleSpeed;
 ffBtn.ontouchend=function(e){e.preventDefault();e.stopPropagation();toggleSpeed();};
+
+showBestWave();
 

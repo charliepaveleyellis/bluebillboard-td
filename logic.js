@@ -1,13 +1,44 @@
 // ─── GAME LOGIC ───────────────────────────────────
 
+function spawnFloatText(x,y,text,color,big){
+  for(var i=0;i<floatingTexts.length;i++){
+    var ft=floatingTexts[i];
+    if(ft.life>20&&Math.abs(ft.x-x)<15&&Math.abs(ft.y-y)<15&&ft.color===color){
+      ft.text=''+(Math.floor(parseFloat(ft.text)+parseFloat(text)));
+      ft.life=30;return;
+    }
+  }
+  if(floatingTexts.length>30) return;
+  floatingTexts.push({x:x+(Math.random()-0.5)*10,y:y,text:''+text,color:color||'#fff',life:30,big:big||false});
+}
+
+function isEnemyRevealed(e){
+  if(!e.camo) return true;
+  if(e._revealFrame===frameCount) return e._revealed;
+  e._revealFrame=frameCount;
+  for(var i=0;i<towers.length;i++){
+    var dx=e.x-towers[i].x,dy=e.y-towers[i].y;
+    if(Math.sqrt(dx*dx+dy*dy)<towers[i].range){e._revealed=true;return true;}
+  }
+  e._revealed=false;return false;
+}
+
 var lightningArcs=[];
 
 function findTarget(t){
   var target=null;
+  var mode=t.targetMode||'first';
   for(var j=0;j<enemies.length;j++){
     var e=enemies[j];
     var dx=e.x-t.x,dy=e.y-t.y;
-    if(Math.sqrt(dx*dx+dy*dy)<t.range&&(target===null||e.t>target.t)) target=e;
+    if(Math.sqrt(dx*dx+dy*dy)>=t.range) continue;
+    if(e.flying&&!t.canHitFlying) continue;
+    if(!isEnemyRevealed(e)) continue;
+    if(!target){target=e;continue;}
+    if(mode==='first'&&e.t>target.t) target=e;
+    else if(mode==='last'&&e.t<target.t) target=e;
+    else if(mode==='strong'&&e.hp>target.hp) target=e;
+    else if(mode==='weak'&&e.hp<target.hp) target=e;
   }
   return target;
 }
@@ -33,7 +64,43 @@ function fireProjectile(t,target){
   return {fdx:fdx/fdist,fdy:fdy/fdist,spd:spd};
 }
 
+function checkSynergies(){
+  synergies=[];coldZones=[];
+  for(var i=0;i<towers.length;i++){towers[i]._synergyRate=false;towers[i]._synergyMark=0;}
+  for(var i=0;i<towers.length;i++){
+    for(var j=i+1;j<towers.length;j++){
+      var t1=towers[i],t2=towers[j];
+      var dx=t1.x-t2.x,dy=t1.y-t2.y;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      // Two Freeze towers nearby: cold zone
+      if(t1.type==='slow'&&t2.type==='slow'&&dist<80){
+        synergies.push({i1:i,i2:j,type:'cold'});
+        coldZones.push({x:(t1.x+t2.x)/2,y:(t1.y+t2.y)/2,radius:dist/2+20});
+      }
+      // Two Blasters nearby: +fire rate
+      if(t1.type==='basic'&&t2.type==='basic'&&dist<80){
+        synergies.push({i1:i,i2:j,type:'blaster'});
+        t1._synergyRate=true;t2._synergyRate=true;
+      }
+      // Spotter sniper near another sniper: auto-mark
+      if(t1.type==='sniper'&&t2.type==='sniper'&&dist<120){
+        if(t2.path==='B'){synergies.push({i1:i,i2:j,type:'spotter'});t1._synergyMark=0.15;}
+        if(t1.path==='B'){synergies.push({i1:i,i2:j,type:'spotter'});t2._synergyMark=0.15;}
+      }
+    }
+  }
+  // Cold zones slow enemies
+  for(var ci=0;ci<coldZones.length;ci++){
+    var cz=coldZones[ci];
+    for(var ei=0;ei<enemies.length;ei++){
+      var cdx=enemies[ei].x-cz.x,cdy=enemies[ei].y-cz.y;
+      if(Math.sqrt(cdx*cdx+cdy*cdy)<cz.radius) enemies[ei].slowTimer=Math.max(enemies[ei].slowTimer,10);
+    }
+  }
+}
+
 function updateTowers(){
+  checkSynergies();
   lightningArcs=[];
   for(var i=0;i<towers.length;i++){
     var t=towers[i];
@@ -47,6 +114,7 @@ function updateTowers(){
       if(auraRange.length>0&&frameCount%20===0) particles.push({x:t.x,y:t.y,vx:0,vy:0,life:15,size:t.poisonAura/3,color:COL.neonGreen,ring:true,noGravity:true});
     }
     t.cooldown--;
+    if(t._synergyRate&&t.cooldown>0) t.cooldown=Math.max(1,t.cooldown-1); // double cooldown tick
     if(t.cooldown>0) continue;
 
     var target=findTarget(t);
@@ -59,12 +127,14 @@ function updateTowers(){
       var inRange=findEnemiesInRange(t.x,t.y,t.range);
       var hitCount=0;
       for(var j=0;j<inRange.length&&hitCount<(t.chain||3);j++){
+        if(enemies[inRange[j]].flying&&!t.canHitFlying) continue;
         var e=enemies[inRange[j]];
         var dmg=t.dmg;
         if(t.armorBreak){/* skip shield */}
         else if(e.shieldHp&&e.shieldHp>0){var ab=Math.min(e.shieldHp,dmg);e.shieldHp-=ab;dmg-=ab;}
         if(e.marked) dmg*=(1+e.marked);
         e.hp-=dmg;
+        spawnFloatText(e.x,e.y-e.size,Math.ceil(dmg*10)/10,COL.purple,false);
         if(t.stun&&!(e.stunImmune>0)&&!(e.stunTimer>0)) e.stunTimer=t.stun;
         lightningArcs.push({x1:t.x,y1:t.y,x2:e.x,y2:e.y,life:6});
         particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*2,vy:-2,life:8,size:2,color:COL.purple});
@@ -108,6 +178,7 @@ function updateTowers(){
       else if(target.shieldHp&&target.shieldHp>0){var ab=Math.min(target.shieldHp,dmg);target.shieldHp-=ab;dmg-=ab;}
       if(target.marked) dmg*=(1+target.marked);
       target.hp-=dmg;
+      spawnFloatText(target.x,target.y-target.size,Math.ceil(dmg),COL.gold,!!t.crit);
       // Execute: instant kill below HP threshold
       if(t.execute&&target.hp>0&&target.hp/target.maxHp<=t.execute){
         target.hp=0;
@@ -115,6 +186,7 @@ function updateTowers(){
       }
       // Mark target
       if(t.mark) target.marked=Math.max(target.marked||0,t.mark);
+      if(t._synergyMark) target.marked=Math.max(target.marked||0,t._synergyMark);
       // Mark ALL enemies in range
       if(t.markAll){
         var markRange=findEnemiesInRange(t.x,t.y,t.range);
@@ -196,6 +268,7 @@ function updateBullets(){
           if(!b.pierce){bullets.splice(i,1);break;}
           else continue;
         }
+        if(e.camo&&!isEnemyRevealed(e)) continue;
         var dmg=b.dmg;
         // Marked bonus damage
         if(e.marked) dmg*=(1+e.marked);
@@ -210,6 +283,7 @@ function updateBullets(){
           }
         }
         e.hp-=dmg;
+        spawnFloatText(e.x,e.y-e.size,Math.ceil(dmg*10)/10,b.color,false);
         sfxHit();
         if(b.poison){
           e.poisonTimer=Math.max(e.poisonTimer||0,b.poison*30);
@@ -314,7 +388,16 @@ function updateEnemies(){
 
     if(e.regenRate>0&&e.hp<e.maxHp) e.hp=Math.min(e.maxHp,e.hp+e.regenRate);
 
-    e.t+=e.speed;
+    if(e.flying){
+      var endPt=posOnPath(1);
+      var fdx=endPt.x-e.x,fdy=endPt.y-e.y;
+      var fdist=Math.sqrt(fdx*fdx+fdy*fdy);
+      if(fdist<12){lives--;enemies.splice(i,1);updateHUD();if(lives<=0){endGame();return;}continue;}
+      e.x+=(fdx/fdist)*e.speed*600;
+      e.y+=(fdy/fdist)*e.speed*600;
+    } else {
+      e.t+=e.speed;
+    }
 
     if(e.healRate>0){
       for(var j=0;j<enemies.length;j++){
@@ -331,6 +414,43 @@ function updateEnemies(){
       if(navigator.vibrate) navigator.vibrate([60,30,60]);
       if(lives<=0){endGame();return;}
       continue;
+    }
+
+    // Rootkit: spawns minions every 180 frames
+    if(e.type==='rootkit'){
+      e.spawnTimer=(e.spawnTimer||0)+1;
+      if(e.spawnTimer>=180){
+        e.spawnTimer=0;
+        spawnEnemy('swarm');spawnEnemy('swarm');
+        particles.push({x:e.x,y:e.y,vx:0,vy:0,life:15,size:8,color:COL.neonGreen,ring:true,noGravity:true});
+      }
+    }
+    // Ransomware: heals to full if not killed in timer
+    if(e.type==='ransomware'){
+      if(e.ransomHealTimer>0) e.ransomHealTimer--;
+      if(e.ransomHealTimer===0&&e.hp>0){
+        e.hp=e.maxHp;e.ransomHealTimer=600;
+        spawnFloatText(e.x,e.y-e.size-10,'ENCRYPTED!','#ff2222',true);
+        for(var rk=0;rk<12;rk++) particles.push({x:e.x+(Math.random()-0.5)*20,y:e.y+(Math.random()-0.5)*20,vx:0,vy:-1.5,life:15,size:3,color:'#ff2222',noGravity:true});
+      }
+    }
+    // Worm: splits at 50% HP
+    if(e.type==='worm'&&!e.hasSplit&&e.hp<=e.maxHp*0.5){
+      e.hasSplit=true;
+      var spdB=1;if(wave>10)spdB=1+Math.min((wave-10)*0.06,1.0);
+      for(var ws=0;ws<3;ws++){
+        enemies.push({
+          t:Math.max(0,e.t-0.01+ws*0.015),type:'fast',
+          hp:e.maxHp*0.2,maxHp:e.maxHp*0.2,
+          speed:0.0012*spdB,baseSpeed:0.0012*spdB,size:8,color:'#aaff00',reward:8,
+          slowTimer:0,poisonTimer:0,x:e.x+(ws*10-10),y:e.y,
+          healRate:0,dodgeChance:0,regenRate:0,shieldHp:0,maxShield:0,
+          wobble:Math.random()*Math.PI*2,trailTimer:0,
+          stunTimer:0,stunImmune:0,marked:0,spreadPoison:false
+        });
+      }
+      for(var wsp=0;wsp<10;wsp++){var wspa=(wsp/10)*Math.PI*2;
+        particles.push({x:e.x,y:e.y,vx:Math.cos(wspa)*4,vy:Math.sin(wspa)*4,life:15,size:2,color:'#aaff00'});}
     }
 
     if(e.hp<=0){
@@ -411,9 +531,25 @@ function updateSpawning(){
     else if(wave<=15) waveCooldown=Math.max(60,120-(wave-10)*10);
     else if(wave<=20) waveCooldown=Math.max(35,60-(wave-15)*5);
     else waveCooldown=30;  // almost no breathing room
-    // Wave bonus coins taper off
+    var previewQ=generateWave(wave+1);
+    var typeCounts={};
+    for(var pi=0;pi<previewQ.length;pi++) typeCounts[previewQ[pi]]=(typeCounts[previewQ[pi]]||0)+1;
+    nextWavePreview=[];
+    for(var pt in typeCounts) nextWavePreview.push({type:pt,count:typeCounts[pt],def:ENEMY_DEFS[pt]});
+    // Bonus objectives
+    var bonusMult=1.0;
+    var bonusParts=[];
+    if(lives>=waveLivesStart){bonusMult+=0.5;bonusParts.push('PERFECT +50%');}
+    var waveTime=(frameCount-waveStartFrame);
+    if(waveTime<200+wave*20){bonusMult+=0.25;bonusParts.push('FAST +25%');}
     var waveBonus=wave<=10?(20+wave*8):(wave<=15?(20+wave*5):(20+wave*3));
+    waveBonus=Math.floor(waveBonus*bonusMult);
     coins+=waveBonus;updateHUD();
+    if(bonusParts.length>0){
+      waveBanner.textContent='WAVE '+wave+' CLEAR! '+bonusParts.join(' | ')+' (+'+waveBonus+')';
+      waveBanner.classList.add('show');
+      setTimeout(function(){waveBanner.classList.remove('show');},2500);
+    }
     // Win at wave 20
     if(wave===30) winGame();
   }
